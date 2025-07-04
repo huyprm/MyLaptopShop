@@ -1,0 +1,71 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: laptop-shop
+  flyway:
+    enabled: false
+  cache:
+    type: redis
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  mail:
+    host: ${MAIL_HOST}
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  docker:
+    compose:
+      enabled: false
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: swagger-uix.html
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+
+redis:
+  hostname: ${REDIS_HOST}
+  port: ${REDIS_PORT}
+  username: ${REDIS_USERNAME}
+  password: ${REDIS_PASSWORD}
+
+cloudinary:
+  cloud-name: ${CLOUD_NAME}
+  api-key: ${CLOUD_API_KEY}
+  api-secret: ${CLOUD_API_SECRET}
+
+jwt:
+  signer_key: ${JWT_SINGER_KEY}
+  access_expiration_time: ${JWT_ACCESS_TTL}
+  refresh_expiration_time: ${JWT_REFRESH_TTL}
+
+google:
+  client-id: ${CLIENT_ID}
+  client-secret: ${CLIENT_SECRET}
+
+
