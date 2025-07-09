@@ -61,7 +61,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public String refreshToken(HttpServletRequest request, HttpServletResponse response) throws KeyLengthException {
-        String refreshToken = revokeRefreshToken(request);
+        String refreshToken = fetchRefreshToken(request);
 
         String userId = verifyRefreshToken(refreshToken);
         if (userId != null){
@@ -72,6 +72,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             addRefreshTokenToCookie(response, newRefreshToken, JWT_REFRESH_TIME);
             saveRefreshTokenToRedis(newRefreshToken, user.getId());
+            revokeRefreshToken(refreshToken);
             return accessToken;
         }else {
             throw new AppException(ErrorCode.INVALID_TOKEN);
@@ -111,7 +112,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response) {
-        revokeRefreshToken(request);
+        String refreshToken = fetchRefreshToken(request);
+        revokeRefreshToken(refreshToken);
         addRefreshTokenToCookie(response, "", 0);
     }
 
@@ -254,7 +256,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .orElseThrow(() -> new AppException(ErrorCode.REVOKED_TOKEN));
     }
 
-    private String revokeRefreshToken(HttpServletRequest request) {
+    private String fetchRefreshToken(HttpServletRequest request) {
         String refreshToken = null;
 
         if (request.getCookies() != null) {
@@ -269,8 +271,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
-        redisTemplate.opsForHash().put("refresh_token:" + refreshToken, "revoked", "true");
         return refreshToken;
+    }
+
+    private void revokeRefreshToken(String refreshToken){
+        redisTemplate.opsForHash().put("refresh_token:" + refreshToken, "revoked", "true");
     }
 
     private Set<String> fetchPermission(User user){

@@ -3,6 +3,8 @@ package com.ptithcm2021.laptopshop.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "products")
 @Setter
@@ -18,19 +20,18 @@ public class Product {
     @Column(columnDefinition = "text")
     private String description;
 
-    private int soldQuantity;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brand_id")
+    @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "series_id")
+    @JoinColumn(name = "series_id", nullable = false)
     private Series series;
 
-    private double totalRating;
+    @OneToMany(mappedBy = "product")
+    private List<ProductDetail> productDetails;
 }

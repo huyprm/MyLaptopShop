@@ -9,6 +9,7 @@ import com.ptithcm2021.laptopshop.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -55,4 +56,14 @@ public class UserController {
         return ApiResponse.<String>builder().message("Update user avatar successful").build();
     }
 
+    @GetMapping("/fetchInfo")
+    public ApiResponse<UserResponse> fetchUserInfo(){
+        return  ApiResponse.<UserResponse>builder().data(userService.fetchInfoUser()).build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> deleteUser(@PathVariable String id){
+        userService.deleteUser(id);
+        return ApiResponse.<Void>builder().message("Delete user successful").build();
+    }
 }
