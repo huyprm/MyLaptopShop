@@ -82,6 +82,7 @@ public class UserServiceImpl implements UserService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .roles(Collections.singleton(role))
+                .email(request.getUsername())
                 .build();
 
         LoginIdentifier loginIdentifier = LoginIdentifier.builder()
@@ -122,7 +123,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse fetchInfoUser(String accessToken) {
+    public UserResponse fetchInfoUser() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
 
@@ -152,6 +153,17 @@ public class UserServiceImpl implements UserService {
 
         String url = fileService.uploadFile(avatar, user.getAvatar());
         user.setAvatar(url);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void deleteUser(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        user.setBlocked(true);
+        user.getLoginIdentifiers().clear();
+        log.info(String.valueOf(user.getLoginIdentifiers().getClass()));
         userRepository.save(user);
     }
 }

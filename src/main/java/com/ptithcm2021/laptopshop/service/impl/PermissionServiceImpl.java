@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,5 +35,10 @@ public class PermissionServiceImpl implements PermissionService {
                 log.info("Permission saved: {}", e.name());
             }
         }
+    }
+
+    @Override
+    public List<Permission> getPermissions() {
+        return permissionRepository.findAll();
     }
 }

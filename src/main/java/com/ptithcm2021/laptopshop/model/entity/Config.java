@@ -25,7 +25,7 @@ public class Config {
     private String nameConfig;
 
     @OneToOne()
-    @JoinColumn(name = "product_detail_id")
+    @JoinColumn(name = "product_detail_id", nullable = false)
     private ProductDetail productDetail;
 }
 

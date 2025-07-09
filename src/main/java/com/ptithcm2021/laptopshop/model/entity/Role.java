@@ -27,4 +27,5 @@ public class Role {
     )
     private Set<Permission> permission;
 
+    private String color;
 }
