@@ -15,4 +15,6 @@ public class ItemProductResponse {
     private double totalRating;
     private int soldQuantity;
     private String title;
+    private String warrantyProd;
+    private String itemImage;
 }

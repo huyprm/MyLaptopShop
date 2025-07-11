@@ -8,6 +8,7 @@ import com.ptithcm2021.laptopshop.model.dto.projection.ItemProductProjection;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductFilterRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.UpdateProductRequest;
+import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.Product.ItemProductResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.Product.ProductResponse;
 import com.ptithcm2021.laptopshop.model.entity.*;
@@ -19,12 +20,17 @@ import com.ptithcm2021.laptopshop.service.ProductService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,6 +51,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @CachePut(value = "products", key = "'product:' + #result.id")
     public ProductResponse createProduct(ProductRequest request) {
         Product product = productMapper.toProduct(request);
         Brand brand = brandRepository.findById(request.getBrandId())
@@ -60,20 +67,24 @@ public class ProductServiceImpl implements ProductService {
         product.setSeries(series);
         product.setCategory(category);
 
-        productRepository.save(product);
+        ProductResponse response = productMapper.toResponse(productRepository.save(product));
 
-        if (request.getProductDetails() != null) {
-            request.getProductDetails().forEach(detail ->
-                    productDetailService.createProductDetail(detail, product));
+
+        if (request.getProductDetailRequest() != null) {
+            response.setProductDetails(new ArrayList<>());
+
+            request.getProductDetailRequest().forEach(detail ->
+                    response.getProductDetails().add(productDetailService.createProductDetail(detail, product)));
         }
 
         log.info("Product created successfully");
 
-        return productMapper.toResponse(product);
+        return response;
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = "products", key = "'product:'+ #productId", allEntries = false, beforeInvocation = true)
     public ProductResponse updateProduct(UpdateProductRequest request, long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() ->  new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -99,8 +110,8 @@ public class ProductServiceImpl implements ProductService {
             product.setDescription(request.getDescription());
         }
 
-        if (request.getProductDetails() != null) {
-            request.getProductDetails().forEach((aLong, productDetailRequest) ->{
+        if (request.getProductDetailRequestMap() != null) {
+            request.getProductDetailRequestMap().forEach((aLong, productDetailRequest) ->{
                 productDetailService.updateProductDetail(productDetailRequest, aLong);
             });
         }
@@ -108,6 +119,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(value = "products", key = "'product:' + #id")
     public void deleteProduct(long id) {
         if (!productRepository.existsById(id)) {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
@@ -121,6 +133,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "products",key = "'product:' + #id")
     public ProductResponse getProduct(long id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         return productMapper.toResponse(product);
@@ -132,12 +145,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PagedModel<ItemProductProjection> getItemProducts(Pageable pageable) {
-        return new PagedModel<>(productRepository.findOneProductDetailOfProductProjection(pageable));
+    @Cacheable(value = "products", key = "'page:' + #pageable.getPageNumber()", condition ="#pageable.pageNumber == 0" )
+    public PageWrapper<ItemProductProjection> getItemProducts(Pageable pageable) {
+        Page<ItemProductProjection> page = productRepository.findOneProductDetailOfProductProjection(pageable);
+        return PageWrapper.<ItemProductProjection>builder()
+                .content(page.getContent().stream().toList())
+                .pageNumber(page.getNumber())
+                .pageSize(page.getSize())
+                .totalElements(page.getTotalElements())
+                .build();
     }
 
     @Override
-    public PagedModel<ItemProductResponse> getItemProductsFilter(int size, int page, ProductFilterRequest request) {
+    @Cacheable(
+            value = "products",
+            key = "'filterPage:' + #page + ':' + T(org.apache.commons.lang3.builder.HashCodeBuilder).reflectionHashCode(#request)",
+            condition = "#page == 0"
+    )
+
+    public PageWrapper<ItemProductResponse> getItemProductsFilter(int size, int page, ProductFilterRequest request) {
         String sortProperty = "createdDate";
         Sort.Direction sortDirection = Sort.Direction.DESC;
 
@@ -159,8 +185,18 @@ public class ProductServiceImpl implements ProductService {
                 Sort.by(sortDirection, sortProperty)
         );
 
-        return new PagedModel<>(productDetailRepository.findAll(ProductDetailSpecification.filter(request), pageable)
-                .map(productDetailMapper::toItemProductResponse));
+        Page<ProductDetail> result = productDetailRepository.findAll(ProductDetailSpecification.filter(request), pageable);
+
+        List<ItemProductResponse> responses = result.stream()
+                .map(productDetailMapper::toItemProductResponse)
+                .toList();
+
+        return PageWrapper.<ItemProductResponse>builder()
+                .content(responses)
+                .totalElements(result.getTotalElements())
+                .pageSize(result.getSize())
+                .pageNumber(result.getNumber())
+                .build();
     }
 
     @Override

@@ -25,6 +25,7 @@ public class ProductDetailRequest {
     @NotNull
     private Integer discountPrice;
 
+    @NotBlank
     private String slug;
 
     @NotBlank
@@ -32,6 +33,9 @@ public class ProductDetailRequest {
 
     @NotBlank
     private String thumbnail;
+
+    @NotBlank
+    private String warrantyProd;
 
     @NotNull
     private List<String> images;

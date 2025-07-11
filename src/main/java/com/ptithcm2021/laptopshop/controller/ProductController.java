@@ -6,6 +6,7 @@ import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductFilterRequest
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.UpdateProductRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.ApiResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.Product.ItemProductResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.Product.ProductResponse;
 import com.ptithcm2021.laptopshop.model.entity.Product;
@@ -46,18 +47,18 @@ public class ProductController {
         return ApiResponse.<ProductResponse>builder().data(productService.getProduct(id)).build();
     }
 
-    @GetMapping("/item")
-    public ApiResponse<PagedModel<ItemProductProjection>> getOneItemOfProduct(@RequestParam(defaultValue = "10") int size,
-                                                                             @RequestParam (defaultValue = "0") int page){
-        Pageable pageable = Pageable.ofSize(size).withPage(page);
-        return ApiResponse.<PagedModel<ItemProductProjection>>builder().data(productService.getItemProducts(pageable)).build();
-    }
+//    @GetMapping("/item")
+//    public ApiResponse<PageWrapper<ItemProductProjection>> getOneItemOfProduct(@RequestParam(defaultValue = "10") int size,
+//                                                                               @RequestParam (defaultValue = "0") int page){
+//        Pageable pageable = Pageable.ofSize(size).withPage(page);
+//        return ApiResponse.<PageWrapper<ItemProductProjection>>builder().data(productService.getItemProducts(pageable)).build();
+//    }
 
     @GetMapping("/item-filter")
-    public ApiResponse<PagedModel<ItemProductResponse>> getItemOfProductFilter(@RequestParam(defaultValue = "10") int size,
+    public ApiResponse<PageWrapper<ItemProductResponse>> getItemOfProductFilter(@RequestParam(defaultValue = "10") int size,
                                                                             @RequestParam (defaultValue = "0") int page,
                                                                               ProductFilterRequest productFilterRequest){
-        return ApiResponse.<PagedModel<ItemProductResponse>>builder().data(productService.getItemProductsFilter(size, page, productFilterRequest)).build();
+        return ApiResponse.<PageWrapper<ItemProductResponse>>builder().data(productService.getItemProductsFilter(size, page, productFilterRequest)).build();
     }
 
     @GetMapping("/search")

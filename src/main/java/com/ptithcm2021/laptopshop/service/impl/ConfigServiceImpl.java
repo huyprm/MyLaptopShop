@@ -12,6 +12,7 @@ import com.ptithcm2021.laptopshop.repository.ProductDetailRepository;
 import com.ptithcm2021.laptopshop.service.ConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -23,6 +24,7 @@ public class ConfigServiceImpl implements ConfigService {
     private final ProductDetailRepository productDetailRepository;
 
     @Override
+    @CacheEvict(allEntries = true, value = "products")
     public ConfigResponse createConfig(ConfigRequest request) {
         if (request.getProductDetailId() == null) {
             throw new AppException(ErrorCode.PRODUCT_DETAIL_ID_NULL);
@@ -35,12 +37,14 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
-    public void createConfig(ConfigRequest request, ProductDetail productDetail) {
+    public ConfigResponse createConfig(ConfigRequest request, ProductDetail productDetail) {
 
-        createConfigExternal(request, productDetail);
+        return createConfigExternal(request, productDetail);
+
     }
 
     @Override
+    @CacheEvict(allEntries = true, value = "products")
     public ConfigResponse updateConfig(ConfigRequest request, long configId) {
         Config config = configRepository.findById(configId)
                 .orElseThrow(() -> new AppException(ErrorCode.CONFIG_NOT_FOUND));
@@ -58,6 +62,7 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
+    @CacheEvict(allEntries = true, value = "products")
     public void deleteConfig(long configId) {
         if(!configRepository.existsById(configId)) {
             throw new AppException(ErrorCode.CONFIG_NOT_FOUND);

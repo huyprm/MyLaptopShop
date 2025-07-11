@@ -5,4 +5,6 @@ public enum PermissionEnum {
     USER,
     PERM_PRODUCT,
     PERM_CATEGORY,
+    PERM_SERIES,
+    PERM_BRAND,
 }

@@ -18,6 +18,7 @@ public class ProductDetailResponse {
     private int discountPrice;
     private String slug;
     private String title;
+    private String warrantyProd;
     private String thumbnail;
     private double totalRating;
     private int soldQuantity;
