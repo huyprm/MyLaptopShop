@@ -29,6 +29,9 @@ public enum ErrorCode {
     PRODUCT_ID_NULL(1020,"Product id null" , HttpStatus.BAD_REQUEST ),
     PRODUCT_DETAIL_ID_NULL(1021,"Product detail id null" , HttpStatus.BAD_REQUEST ),
     CONFIG_NOT_FOUND(1022, "Config does not exist" , HttpStatus.NOT_FOUND ),
+    BRAND_NAME_EXISTED(1023,"Brand does already existed" , HttpStatus.CONFLICT ),
+    COMMENT_NOT_FOUND(1024, "Comment does not exist", HttpStatus.NOT_FOUND),
+    CART_NOT_FOUND(1025, "Cart does not exist", HttpStatus.NOT_FOUND ),
     ;
 
     private final String message;

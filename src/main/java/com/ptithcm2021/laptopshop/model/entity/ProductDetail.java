@@ -34,7 +34,10 @@ public class ProductDetail {
 
     private int originalPrice;
     private int discountPrice;
+
+    @Column(unique = true, nullable = false)
     private String slug;
+    private String warrantyProd;
     private String thumbnail;
     private String title;
 

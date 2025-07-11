@@ -10,6 +10,10 @@ import com.ptithcm2021.laptopshop.repository.CategoryRepository;
 import com.ptithcm2021.laptopshop.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +28,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
+    @Cacheable(value = "categories", key = "'category:' + #id")
     public CategoryResponse getCategory(int id) {
         Category category =categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
@@ -31,12 +36,15 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(value = "categories", key = "'all'")
     public List<CategoryResponse> getCategories() {
         return categoryRepository.findAll()
                 .stream().map(categoryMapper::toCategoryResponse).collect(Collectors.toList());
     }
 
     @Override
+    @Caching(evict = @CacheEvict(value = "categories", key = "'all'", beforeInvocation = true),
+            put = @CachePut(value = "categories", key = "'category:' + #result.id"))
     public CategoryResponse createCategory(CategoryRequest request) {
         Category category = new Category();
 
@@ -47,6 +55,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Caching(evict = @CacheEvict(value = "categories", key = "'all'", beforeInvocation = true),
+            put = @CachePut(value = "categories", key = "'category:' + #id"))
     public CategoryResponse updateCategory(CategoryRequest request, int id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() ->  new AppException(ErrorCode.CATEGORY_NOT_FOUND));
@@ -58,6 +68,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "categories", key = "'all'"),
+            @CacheEvict(value = "categories", key = "'category:' + #id")})
     public void deleteCategory(int id) {
         if(!categoryRepository.existsById(id)){
             throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);

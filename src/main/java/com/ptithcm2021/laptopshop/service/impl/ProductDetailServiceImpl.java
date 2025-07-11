@@ -13,8 +13,11 @@ import com.ptithcm2021.laptopshop.repository.ProductDetailRepository;
 import com.ptithcm2021.laptopshop.repository.ProductRepository;
 import com.ptithcm2021.laptopshop.service.ConfigService;
 import com.ptithcm2021.laptopshop.service.ProductDetailService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -29,6 +32,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     private final ColorRepository colorRepository;
 
     @Override
+    @CachePut(value = "products", key = "'product:' + #productDetailRequest.productId")
+    @Transactional
     public ProductDetailResponse createProductDetail(ProductDetailRequest productDetailRequest) {
 
         if(productDetailRequest.getProductId() == null) {
@@ -42,12 +47,14 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     }
 
     @Override
-    public void createProductDetail(ProductDetailRequest productDetailRequest, Product product) {
+    public ProductDetailResponse createProductDetail(ProductDetailRequest productDetailRequest, Product product) {
 
-        createProductDetailInternal(productDetailRequest, product);
+        return createProductDetailInternal(productDetailRequest, product);
     }
 
     @Override
+    @CacheEvict(value = "products", key = "'product:' + #productDetailRequest.productId", beforeInvocation = true)
+    @Transactional
     public ProductDetailResponse updateProductDetail(ProductDetailRequest productDetailRequest, long productDetailId) {
         ProductDetail productDetail = productDetailRepository.findById(productDetailId)
                 .orElseThrow(() ->  new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -62,6 +69,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     }
 
     @Override
+    @CacheEvict(value = "products", allEntries = true)
     public void deleteProductDetail(long productDetailId) {
         if (!productDetailRepository.existsById(productDetailId)) {
             throw  new AppException(ErrorCode.PRODUCT_NOT_FOUND);
@@ -84,15 +92,16 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
         productDetail.setColor(color);
 
-        productDetailRepository.save(productDetail);
+        ProductDetailResponse response = productDetailMapper
+                .toResponse(productDetailRepository.save(productDetail));
 
         if (productDetailRequest.getConfigRequest() != null){
 
-            configService.createConfig(productDetailRequest.getConfigRequest(), productDetail);
+            response.setConfig(configService.createConfig(productDetailRequest.getConfigRequest(), productDetail));
         }
 
         log.info("Product detail created successfully");
 
-        return productDetailMapper.toResponse(productDetail);
+        return response;
     }
 }

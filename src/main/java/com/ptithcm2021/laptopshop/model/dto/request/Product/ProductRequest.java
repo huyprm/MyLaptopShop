@@ -33,6 +33,6 @@ public class ProductRequest {
     @NotNull
     private Integer seriesId;
 
-    private List<ProductDetailRequest> productDetails;
+    private List<ProductDetailRequest> productDetailRequest;
 
 }

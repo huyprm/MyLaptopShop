@@ -5,10 +5,9 @@ import com.ptithcm2021.laptopshop.model.dto.response.Product.ItemProductResponse
 import com.ptithcm2021.laptopshop.model.dto.response.Product.ProductDetailResponse;
 import com.ptithcm2021.laptopshop.model.entity.Product;
 import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring",
         uses = ConfigMapper.class,
@@ -20,7 +19,14 @@ public interface ProductDetailMapper {
     ProductDetail toProductDetail(ProductDetailRequest request);
 
     @Mapping(target = "productId", source = "product.id")
+    @Mapping(target = "itemImage", source = "images", qualifiedByName = "itemImage")
     ItemProductResponse toItemProductResponse(ProductDetail productDetail);
 
     void updateProductDetail(ProductDetailRequest productDetailRequest, @MappingTarget ProductDetail productDetail);
+
+    @Named("itemImage")
+    default String firstImage(List<String> images){
+        return  (images != null && !images.isEmpty()) ? images.getFirst() : null;
+
+    }
 }

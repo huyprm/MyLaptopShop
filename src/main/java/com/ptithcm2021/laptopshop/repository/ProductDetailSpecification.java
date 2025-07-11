@@ -2,15 +2,15 @@ package com.ptithcm2021.laptopshop.repository;
 
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductFilterRequest;
 import com.ptithcm2021.laptopshop.model.entity.*;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
+@Slf4j
 public class ProductDetailSpecification {
     public static Specification<ProductDetail> filter(ProductFilterRequest filter) {
         return (root, query, cb) -> {
@@ -59,11 +59,13 @@ public class ProductDetailSpecification {
             if (filter.getRam() != null) {
                 predicates.add(cb.equal(configJoin.get("ram"), filter.getRam()));
             }
+            Subquery<Long> subquery = query.subquery(Long.class);
+            Root<ProductDetail> subRoot = subquery.from(ProductDetail.class);
+            subquery.select(cb.min(subRoot.get("id")));
+            subquery.groupBy(subRoot.get("product").get("id"));
 
+            predicates.add(root.get("id").in(subquery));
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
-
-
-
 }

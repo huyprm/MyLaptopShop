@@ -1,8 +1,6 @@
 package com.ptithcm2021.laptopshop.model.dto.response.Product;
 
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductDetailRequest;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ptithcm2021.laptopshop.model.dto.response.BrandResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.CategoryResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.SeriesResponse;
@@ -20,6 +18,7 @@ import java.util.List;
 public class ProductResponse {
     private int id;
     private String description;
+    @JsonIgnoreProperties("series")
     private BrandResponse brand;
     private CategoryResponse category;
     private SeriesResponse series;
