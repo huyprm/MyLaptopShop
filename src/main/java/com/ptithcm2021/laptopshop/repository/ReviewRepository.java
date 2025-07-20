@@ -18,6 +18,8 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
     @Query("select r from Review r where r.productDetail.id=:pId and r.parentReview is null")
     List<Review> findReviewParentByProductDetailId(@Param("pId") long productDetailId);
 
-    @Query("select r.id from Review r where r.parentReview.id = :id")
-    List<Long> findAllByParentReviewId(Long id);
+    //@Query("select r.id from Review r where r.parentReview.id = :id")
+    List<Review> findAllByParentReviewId(Long id);
+
+    List<Review> findAllByProductDetailId(long productDetailId);
 }

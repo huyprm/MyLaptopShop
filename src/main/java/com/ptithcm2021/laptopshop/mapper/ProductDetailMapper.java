@@ -14,6 +14,7 @@ import java.util.List;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProductDetailMapper {
     @Mapping(target = "productId", source = "product.id")
+    @Mapping(target = "quantity", source = "inventory.quantity")
     ProductDetailResponse toResponse(ProductDetail productDetail);
 
     ProductDetail toProductDetail(ProductDetailRequest request);
@@ -27,6 +28,5 @@ public interface ProductDetailMapper {
     @Named("itemImage")
     default String firstImage(List<String> images){
         return  (images != null && !images.isEmpty()) ? images.getFirst() : null;
-
     }
 }

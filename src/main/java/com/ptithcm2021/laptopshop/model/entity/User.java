@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -42,9 +43,24 @@ public class User {
     private boolean blocked = false;
     private String avatar;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user")
     private List<Address> address;
 
+    //có sử dụng cascade
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LoginIdentifier>  loginIdentifiers;
+
+    @Builder.Default
+    private Integer amountUsed = 0;
+
+    @Builder.Default
+    private Integer amountOrder = 0;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rank_level_id")
+    private RankLevel currentRankLevel;
+
+    // use cascade in promotion
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserPromotion> voucher = new ArrayList<>();
 }

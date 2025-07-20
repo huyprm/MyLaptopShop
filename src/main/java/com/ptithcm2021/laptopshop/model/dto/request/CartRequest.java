@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartRequest {
-    @NotBlank
-    private String userId;
     @NotNull
     private Long productDetailId;
     @NotNull

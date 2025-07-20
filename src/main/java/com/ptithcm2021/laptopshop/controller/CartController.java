@@ -28,18 +28,18 @@ public class CartController {
     }
 
     @DeleteMapping()
-    public ApiResponse<Void> deleteCart(@RequestParam String userId, @RequestParam long productDetailId) {
-        cartService.removeCart(productDetailId, userId);
+    public ApiResponse<Void> deleteCart(@RequestParam long productDetailId) {
+        cartService.removeCart(productDetailId);
         return ApiResponse.<Void>builder().message("Deleted cart successful").build();
     }
 
-    @GetMapping("/cart")
-    public ApiResponse<CartResponse> getCart(@RequestParam String userId, @RequestParam long productDetailId) {
-        return ApiResponse.<CartResponse>builder().data(cartService.getCart(productDetailId, userId)).build();
-    }
+//    @GetMapping("/cart")
+//    public ApiResponse<CartResponse> getCart(@RequestParam long productDetailId) {
+//        return ApiResponse.<CartResponse>builder().data(cartService.getCart(productDetailId)).build();
+//    }
 
-    @GetMapping("/{userId}")
-    public ApiResponse<List<CartResponse>> getAllCart(@PathVariable String userId) {
-        return ApiResponse.<List<CartResponse>>builder().data(cartService.getCartList(userId)).build();
+    @GetMapping("")
+    public ApiResponse<List<CartResponse>> getAllCart() {
+        return ApiResponse.<List<CartResponse>>builder().data(cartService.getCartList()).build();
     }
 }

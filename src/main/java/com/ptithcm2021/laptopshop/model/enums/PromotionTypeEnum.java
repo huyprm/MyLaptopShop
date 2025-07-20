@@ -1,8 +1,8 @@
 package com.ptithcm2021.laptopshop.model.enums;
 
 public enum PromotionTypeEnum {
-    COUPON,
-    ORDER_DISCOUNT,
+    USER_PROMOTION,
     PRODUCT_DISCOUNT,
-    GIFT
+    GIFT,
+    SHOP_DISCOUNT,
 }

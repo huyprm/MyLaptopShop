@@ -14,9 +14,6 @@ import java.util.List;
 public class CommentRequest {
     @NotBlank
     private String content;
-    @NotBlank
-    private String reviewerId;
-
     private List<String> reviewImage;
     @NotNull
     private Long productDetailId;

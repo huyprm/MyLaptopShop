@@ -8,6 +8,7 @@ import com.ptithcm2021.laptopshop.model.enums.LoginTypeEnum;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.text.ParseException;
 

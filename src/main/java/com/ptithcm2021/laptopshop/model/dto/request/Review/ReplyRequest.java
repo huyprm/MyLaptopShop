@@ -15,9 +15,7 @@ public class ReplyRequest {
     @NotBlank
     private String content;
     @NotBlank
-    private String tagId;
-    @NotBlank
-    private String replierId;
+    private String replyToUserid;
     @NotNull
     private long parentId;
     private List<String> reviewImage;

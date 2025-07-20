@@ -13,7 +13,9 @@ import com.ptithcm2021.laptopshop.repository.ProductDetailRepository;
 import com.ptithcm2021.laptopshop.repository.ReviewRepository;
 import com.ptithcm2021.laptopshop.repository.UserRepository;
 import com.ptithcm2021.laptopshop.service.ReviewService;
+import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +31,11 @@ public class ReviewServiceImp implements ReviewService {
     private final UserRepository userRepository;
     @Override
     public ParentReviewResponse addComment(CommentRequest commentRequest) {
+        String userId = FetchUserIdUtil.fetchUserId();
         ProductDetail productDetail = productDetailRepository
                 .findById(commentRequest.getProductDetailId()).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        User user = userRepository.findById(commentRequest.getReviewerId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         Review review = Review.builder()
@@ -49,6 +52,7 @@ public class ReviewServiceImp implements ReviewService {
                 .reviewDate(review.getReviewDate())
                 .content(review.getContent())
                 .reviewImages(review.getReviewImages())
+                .userId(userId)
                 .username(review.getReviewer().getFirstName() + " " + review.getReviewer().getLastName())
                 .build();
 
@@ -58,13 +62,15 @@ public class ReviewServiceImp implements ReviewService {
 
     @Override
     public ChildReviewResponse addReply(ReplyRequest replyRequest) {
+        String userId = FetchUserIdUtil.fetchUserId();
+
         Review parent = reviewRepository.findById(replyRequest.getParentId())
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
 
-        User replier =  userRepository.findById(replyRequest.getReplierId())
+        User replier =  userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        User tag = userRepository.findById(replyRequest.getTagId())
+        User tag = userRepository.findById(replyRequest.getReplyToUserid())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         Review reply = Review.builder()
@@ -84,9 +90,10 @@ public class ReviewServiceImp implements ReviewService {
                 .reviewDate(reply.getReviewDate())
                 .content(reply.getContent())
                 .reviewImages(reply.getReviewImages())
+                .userId(reply.getReviewer().getId())
                 .username(reply.getReviewer().getFirstName() + " " + reply.getReviewer().getLastName())
                 .parentId(parent.getId())
-                .tag(reply.getReplyOnUser().getFirstName() + " " + reply.getReplyOnUser().getLastName())
+                .replyOnUser(reply.getReplyOnUser().getFirstName() + " " + reply.getReplyOnUser().getLastName())
                 .build();
 
         simpMessagingTemplate.convertAndSend("/topic/comments/" + parent.getProductDetail().getId(), childReviewResponse);
@@ -100,14 +107,23 @@ public class ReviewServiceImp implements ReviewService {
         List<ParentReviewResponse> responses = new ArrayList<>();
 
         reviews.forEach(review -> {
-
             ParentReviewResponse parentReviewResponse = ParentReviewResponse.builder()
                     .id(review.getId())
                     .reviewDate(review.getReviewDate())
                     .content(review.getContent())
                     .reviewImages(review.getReviewImages())
+                    .userId(review.getReviewer().getId())
                     .username(review.getReviewer().getFirstName() + " " + review.getReviewer().getLastName())
-                    .childReviewResponses(reviewRepository.findAllByParentReviewId(review.getId()))
+                    .childReviewResponses(reviewRepository.findAllByParentReviewId(review.getId()).stream().map(reply -> ChildReviewResponse.builder()
+                            .id(reply.getId())
+                            .reviewDate(reply.getReviewDate())
+                            .content(reply.getContent())
+                            .reviewImages(reply.getReviewImages())
+                            .userId(reply.getReviewer().getId())
+                            .username(reply.getReviewer().getFirstName() + " " + reply.getReviewer().getLastName())
+                            .parentId(review.getId())
+                            .replyOnUser(reply.getReplyOnUser().getFirstName() + " " + reply.getReplyOnUser().getLastName())
+                            .build()).toList())
                     .build();
             responses.add(parentReviewResponse);
         });
@@ -124,9 +140,10 @@ public class ReviewServiceImp implements ReviewService {
                 .reviewDate(review.getReviewDate())
                 .content(review.getContent())
                 .reviewImages(review.getReviewImages())
+                .userId(review.getReviewer().getId())
                 .username(review.getReviewer().getFirstName() + " " + review.getReviewer().getLastName())
-                .childReviewResponses(reviewRepository.findAllByParentReviewId(review.getId()))
-                .tag(review.getReplyOnUser().getFirstName() + " " + review.getReplyOnUser().getLastName())
+                //.childReviewResponses(reviewRepository.findAllByParentReviewId(review.getId()))
+                .replyOnUser(review.getReplyOnUser().getFirstName() + " " + review.getReplyOnUser().getLastName())
                 .build();
     }
 }

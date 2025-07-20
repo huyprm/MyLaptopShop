@@ -153,6 +153,7 @@ public class ProductServiceImpl implements ProductService {
                 .pageNumber(page.getNumber())
                 .pageSize(page.getSize())
                 .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
                 .build();
     }
 
@@ -196,6 +197,7 @@ public class ProductServiceImpl implements ProductService {
                 .totalElements(result.getTotalElements())
                 .pageSize(result.getSize())
                 .pageNumber(result.getNumber())
+                .totalPages(result.getTotalPages())
                 .build();
     }
 

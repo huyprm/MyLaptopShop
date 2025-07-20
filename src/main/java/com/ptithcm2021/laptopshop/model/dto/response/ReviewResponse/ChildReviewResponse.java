@@ -15,10 +15,10 @@ import java.util.List;
 public class ChildReviewResponse {
     private long id;
     private long parentId;
+    private String userId;
     private String username;
-    private String tag;
+    private String replyOnUser;
     private LocalDateTime reviewDate;
     private List<String> reviewImages;
     private String content;
-    private List<Long> childReviewResponses;
 }

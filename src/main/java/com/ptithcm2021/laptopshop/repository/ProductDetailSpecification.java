@@ -57,8 +57,14 @@ public class ProductDetailSpecification {
 
             // RAM
             if (filter.getRam() != null) {
-                predicates.add(cb.equal(configJoin.get("ram"), filter.getRam()));
+                predicates.add(cb.equal(configJoin.get("ramValue"), filter.getRam()));
             }
+
+            // Hard Drive
+            if (filter.getHardDrive() != null) {
+                predicates.add(cb.equal(configJoin.get("hardDrive"), filter.getHardDrive()));
+            }
+
             Subquery<Long> subquery = query.subquery(Long.class);
             Root<ProductDetail> subRoot = subquery.from(ProductDetail.class);
             subquery.select(cb.min(subRoot.get("id")));

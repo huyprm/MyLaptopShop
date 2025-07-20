@@ -12,7 +12,10 @@ import lombok.*;
 @Builder
 public class Inventory {
     @Id
-    @ManyToOne()
+    private Long productDetailId;
+
+    @MapsId("productDetailId")
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;
 

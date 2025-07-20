@@ -6,6 +6,7 @@ import com.ptithcm2021.laptopshop.mapper.ProductDetailMapper;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductDetailRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.Product.ProductDetailResponse;
 import com.ptithcm2021.laptopshop.model.entity.Color;
+import com.ptithcm2021.laptopshop.model.entity.Inventory;
 import com.ptithcm2021.laptopshop.model.entity.Product;
 import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
 import com.ptithcm2021.laptopshop.repository.ColorRepository;
@@ -91,6 +92,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .orElseThrow(() -> new AppException(ErrorCode.COLOR_NOT_FOUND));
 
         productDetail.setColor(color);
+        productDetail.setInventory(new Inventory());
 
         ProductDetailResponse response = productDetailMapper
                 .toResponse(productDetailRepository.save(productDetail));

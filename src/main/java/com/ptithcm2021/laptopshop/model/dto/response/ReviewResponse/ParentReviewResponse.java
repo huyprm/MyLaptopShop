@@ -15,9 +15,10 @@ import java.util.List;
 public class ParentReviewResponse {
     private long id;
     private String content;
+    private String userId;
     private String username;
     private long productDetailId;
     private LocalDateTime reviewDate;
     private List<String> reviewImages;
-    private List<Long> childReviewResponses;
+    private List<ChildReviewResponse> childReviewResponses;
 }

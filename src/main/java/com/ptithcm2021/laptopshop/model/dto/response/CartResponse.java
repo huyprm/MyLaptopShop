@@ -11,10 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CartResponse {
-    private long productId;
+    private long productDetailId;
     private String thumbnail;
     private String title;
     private int originalPrice;
     private int discountPrice;
     private int quantity;
+    private ColorResponse color;
+    private String itemImage;
 }
