@@ -219,12 +219,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
     private void addRefreshTokenToCookie(HttpServletResponse response, String refreshToken, int TTL) {
-        Cookie cookie = new Cookie("refresh_token", refreshToken);
-        cookie.setMaxAge( TTL * 24 * 60 * 60);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        response.addCookie(cookie);
+        String cookie = String.format(
+                "refresh_token=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=None",
+                refreshToken,
+                TTL * 24 * 60 * 60
+        );
+
+        response.addHeader("Set-Cookie", cookie);
+
     }
 
     private void saveRefreshTokenToRedis(String refreshToken, String userId) {
