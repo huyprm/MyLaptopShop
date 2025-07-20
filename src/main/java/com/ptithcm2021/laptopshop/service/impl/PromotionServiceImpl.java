@@ -1,0 +1,199 @@
+package com.ptithcm2021.laptopshop.service.impl;
+
+import com.ptithcm2021.laptopshop.exception.AppException;
+import com.ptithcm2021.laptopshop.exception.ErrorCode;
+import com.ptithcm2021.laptopshop.mapper.PromotionMapper;
+import com.ptithcm2021.laptopshop.model.dto.request.PromotionRequest;
+import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
+import com.ptithcm2021.laptopshop.model.dto.response.PromotionResponse;
+import com.ptithcm2021.laptopshop.model.entity.*;
+import com.ptithcm2021.laptopshop.model.enums.PromotionTypeEnum;
+import com.ptithcm2021.laptopshop.repository.ProductDetailRepository;
+import com.ptithcm2021.laptopshop.repository.PromotionRepository;
+import com.ptithcm2021.laptopshop.repository.UserRepository;
+import com.ptithcm2021.laptopshop.service.PromotionService;
+import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class PromotionServiceImpl implements PromotionService {
+    private final PromotionRepository promotionRepository;
+    private final PromotionMapper promotionMapper;
+    private final ProductDetailRepository productDetailRepository;
+    private final UserRepository userRepository;
+
+    @Override
+    public PromotionResponse addPromotion(PromotionRequest request) {
+        if (request.getEndDate() != null &&
+                request.getEndDate().isBefore(request.getStartDate())) {
+            throw new AppException(ErrorCode.INVALID_DATE_RANGE);
+        }
+
+        String userId = FetchUserIdUtil.fetchUserId();
+        User userCreate = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        Promotion promotion = promotionMapper.toPromotion(request);
+
+        if (request.getProductDetailIds() != null && !request.getProductDetailIds().isEmpty()
+                && request.getPromotionType() == PromotionTypeEnum.PRODUCT_DISCOUNT) {
+            handleProductPromotions(request, promotion);
+        }
+
+        promotion.setUserCreate(userCreate);
+        return promotionMapper.toPromotionResponse(promotionRepository.save(promotion));
+    }
+
+    @Override
+    @Transactional
+    public PromotionResponse updatePromotion(PromotionRequest request, long id) {
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND));
+
+        promotionMapper.updatePromotion(request,promotion);
+
+        validatePromotionDate(LocalDateTime.now(), promotion);
+
+
+        if (request.getProductDetailIds() != null && !request.getProductDetailIds().isEmpty()
+                && request.getPromotionType() == PromotionTypeEnum.PRODUCT_DISCOUNT) {
+            handleProductPromotions(request, promotion);
+        }
+        return promotionMapper.toPromotionResponse(promotionRepository.save(promotion));
+    }
+
+    @Override
+    public void deletePromotion(long id) {
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND));
+
+        validatePromotionDate(LocalDateTime.now(), promotion);
+
+        try{
+            promotionRepository.delete(promotion);
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.CANNOT_DELETE);
+        }
+    }
+
+    @Override
+    public PromotionResponse getPromotion(long id) {
+        return promotionMapper.toPromotionResponse(promotionRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND)));
+    }
+
+    @Override
+    public PageWrapper<PromotionResponse> getPromotions(PromotionTypeEnum promotionType, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        if (promotionType == null) {
+             Page<Promotion> promotion = promotionRepository.findAll(pageable);
+             return PageWrapper.<PromotionResponse>builder()
+                     .content(promotion.getContent().stream()
+                             .map(promotionMapper::toPromotionResponse)
+                             .toList())
+                        .pageNumber(promotion.getNumber())
+                        .pageSize(promotion.getSize())
+                        .totalElements(promotion.getTotalElements())
+                        .totalPages(promotion.getTotalPages())
+                     .build();
+        }
+
+        Page<Promotion> promotion = promotionRepository.findAllByPromotionType(promotionType,pageable);
+        return PageWrapper.<PromotionResponse>builder()
+                .content(promotion.getContent().stream()
+                        .map(promotionMapper::toPromotionResponse)
+                        .toList())
+                .pageNumber(promotion.getNumber())
+                .pageSize(promotion.getSize())
+                .totalElements(promotion.getTotalElements())
+                .totalPages(promotion.getTotalPages())
+                .build();
+    }
+
+
+    @Override
+    public List<PromotionTypeEnum> getPromotionTypes() {
+        return Arrays.stream(PromotionTypeEnum.values()).toList();
+    }
+
+    @Override
+    public void collectPromotion(long id) {
+        String userId = FetchUserIdUtil.fetchUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND));
+
+        if (!promotion.getPromotionType().equals(PromotionTypeEnum.USER_PROMOTION)) {
+            throw new AppException(ErrorCode.CAN_NOT_COLLECTED);
+        }
+
+        if (promotion.getEndDate() != null && LocalDateTime.now().isAfter(promotion.getEndDate())) {
+            throw new AppException(ErrorCode.PROMOTION_IS_EXPIRED);
+        }
+
+        UserPromotion userPromotion = UserPromotion.builder()
+                .user(user)
+                .promotion(promotion)
+                .build();
+        user.getVoucher().add(userPromotion);
+
+        userRepository.save(user);
+    }
+
+    @Override
+    public List<PromotionResponse> myVouchers() {
+        String userId = FetchUserIdUtil.fetchUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        return user.getVoucher().stream()
+                .filter(userPromotion -> userPromotion.getUsed() == false)
+                .map(UserPromotion::getPromotion)
+                .map(promotionMapper::toPromotionResponse)
+                .toList();
+    }
+
+    private void validatePromotionDate(LocalDateTime now, Promotion promotion) {
+        if (promotion.getEndDate() != null && now.isBefore(promotion.getEndDate()) && now.isAfter(promotion.getStartDate())) {
+            throw new AppException(ErrorCode.PROMOTION_IS_ACTIVE);
+        }
+        if (promotion.getEndDate() != null && now.isAfter(promotion.getEndDate())) {
+            throw new AppException(ErrorCode.PROMOTION_IS_EXPIRED);
+        }
+        if (promotion.getEndDate() == null && now.isAfter(promotion.getStartDate())) {
+            throw new AppException(ErrorCode.PROMOTION_IS_ACTIVE);
+        }
+
+    }
+
+    private void handleProductPromotions(PromotionRequest request, Promotion promotion) {
+        if( promotion.getProductPromotions() == null) {
+            promotion.setProductPromotions(new ArrayList<>());
+        }
+        promotion.getProductPromotions().clear();
+
+        request.getProductDetailIds().forEach(id -> {
+            ProductDetail product = productDetailRepository.findById(id)
+                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+            ProductPromotion productPromotion = ProductPromotion.builder()
+                    .productDetail(product)
+                    .promotion(promotion)
+                    .build();
+            promotion.getProductPromotions().add(productPromotion);
+        });
+    }
+
+}

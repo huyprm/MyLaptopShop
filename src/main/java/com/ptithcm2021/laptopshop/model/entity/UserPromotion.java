@@ -35,8 +35,4 @@ public class UserPromotion {
     private Boolean used = false;
 
     private LocalDateTime usedDate;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Order order;
 }

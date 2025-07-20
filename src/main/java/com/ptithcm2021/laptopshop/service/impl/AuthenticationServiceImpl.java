@@ -61,7 +61,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public String refreshToken(HttpServletRequest request, HttpServletResponse response) throws KeyLengthException {
-        String refreshToken = revokeRefreshToken(request);
+        String refreshToken = fetchRefreshToken(request);
 
         String userId = verifyRefreshToken(refreshToken);
         if (userId != null){
@@ -72,6 +72,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             addRefreshTokenToCookie(response, newRefreshToken, JWT_REFRESH_TIME);
             saveRefreshTokenToRedis(newRefreshToken, user.getId());
+            revokeRefreshToken(refreshToken);
             return accessToken;
         }else {
             throw new AppException(ErrorCode.INVALID_TOKEN);
@@ -111,7 +112,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response) {
-        revokeRefreshToken(request);
+        String refreshToken = fetchRefreshToken(request);
+        revokeRefreshToken(refreshToken);
         addRefreshTokenToCookie(response, "", 0);
     }
 
@@ -122,7 +124,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .orElseThrow(() -> new AppException(ErrorCode.REVOKED_TOKEN));
 
         if(otp.equals(otpCache)){
-            redisTemplate.delete("otp_forgot_pw:" + email);
+            redisTemplate.delete("otp:" + email);
         } else {
             throw new AppException(ErrorCode.OTP_INCORRECT);
         }
@@ -131,31 +133,30 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return restToken;
     }
 
+
     @Override
     public void sendOTPViaMail(String email) throws MessagingException {
-        if(loginIdentifierRepository.existsByIdentifierValue(email)){
+        if (loginIdentifierRepository.existsByIdentifierValue(email)) {
             throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
-
-        Random random = new Random();
-        int otp = 100000 + random.nextInt(900000);
-        redisTemplate.opsForValue().set("otp:"+email, otp, Duration.ofMinutes(5));
-
-        mailService.sendMimeEmail(email, "Xác thực email", TemplateEmailUtil.subjectMailSendOTP(String.valueOf(otp)));
+        sendOTP(email, "otp-create:", "Xác thực email");
     }
 
     @Override
     public void sendOTPForgotPw(String email) throws MessagingException {
-        if(!loginIdentifierRepository.existsByIdentifierValue(email)){
+        if (!loginIdentifierRepository.existsByIdentifierValue(email)) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-
-        Random random = new Random();
-        int otp = 100000 + random.nextInt(900000);
-        redisTemplate.opsForValue().set("otp_forgot_pw:"+email, otp, Duration.ofMinutes(5));
-
-        mailService.sendMimeEmail(email, "Xác thực email", TemplateEmailUtil.subjectMailSendOTP(String.valueOf(otp)));
+        sendOTP(email, "otp:", "Xác thực email");
     }
+
+    private void sendOTP(String email, String redisPrefix, String subject) throws MessagingException {
+        int otp = 100000 + new Random().nextInt(900000);
+        redisTemplate.opsForValue().set(redisPrefix + email, otp, Duration.ofMinutes(5));
+        mailService.sendMimeEmail(email, subject, TemplateEmailUtil.subjectMailSendOTP(String.valueOf(otp)));
+    }
+
+
     @Override
     public String loginWithIdentifier(String mail, LoginTypeEnum loginType, String firstName, String lastName, HttpServletResponse response) throws KeyLengthException {
         LoginIdentifier loginIdentifier = loginIdentifierRepository.findByIdentifierValue(mail)
@@ -220,7 +221,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private void addRefreshTokenToCookie(HttpServletResponse response, String refreshToken, int TTL) {
         Cookie cookie = new Cookie("refresh_token", refreshToken);
         cookie.setMaxAge( TTL * 24 * 60 * 60);
-        cookie.setPath("/api/auth");
+        cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         response.addCookie(cookie);
@@ -254,7 +255,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .orElseThrow(() -> new AppException(ErrorCode.REVOKED_TOKEN));
     }
 
-    private String revokeRefreshToken(HttpServletRequest request) {
+    private String fetchRefreshToken(HttpServletRequest request) {
         String refreshToken = null;
 
         if (request.getCookies() != null) {
@@ -269,8 +270,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
-        redisTemplate.opsForHash().put("refresh_token:" + refreshToken, "revoked", "true");
         return refreshToken;
+    }
+
+    private void revokeRefreshToken(String refreshToken){
+        redisTemplate.opsForHash().put("refresh_token:" + refreshToken, "revoked", "true");
     }
 
     private Set<String> fetchPermission(User user){
@@ -286,6 +290,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user= User.builder()
                 .firstName(firstName)
                 .lastName(lastName)
+                .email(mail)
                 .roles(Collections.singleton(role))
                 .build();
 
