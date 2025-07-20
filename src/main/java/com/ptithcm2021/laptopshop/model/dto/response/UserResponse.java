@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -22,4 +23,7 @@ public class UserResponse {
     private String dob;
     private String gender;
     private Set<Role> roles;
+    private String avatar;
+    private List<AddressResponse> address;
+    private int amountUsed;
 }

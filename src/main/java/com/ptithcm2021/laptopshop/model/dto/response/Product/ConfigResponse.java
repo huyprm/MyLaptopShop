@@ -17,8 +17,10 @@ public class ConfigResponse {
     private String displaySize;
     private String graphicCard;
     private String ram;
+    private String ramValue;
     private String weight;
-    private String hardDriver;
+    private String hardDrive;
+    private String hardDriveValue;
     private String nameConfig;
     private long productDetailId;
 }

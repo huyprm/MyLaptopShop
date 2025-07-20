@@ -10,9 +10,11 @@ import com.ptithcm2021.laptopshop.model.entity.CartId;
 import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
 import com.ptithcm2021.laptopshop.model.entity.User;
 import com.ptithcm2021.laptopshop.repository.CartRepository;
+import com.ptithcm2021.laptopshop.repository.InventoryRepository;
 import com.ptithcm2021.laptopshop.repository.ProductDetailRepository;
 import com.ptithcm2021.laptopshop.repository.UserRepository;
 import com.ptithcm2021.laptopshop.service.CartService;
+import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,12 +30,21 @@ public class CartServiceImpl implements CartService {
     private final UserRepository userRepository;
     private final ProductDetailRepository productDetailRepository;
     private final CartMapper cartMapper;
+    private final InventoryRepository inventoryRepository;
+
     @Override
     public CartResponse addCart(CartRequest cartRequest) {
+        Integer quantity = inventoryRepository.findQuantityById(cartRequest.getProductDetailId())
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_AVAILABLE));
+
+        if (quantity < cartRequest.getQuantity())
+            throw new AppException(ErrorCode.PRODUCT_IS_OUT_OF_QUANTITY);
+
         ProductDetail product = productDetailRepository.findById(cartRequest.getProductDetailId())
                 .orElseThrow(() ->  new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        User user = userRepository.findById(cartRequest.getUserId())
+        String userId = FetchUserIdUtil.fetchUserId();
+        User user = userRepository.findById(userId)
                 .orElseThrow(() ->  new AppException(ErrorCode.USER_NOT_FOUND));
 
         CartId cartId = CartId.builder()
@@ -56,13 +67,21 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse updateCart(CartRequest cartRequest) {
+        String userId = FetchUserIdUtil.fetchUserId();
+
         CartId cartId = CartId.builder()
                 .productDetailId(cartRequest.getProductDetailId())
-                .userId(cartRequest.getUserId())
+                .userId(userId)
                 .build();
 
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
+
+        Integer quantity = inventoryRepository.findQuantityById(cartRequest.getProductDetailId())
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_AVAILABLE));
+
+        if (quantity < cartRequest.getQuantity())
+            throw new AppException(ErrorCode.PRODUCT_IS_OUT_OF_QUANTITY);
 
         cart.setQuantity(cartRequest.getQuantity());
 
@@ -70,7 +89,9 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void removeCart(long productDetailId, String userId) {
+    public void removeCart(long productDetailId) {
+        String userId = FetchUserIdUtil.fetchUserId();
+
         CartId cartId = CartId.builder()
                 .productDetailId(productDetailId)
                 .userId(userId)
@@ -88,7 +109,9 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartResponse getCart(long productDetailId, String userId) {
+    public CartResponse getCart(long productDetailId) {
+        String userId = FetchUserIdUtil.fetchUserId();
+
         CartId cartId = CartId.builder()
                 .productDetailId(productDetailId)
                 .userId(userId)
@@ -100,7 +123,9 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<CartResponse> getCartList(String userId) {
+    public List<CartResponse> getCartList() {
+        String userId = FetchUserIdUtil.fetchUserId();
+
         return cartRepository.findAllByUserId(userId).stream()
                 .map(cartMapper::toCartResponse).collect(Collectors.toList());
     }

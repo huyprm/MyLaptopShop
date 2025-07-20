@@ -17,20 +17,21 @@ public interface UserService {
 
     void createUser(CreateUserRequest createUserRequest) throws MessagingException;
 
-    @PreAuthorize("#userId == authentication.name ")
-    UserResponse updateUser(String userId, UpdateUserRequest updateUserRequest);
+    UserResponse updateUser(UpdateUserRequest updateUserRequest);
 
     @PreAuthorize("hasAuthority('SCOPE_OWNER')")
     UserResponse changeUserRole(ChangeUserRoleRequest request);
 
     UserResponse fetchInfoUser();
 
-    @PreAuthorize("hasAuthority(#userId == authentication.name)")
-    void changPassword(String oldPassword, String newPassword, String userId);
+    void changPassword(String oldPassword, String newPassword);
 
-    @PreAuthorize("#userId == authentication.name ")
-    void updateAvatar(MultipartFile avatar, String userId) throws IOException;
+    void updateAvatar(MultipartFile avatar) throws IOException;
 
-    @PreAuthorize("#userId == authentication.name or hasAuthority('SCOPE_OWNER')")
-    void deleteUser(String userId);
+    void changeEmail(String newEmail, String otpCode);
+
+    void sendOTPChangeEmail(String email) throws MessagingException;
+
+    @PreAuthorize("hasAuthority('SCOPE_OWNER')")
+    void deleteUser();
 }

@@ -17,6 +17,7 @@ public class ProductFilterRequest {
     private Integer minPrice;
     private Integer maxPrice;
     private String ram;
+    private String hardDrive;
     private String cpu;
     private SortedByEnum sortBy;
     private SortedDirectionEnum sortDirection =  SortedDirectionEnum.DESC;

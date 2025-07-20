@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -29,6 +30,19 @@ public class Order {
 
     private Integer amount;
 
-    @OneToOne(mappedBy = "order",fetch = FetchType.LAZY)
+    @OneToOne()
+    @JoinColumn(name = "user_promotion_id")
     private UserPromotion userPromotion;
+
+    private String address;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @OneToMany(mappedBy = "order",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<OrderDetail> orderDetails;
 }

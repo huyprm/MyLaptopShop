@@ -24,4 +24,5 @@ public class ProductDetailResponse {
     private int soldQuantity;
     private List<String> images;
     private ConfigResponse config;
+    private Integer quantity;
 }

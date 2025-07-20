@@ -24,9 +24,13 @@ public class ConfigRequest {
     @NotBlank
     private String ram;
     @NotBlank
+    private String ramValue;
+    @NotBlank
     private String weight;
     @NotBlank
-    private String hardDriver;
+    private String hardDrive;
+    @NotBlank
+    private String hardDriveValue;
 
     private String nameConfig;
 

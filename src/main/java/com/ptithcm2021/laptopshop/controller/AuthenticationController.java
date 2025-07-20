@@ -67,9 +67,15 @@ public class AuthenticationController {
         return ApiResponse.<String>builder().data(authenticationService.verifyOTP(email, otp)).build();
     }
 
-    @GetMapping("/send_otp")
+    @GetMapping("/send-otp")
     public ApiResponse<String> sendOtp(@RequestParam String mail) throws MessagingException {
         authenticationService.sendOTPViaMail(mail);
+        return ApiResponse.<String>builder().message("Send OTP successful").build();
+    }
+
+    @GetMapping("/send-otp-forgot-pw")
+    public ApiResponse<String> sendOtpForgotPw(@RequestParam String mail) throws MessagingException {
+        authenticationService.sendOTPForgotPw(mail);
         return ApiResponse.<String>builder().message("Send OTP successful").build();
     }
 

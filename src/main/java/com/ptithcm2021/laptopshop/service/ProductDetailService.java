@@ -5,7 +5,7 @@ import com.ptithcm2021.laptopshop.model.dto.response.Product.ProductDetailRespon
 import com.ptithcm2021.laptopshop.model.entity.Product;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-@PreAuthorize("hasAnyAuthority('SCOPE_OWNER', 'SCOPE_PERM_PRODUCT')")
+//@PreAuthorize("hasAnyAuthority('SCOPE_OWNER', 'SCOPE_PERM_PRODUCT')")
 public interface ProductDetailService {
 
     ProductDetailResponse createProductDetail(ProductDetailRequest productDetailRequest);

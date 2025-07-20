@@ -10,9 +10,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 
 public interface ReviewService {
-    @PreAuthorize("hasAuthority(#commentRequest.reviewerId == authentication.name)")
+
     ParentReviewResponse addComment(CommentRequest commentRequest);
-    @PreAuthorize("hasAuthority(#replyRequest.replierId == authentication.name)")
+
     ChildReviewResponse addReply(ReplyRequest replyRequest);
 
     List<ParentReviewResponse> getParentReviews(long productDetailId);
