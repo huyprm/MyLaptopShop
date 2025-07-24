@@ -1,9 +1,7 @@
 package com.ptithcm2021.laptopshop.model.entity;
 
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -11,6 +9,7 @@ import java.io.Serializable;
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class OrderDetailId implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long orderId;

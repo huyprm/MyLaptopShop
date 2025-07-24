@@ -45,7 +45,16 @@ public enum ErrorCode {
     PROMOTION_IS_ACTIVE(1036,"Promotion is active" , HttpStatus.BAD_REQUEST),
     PROMOTION_IS_EXPIRED(1037, "Promotion is expired", HttpStatus.BAD_REQUEST),
     CAN_NOT_COLLECTED(1038,"This promo code could not be collected" , HttpStatus.BAD_REQUEST),
-    ;
+    PROMOTION_IS_NOT_VALID(1039,"Promotion is not available for this product" ,HttpStatus.BAD_REQUEST ),
+    PROMOTION_USED_UP(1040,"This promotion has already been used up" ,HttpStatus.BAD_REQUEST ),
+    ORDER_VALUE_NOT_ENOUGH(1041,"Order value is not eligible for this promotion", HttpStatus.BAD_REQUEST),
+    ORDER_NOT_FOUND(1042, "Order not found",HttpStatus.NOT_FOUND ),
+    INVENTORY_NOT_FOUND(1043, "Inventory not found",HttpStatus.NOT_FOUND ),
+    ORDER_CANNOT_BE_CHANGED(1044, "Order cannot be change", HttpStatus.BAD_REQUEST),
+    STATUS_INVALID(1045, "Status invalid",HttpStatus.BAD_REQUEST ),
+    API_CANNOT_CHANGE_TO_SHIPPING(1046, "Api cannot change to shipping", HttpStatus.BAD_REQUEST),
+    NOT_ENOUGH_STOCK(1047, "Not enough stock", HttpStatus.BAD_REQUEST),
+    CANNOT_PAYMENT(1048,"Cannot payment" , HttpStatus.BAD_REQUEST);
 
     private final String message;
     private final int code;

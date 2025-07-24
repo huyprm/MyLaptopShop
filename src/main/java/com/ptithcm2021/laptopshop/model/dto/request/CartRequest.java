@@ -16,4 +16,5 @@ public class CartRequest {
     @NotNull
     @Min(1)
     private Integer quantity;
+    private Long productPromotionId;
 }

@@ -70,4 +70,11 @@ google:
   client-id: ${CLIENT_ID}
   client-secret: ${CLIENT_SECRET}
 
+momo:
+  partner-code: ${MOMO_PARTNER_CODE}
+  access-key: ${MOMO_ACCESS_KEY}
+  secret-key: ${MOMO_SECRET_KEY}
+  public-key: ${MOMO_PUBLIC_KEY}
+  endpoint: ${MOMO_ENDPOINT}
+
 

@@ -109,6 +109,7 @@ public class ReviewServiceImp implements ReviewService {
         reviews.forEach(review -> {
             ParentReviewResponse parentReviewResponse = ParentReviewResponse.builder()
                     .id(review.getId())
+                    .productDetailId(productDetailId)
                     .reviewDate(review.getReviewDate())
                     .content(review.getContent())
                     .reviewImages(review.getReviewImages())

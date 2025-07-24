@@ -5,10 +5,7 @@ import com.ptithcm2021.laptopshop.exception.ErrorCode;
 import com.ptithcm2021.laptopshop.mapper.CartMapper;
 import com.ptithcm2021.laptopshop.model.dto.request.CartRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.CartResponse;
-import com.ptithcm2021.laptopshop.model.entity.Cart;
-import com.ptithcm2021.laptopshop.model.entity.CartId;
-import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
-import com.ptithcm2021.laptopshop.model.entity.User;
+import com.ptithcm2021.laptopshop.model.entity.*;
 import com.ptithcm2021.laptopshop.repository.CartRepository;
 import com.ptithcm2021.laptopshop.repository.InventoryRepository;
 import com.ptithcm2021.laptopshop.repository.ProductDetailRepository;
@@ -34,10 +31,14 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse addCart(CartRequest cartRequest) {
-        Integer quantity = inventoryRepository.findQuantityById(cartRequest.getProductDetailId())
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_AVAILABLE));
+        int quantity = inventoryRepository.countImportTransactionsByProductDetailId(cartRequest.getProductDetailId());
+        if (quantity ==0)
+            throw new AppException(ErrorCode.PRODUCT_NOT_AVAILABLE);
 
-        if (quantity < cartRequest.getQuantity())
+        Inventory inventory = inventoryRepository.findById(cartRequest.getProductDetailId())
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        if (inventory.getQuantity() < cartRequest.getQuantity())
             throw new AppException(ErrorCode.PRODUCT_IS_OUT_OF_QUANTITY);
 
         ProductDetail product = productDetailRepository.findById(cartRequest.getProductDetailId())
@@ -77,10 +78,10 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
 
-        Integer quantity = inventoryRepository.findQuantityById(cartRequest.getProductDetailId())
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_AVAILABLE));
+        Inventory inventory = inventoryRepository.findById(cartRequest.getProductDetailId())
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        if (quantity < cartRequest.getQuantity())
+        if (inventory.getQuantity() < cartRequest.getQuantity())
             throw new AppException(ErrorCode.PRODUCT_IS_OUT_OF_QUANTITY);
 
         cart.setQuantity(cartRequest.getQuantity());

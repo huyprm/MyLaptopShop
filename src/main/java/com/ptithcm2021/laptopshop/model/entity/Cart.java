@@ -24,5 +24,7 @@ public class Cart {
     @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;
 
+    private Long productPromotionId;
+
     private Integer quantity;
 }

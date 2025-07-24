@@ -52,6 +52,6 @@ public class ProductDetail {
     @CreatedDate
     private LocalDateTime createdDate;
 
-    @OneToOne(mappedBy = "productDetail", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "productDetail", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Inventory inventory;
 }

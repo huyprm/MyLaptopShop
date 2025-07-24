@@ -9,16 +9,16 @@ import com.ptithcm2021.laptopshop.model.dto.response.RankUserResponse;
 import com.ptithcm2021.laptopshop.model.entity.Promotion;
 import com.ptithcm2021.laptopshop.model.entity.RankLevel;
 import com.ptithcm2021.laptopshop.model.entity.User;
+import com.ptithcm2021.laptopshop.model.entity.UserPromotion;
 import com.ptithcm2021.laptopshop.model.enums.PromotionTypeEnum;
 import com.ptithcm2021.laptopshop.repository.PromotionRepository;
 import com.ptithcm2021.laptopshop.repository.RankLevelRepository;
 import com.ptithcm2021.laptopshop.repository.UserRepository;
+import com.ptithcm2021.laptopshop.service.PromotionService;
 import com.ptithcm2021.laptopshop.service.RankLevelService;
 import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -34,6 +34,7 @@ public class RankLevelServiceImpl implements RankLevelService {
     private final RankLevelMapper rankLevelMapper;
     private final PromotionRepository promotionRepository;
     private final UserRepository userRepository;
+    private final PromotionService promotionService;
 
 
     @Override
@@ -139,6 +140,46 @@ public class RankLevelServiceImpl implements RankLevelService {
                 .spendingToNextRank(nextRankLevel != null ? nextRankLevel.getMinSpending() - user.getAmountUsed() : 0)
                 .ordersToNextRank(nextRankLevel != null ? nextRankLevel.getMinOrder() - user.getAmountOrder() : 0)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void loyaltyPointUpdate(String userId, int point) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        user.setAmountOrder(user.getAmountOrder() + 1);
+        user.setAmountUsed(user.getAmountUsed() + point );
+
+        boolean upgraded;
+        do {
+            upgraded = false;
+
+            RankLevel currentRankLevel = user.getCurrentRankLevel();
+            RankLevel nextRankLevel = rankLevelRepository
+                    .findNextRankIsActive(currentRankLevel.getPriority())
+                    .orElse(null);
+
+            if (nextRankLevel != null) {
+                if (user.getAmountUsed() >= nextRankLevel.getMinSpending() &&
+                        user.getAmountOrder() >= nextRankLevel.getMinOrder()) {
+
+                    user.setCurrentRankLevel(nextRankLevel);
+
+                    if (nextRankLevel.getPromotion() != null) {
+                        UserPromotion userPromotion = UserPromotion.builder()
+                                .user(user)
+                                .promotion(nextRankLevel.getPromotion())
+                                .build();
+                        user.getVoucher().add(userPromotion);
+                    }
+                    upgraded = true;
+                }
+            }
+        } while (upgraded);
+
+        userRepository.save(user);
     }
 
     private void validateRankLevel(List<RankLevel> rankLevels) {

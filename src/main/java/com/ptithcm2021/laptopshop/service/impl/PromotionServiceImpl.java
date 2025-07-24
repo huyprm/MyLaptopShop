@@ -7,24 +7,31 @@ import com.ptithcm2021.laptopshop.model.dto.request.PromotionRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.PromotionResponse;
 import com.ptithcm2021.laptopshop.model.entity.*;
+import com.ptithcm2021.laptopshop.model.enums.DiscountUnitEnum;
+import com.ptithcm2021.laptopshop.model.enums.PromotionStatusEnum;
 import com.ptithcm2021.laptopshop.model.enums.PromotionTypeEnum;
 import com.ptithcm2021.laptopshop.repository.ProductDetailRepository;
 import com.ptithcm2021.laptopshop.repository.PromotionRepository;
 import com.ptithcm2021.laptopshop.repository.UserRepository;
 import com.ptithcm2021.laptopshop.service.PromotionService;
 import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
+import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PromotionServiceImpl implements PromotionService {
@@ -32,6 +39,7 @@ public class PromotionServiceImpl implements PromotionService {
     private final PromotionMapper promotionMapper;
     private final ProductDetailRepository productDetailRepository;
     private final UserRepository userRepository;
+    private final RedissonClient redissonClient;
 
     @Override
     public PromotionResponse addPromotion(PromotionRequest request) {
@@ -166,6 +174,32 @@ public class PromotionServiceImpl implements PromotionService {
                 .toList();
     }
 
+    @Override
+    public List<PromotionResponse> getProductPromotions(long id, PromotionStatusEnum statusEnum) {
+        if (statusEnum == PromotionStatusEnum.ACTIVE)
+            return promotionRepository.findProductPromotionsIsActive(id, LocalDateTime.now())
+                    .stream()
+                    .map(promotionMapper::toPromotionResponse)
+                    .toList();
+
+        if (statusEnum == PromotionStatusEnum.EXPIRED)
+            return promotionRepository.findProductPromotionsIsExpired(id, LocalDateTime.now())
+                    .stream()
+                    .map(promotionMapper::toPromotionResponse)
+                    .toList();
+
+        if  ( statusEnum == PromotionStatusEnum.INACTIVE)
+            return promotionRepository.findProductPromotionIdsInActive(id, LocalDateTime.now())
+                    .stream()
+                    .map(promotionMapper::toPromotionResponse)
+                    .toList();
+
+        return promotionRepository.findProductPromotions(id)
+                .stream()
+                .map(promotionMapper::toPromotionResponse)
+                .toList();
+    }
+
     private void validatePromotionDate(LocalDateTime now, Promotion promotion) {
         if (promotion.getEndDate() != null && now.isBefore(promotion.getEndDate()) && now.isAfter(promotion.getStartDate())) {
             throw new AppException(ErrorCode.PROMOTION_IS_ACTIVE);
@@ -196,4 +230,122 @@ public class PromotionServiceImpl implements PromotionService {
         });
     }
 
+    @Override
+    public int applyPromotion(Long promotionId, String userId, int totalAmount, Consumer<Integer> setDiscountFn, @Nullable ProductDetail productDetail) {
+        if (promotionId == null) return 0;
+
+        RLock lock = redissonClient.getLock("promotion:" + promotionId);
+        try{
+            lock.lock(5, TimeUnit.SECONDS);
+
+
+            Promotion promotion = promotionRepository.findById(promotionId)
+                    .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND));
+
+
+            if (promotion.getPromotionType() == PromotionTypeEnum.PRODUCT_DISCOUNT ) {
+                validatePromotionProduct(promotion, productDetail);
+            } else
+                validatePromotion(promotion, totalAmount, userId);
+
+
+            int discount = calculateDiscount(totalAmount, promotion);
+
+            if (setDiscountFn != null)
+                setDiscountFn.accept(discount);
+
+            promotion.setUsageCount(promotion.getUsageCount() + 1);
+
+            promotionRepository.save(promotion);
+
+            return discount;
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+    }
+
+    private void validatePromotionProduct(Promotion promotion, ProductDetail productDetail) {
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        boolean notYetStarted = promotion.getStartDate().isAfter(currentTime);
+        boolean alreadyEnded = promotion.getEndDate() != null && promotion.getEndDate().isBefore(currentTime);
+
+        if (notYetStarted || alreadyEnded) {
+            log.warn("Promotion is not valid: {}", promotion.getId());
+            throw new AppException(ErrorCode.PROMOTION_IS_EXPIRED);
+        }
+
+        if (promotion.getPromotionType() != PromotionTypeEnum.PRODUCT_DISCOUNT) {
+            log.warn("Promotion is not valid: {}", promotion.getId());
+            throw new AppException(ErrorCode.PROMOTION_IS_NOT_VALID);
+        }
+
+        Set<Long> promotionIds = new HashSet<>(promotionRepository.findProductPromotionIdsByPIdAndDate(productDetail.getId(), currentTime));
+        boolean isValid = promotionIds.contains(promotion.getId());
+        if (!isValid) {
+            throw new AppException(ErrorCode.PROMOTION_IS_NOT_VALID);
+        }
+
+        if (promotion.getUsageLimit() != null) {
+            if (promotion.getUsageLimit() == promotion.getUsageCount() + 1) {
+                log.warn("Promotion is not valid: {}", promotion.getId());
+                throw new AppException(ErrorCode.PROMOTION_USED_UP);
+            }
+        }
+    }
+
+    private void validatePromotion(Promotion promotion, int totalAmount, String userId) {
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        // Check if the promotion is valid for the user
+        if (promotion.getPromotionType() == PromotionTypeEnum.USER_PROMOTION) {
+            Set<Long> promotionIds = new HashSet<>(promotionRepository.findUserPromotionIdsByUserIdAndDate(userId, currentTime));
+            if (!promotionIds.contains(promotion.getId())) {
+                log.warn("Promotion is not valid: {}", promotion.getId());
+                throw new AppException(ErrorCode.PROMOTION_IS_NOT_VALID);
+            }
+        }
+
+        // Check if the promotion is valid for the current time
+        boolean notYetStarted = promotion.getStartDate().isAfter(currentTime);
+        boolean alreadyEnded = promotion.getEndDate() != null && promotion.getEndDate().isBefore(currentTime);
+
+        if (notYetStarted || alreadyEnded) {
+            log.warn("Promotion is not valid: {}", promotion.getId());
+            throw new AppException(ErrorCode.PROMOTION_IS_EXPIRED);
+        }
+
+        // Check if the promotion is already used up
+        if (promotion.getUsageLimit() != null && promotion.getUsageLimit() <= promotion.getUsageCount()) {
+            log.warn("Promotion is not valid: {}", promotion.getId());
+            throw new AppException(ErrorCode.PROMOTION_USED_UP);
+        }
+
+        // Check if the promotion type is valid
+        if (PromotionTypeEnum.PRODUCT_DISCOUNT.equals(promotion.getPromotionType())) {
+            log.warn("Promotion is not valid: {}", promotion.getId());
+            throw new AppException(ErrorCode.PROMOTION_IS_NOT_VALID);
+        }
+
+        // Check if the promotion meets the minimum order value requirement
+        if (promotion.getMinOrderValue() != null && promotion.getMinOrderValue() > totalAmount) {
+            log.warn("Promotion is not valid: {}", promotion.getId());
+            throw new AppException(ErrorCode.ORDER_VALUE_NOT_ENOUGH);
+        }
+    }
+
+    private int calculateDiscount(int totalAmount, Promotion promotion) {
+        if (promotion.getDiscountUnit() == DiscountUnitEnum.PERCENT) {
+            int temp = totalAmount * promotion.getDiscountValue() / 100;
+            if (promotion.getMaxDiscountValue() != null) {
+                return Math.min(temp, promotion.getMaxDiscountValue());
+            } else {
+                return temp;
+            }
+        } else {
+            return promotion.getDiscountValue();
+        }
+    }
 }

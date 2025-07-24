@@ -2,6 +2,9 @@ package com.ptithcm2021.laptopshop.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -79,5 +82,17 @@ public class RedisConfig {
 
         template.afterPropertiesSet();
         return template;
+    }
+
+    @Bean
+    public RedissonClient redissonClient() {
+
+        Config config = new Config();
+        config.useSingleServer()
+                .setAddress("redis://" + hostName + ":" + port)
+                .setUsername(username)
+                .setPassword(password)
+                .setConnectionMinimumIdleSize(1);
+        return Redisson.create(config);
     }
 }

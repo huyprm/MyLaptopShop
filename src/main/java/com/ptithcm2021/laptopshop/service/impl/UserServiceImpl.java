@@ -176,7 +176,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void changeEmail(String newEmail, String otpCode) {
-        String otpCache = Optional.ofNullable(redisTemplate.opsForValue().get("otp-change-email:" + newEmail))
+        String userId = FetchUserIdUtil.fetchUserId();
+
+        String key = "otp-change-email:" + userId;
+        String otpCache = Optional.ofNullable(redisTemplate.opsForValue().get(key))
                 .map(Object::toString)
                 .orElseThrow(() -> new AppException(ErrorCode.OTP_EXPIRED));
 
@@ -186,7 +189,6 @@ public class UserServiceImpl implements UserService {
 
         redisTemplate.delete("otp-change-email:" + newEmail);
 
-        String userId = FetchUserIdUtil.fetchUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -196,12 +198,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void sendOTPChangeEmail(String email) throws MessagingException {
+        String userId = FetchUserIdUtil.fetchUserId();
         if (!loginIdentifierRepository.existsByIdentifierValue(email)) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
         int otp = 100000 + new Random().nextInt(900000);
-        redisTemplate.opsForValue().set("otp-change-mail:" + email, otp, Duration.ofMinutes(5));
+        redisTemplate.opsForValue().set("otp-change-email:" + userId, otp, Duration.ofMinutes(5));
+
         mailService.sendMimeEmail(email, "Xác thực email", TemplateEmailUtil.subjectMailSendOTP(String.valueOf(otp)));
     }
 

@@ -23,9 +23,10 @@ import java.util.List;
 public class PromotionResponse {
     private Long id;
     private String name;
+    private String code;
     private String description;
     private PromotionTypeEnum promotionType;
-    private String discountValue;
+    private Integer discountValue;
     private DiscountUnitEnum discountUnit;
     private Integer minOrderValue;
     private Integer maxDiscountValue;

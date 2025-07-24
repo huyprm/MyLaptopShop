@@ -12,4 +12,7 @@ import lombok.NoArgsConstructor;
 public class AddressResponse {
     private Long id;
     private String address;
+    private String phone;
+    private String recipient;
+    private boolean isDefault; // true if this is the default address
 }

@@ -19,6 +19,8 @@ public interface CartMapper {
     @Mapping(target = "discountPrice", source = "productDetail.discountPrice")
     @Mapping(target = "color", source = "productDetail.color")
     @Mapping(target = "itemImage", source = "productDetail.images", qualifiedByName = "itemImage")
+    @Mapping(target = "ramValue", source = "productDetail.config.ramValue")
+    @Mapping(target = "hardDriveValue", source = "productDetail.config.hardDriveValue")
     CartResponse toCartResponse(Cart cart);
 
     @Named("itemImage")

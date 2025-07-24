@@ -4,6 +4,7 @@ import com.ptithcm2021.laptopshop.model.dto.request.PromotionRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.ApiResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.PromotionResponse;
+import com.ptithcm2021.laptopshop.model.enums.PromotionStatusEnum;
 import com.ptithcm2021.laptopshop.model.enums.PromotionTypeEnum;
 import com.ptithcm2021.laptopshop.service.PromotionService;
 import jakarta.validation.Valid;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/product-promotions")
+@RequestMapping("/api/promotions")
 public class PromotionController {
     private final PromotionService promotionService;
 
@@ -69,5 +70,15 @@ public class PromotionController {
         return ApiResponse.<List<PromotionResponse>>builder()
                 .data(promotionService.myVouchers()).build();
     }
+
+    @GetMapping("/product/{id}")
+    public ApiResponse<List<PromotionResponse>> productPromotion(@PathVariable long id,
+                                                                 @RequestParam(required = false) PromotionStatusEnum promotionStatus) {
+        return ApiResponse.<List<PromotionResponse>>builder()
+                .message("Promotion redeemed successfully")
+                .data(promotionService.getProductPromotions(id, promotionStatus))
+                .build();
+    }
+
 
 }

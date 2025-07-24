@@ -3,9 +3,13 @@ package com.ptithcm2021.laptopshop.service;
 import com.ptithcm2021.laptopshop.model.dto.request.PromotionRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.PromotionResponse;
+import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
+import com.ptithcm2021.laptopshop.model.enums.PromotionStatusEnum;
 import com.ptithcm2021.laptopshop.model.enums.PromotionTypeEnum;
+import jakarta.annotation.Nullable;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public interface PromotionService {
     PromotionResponse addPromotion(PromotionRequest promotionRequest);
@@ -19,4 +23,9 @@ public interface PromotionService {
     void collectPromotion(long id);
 
     List<PromotionResponse> myVouchers();
+
+    List<PromotionResponse> getProductPromotions(long id, PromotionStatusEnum statusEnum);
+
+
+    int applyPromotion(Long promotionId, String userId, int totalAmount, Consumer<Integer> setDiscountFn, @Nullable ProductDetail productDetail);
 }

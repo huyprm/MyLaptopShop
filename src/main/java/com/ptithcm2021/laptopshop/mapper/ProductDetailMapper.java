@@ -3,6 +3,7 @@ package com.ptithcm2021.laptopshop.mapper;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductDetailRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.Product.ItemProductResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.Product.ProductDetailResponse;
+import com.ptithcm2021.laptopshop.model.entity.Inventory;
 import com.ptithcm2021.laptopshop.model.entity.Product;
 import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
 import org.mapstruct.*;

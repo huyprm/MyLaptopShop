@@ -19,9 +19,11 @@ public class PromotionRequest {
     @NotBlank
     private String name;
     @NotBlank
+    private String code;
+    @NotBlank
     private String description;
     @NotBlank
-    private String discountValue;
+    private Integer discountValue;
     @NotNull
     private DiscountUnitEnum discountUnit;
     @NotNull

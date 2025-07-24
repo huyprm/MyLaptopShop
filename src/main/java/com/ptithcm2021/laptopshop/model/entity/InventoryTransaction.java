@@ -27,11 +27,16 @@ public class InventoryTransaction {
     private ProductDetail productDetail;
 
     private Integer quantity; //+ nhập, – xuất
+    @Enumerated(EnumType.STRING)
     private TransactionTypeEnum transactionType;
+
+    // Reference ID can be used to link to an order, return, or other transaction
     private Long referenceID;
 
+    private String serialNumber;
     @CreatedBy
     private String employeeID;
+
     @CreatedDate
     private LocalDateTime transactionDate;
 }

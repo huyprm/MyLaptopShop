@@ -3,6 +3,7 @@ package com.ptithcm2021.laptopshop.service;
 import com.ptithcm2021.laptopshop.model.dto.request.RankLevelRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.RankLevelResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.RankUserResponse;
+import com.ptithcm2021.laptopshop.model.entity.User;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface RankLevelService {
     List<RankLevelResponse> getAllRankLevelsIsActive();
 
     RankUserResponse getRankLevelByUser();
+
+    void loyaltyPointUpdate(String userId, int point);
 }

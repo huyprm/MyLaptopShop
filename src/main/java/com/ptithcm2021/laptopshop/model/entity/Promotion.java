@@ -25,12 +25,16 @@ public class Promotion {
     private Long id;
 
     private String name;
+
+    @Column(unique = true, nullable = false)
+    private String code;
+
     private String description;
 
     @Enumerated(EnumType.STRING)
     private PromotionTypeEnum promotionType;
 
-    private String discountValue;
+    private Integer discountValue;
 
     @Enumerated(EnumType.STRING)
     private DiscountUnitEnum discountUnit;
@@ -38,7 +42,9 @@ public class Promotion {
     private Integer minOrderValue;
     private Integer maxDiscountValue;
     private Integer usageLimit;
-    private Integer usageCount;
+
+    @Builder.Default
+    private Integer usageCount = 0;
 
     @Builder.Default
     private LocalDateTime startDate = LocalDateTime.now();

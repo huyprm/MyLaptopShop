@@ -15,6 +15,9 @@ public interface AddressService {
     List<Address> addListAddress(List<AddressRequest> request, User user);
 
     AddressResponse updateAddress(AddressRequest request, Long id);
+
+    void setDefaultAddress(Long id);
+
     void deleteAddress(Long id);
 
 }

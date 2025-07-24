@@ -10,6 +10,7 @@ import com.ptithcm2021.laptopshop.repository.AddressRepository;
 import com.ptithcm2021.laptopshop.repository.UserRepository;
 import com.ptithcm2021.laptopshop.service.AddressService;
 import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,9 @@ public class AddressServiceImpl implements AddressService {
         return AddressResponse.builder()
                 .id(address.getId())
                 .address(address.getAddress())
+                .phone(address.getPhone())
+                .recipient(address.getRecipient())
+                .isDefault(address.isDefault())
                 .build();
     }
 
@@ -43,6 +47,9 @@ public class AddressServiceImpl implements AddressService {
         return addresses.stream().map(address -> {return AddressResponse.builder()
                 .id(address.getId())
                 .address(address.getAddress())
+                .phone(address.getPhone())
+                .recipient(address.getRecipient())
+                .isDefault(address.isDefault())
                 .build();})
                 .toList();
     }
@@ -56,6 +63,9 @@ public class AddressServiceImpl implements AddressService {
         Address address = Address.builder()
                 .user(user)
                 .address(request.getAddress())
+                .phone(request.getPhone())
+                .recipient(request.getRecipient())
+                .isDefault(request.isDefault())
                 .build();
 
         addressRepository.save(address);
@@ -63,6 +73,9 @@ public class AddressServiceImpl implements AddressService {
         return AddressResponse.builder()
                 .id(address.getId())
                 .address(address.getAddress())
+                .phone(address.getPhone())
+                .recipient(address.getRecipient())
+                .isDefault(address.isDefault())
                 .build();
     }
 
@@ -75,6 +88,9 @@ public class AddressServiceImpl implements AddressService {
             Address temp = Address.builder()
                     .user(user)
                     .address(address.getAddress())
+                    .phone(address.getPhone())
+                    .recipient(address.getRecipient())
+                    .isDefault(address.isDefault())
                     .build();
             addresses.add(temp);
         });
@@ -95,7 +111,18 @@ public class AddressServiceImpl implements AddressService {
         return AddressResponse.builder()
                 .id(address.getId())
                 .address(address.getAddress())
+                .phone(address.getPhone())
+                .recipient(address.getRecipient())
+                .isDefault(address.isDefault())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void setDefaultAddress(Long id) {
+        String userId = FetchUserIdUtil.fetchUserId();
+        addressRepository.clearDefaultForUser(userId);
+        addressRepository.setDefault(id);
     }
 
     @Override

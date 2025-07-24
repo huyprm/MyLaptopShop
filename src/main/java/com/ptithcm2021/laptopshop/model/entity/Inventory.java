@@ -19,5 +19,6 @@ public class Inventory {
     @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;
 
-    private Integer quantity;
+    @Builder.Default
+    private int quantity = 0; // Total quantity available in stock
 }

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CartResponse {
     private long productDetailId;
+    private Long productPromotionId;
     private String thumbnail;
     private String title;
     private int originalPrice;
@@ -19,4 +20,6 @@ public class CartResponse {
     private int quantity;
     private ColorResponse color;
     private String itemImage;
+    private String ramValue;
+    private String hardDriveValue;
 }

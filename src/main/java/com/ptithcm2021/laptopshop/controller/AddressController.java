@@ -4,6 +4,7 @@ import com.ptithcm2021.laptopshop.model.dto.request.AddressRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.AddressResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.ApiResponse;
 import com.ptithcm2021.laptopshop.service.AddressService;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +18,19 @@ public class AddressController {
     private final AddressService addressService;
 
     @PostMapping("/create")
-    public ApiResponse<AddressResponse > createAddress(@RequestBody AddressRequest request) {
+    public ApiResponse<AddressResponse > createAddress(@RequestBody @Valid AddressRequest request) {
         return ApiResponse.<AddressResponse>builder().data(addressService.addAddress(request)).build();
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<AddressResponse> updateAddress(@PathVariable Long id, @RequestBody AddressRequest request) {
+    public ApiResponse<AddressResponse> updateAddress(@PathVariable Long id, @RequestBody @Valid AddressRequest request) {
         return ApiResponse.<AddressResponse>builder().data(addressService.updateAddress(request, id)).build();
+    }
+
+    @PutMapping("/set-default/{id}")
+    public ApiResponse<Void> setDefaultAddress(@PathVariable Long id) {
+        addressService.setDefaultAddress(id);
+        return ApiResponse.<Void>builder().message("Set default address successful").build();
     }
 
     @DeleteMapping("/{id}")

@@ -226,7 +226,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         );
 
         response.addHeader("Set-Cookie", cookie);
-
     }
 
     private void saveRefreshTokenToRedis(String refreshToken, String userId) {
