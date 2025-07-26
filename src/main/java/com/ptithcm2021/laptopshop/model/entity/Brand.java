@@ -2,7 +2,10 @@ package com.ptithcm2021.laptopshop.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -12,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Brand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +25,9 @@ public class Brand {
     private String name;
     private String description;
     private String image;
+
+    @CreatedDate
+    private LocalDate createdDate;
 
     @OneToMany(mappedBy = "brand")
     private List<Series> series;

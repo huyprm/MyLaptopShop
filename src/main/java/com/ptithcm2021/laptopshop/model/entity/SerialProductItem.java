@@ -25,4 +25,8 @@ public class SerialProductItem {
 
     @Builder.Default
     private boolean isActive = true;
+
+    @OneToOne(fetch =  FetchType.LAZY)
+    @JoinColumn(name = "grn_detail_id")
+    private GRNDetail grnDetail;
 }

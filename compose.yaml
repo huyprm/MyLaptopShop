@@ -1,11 +1,11 @@
-# docker-compose.yml
-version: '3.8'
-
-services:
-  laptopshop:
-    image: maihuy/laptopshop:v1
-    ports:
-      - "80:8080"
-    env_file:
-      - .env
-    restart: always
+## docker-compose.yml
+#version: '3.8'
+#
+#services:
+#  laptopshop:
+#    image: maihuy/laptopshop:v1
+#    ports:
+#      - "80:8080"
+#    env_file:
+#      - .env
+#    restart: always

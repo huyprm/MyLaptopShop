@@ -17,4 +17,5 @@ public interface SerialProductItemRepository extends JpaRepository<SerialProduct
     int deactivateIfExists(@Param("serialNumber") String serialNumber,
                            @Param("productDetailId") Long productDetailId);
 
+    boolean existsBySerialNumber(String serial);
 }

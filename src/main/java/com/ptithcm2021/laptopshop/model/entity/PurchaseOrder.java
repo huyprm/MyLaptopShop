@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "purchase_orders")
@@ -20,7 +21,10 @@ import java.time.LocalDateTime;
 public class PurchaseOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String code;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id")
@@ -33,5 +37,14 @@ public class PurchaseOrder {
     @JoinColumn(name = "user_order_id")
     private User userOrder;
 
+    @Enumerated(EnumType.STRING)
     private PurchaseOrderStatusEnum status;
+
+    @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PurchaseOrderDetail> details;
+
+    @Column(columnDefinition = "TEXT")
+    private String note;
+
+    private int totalQuantity;
 }

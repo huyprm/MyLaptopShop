@@ -4,14 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SeriesResponse {
-    private int id;
-    private String name;
-    private String description;
-    private LocalDate createdDate;
+public class GoodsReceiptNoteDetailResponse {
+    private String productTitle;
+    private Integer quantity;
+    private String serialNumber;
+    private Integer unitPrice;
 }

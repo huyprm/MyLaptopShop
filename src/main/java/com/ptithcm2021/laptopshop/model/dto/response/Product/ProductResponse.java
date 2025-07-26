@@ -21,6 +21,7 @@ public class ProductResponse {
     @JsonIgnoreProperties("series")
     private BrandResponse brand;
     private CategoryResponse category;
+    @JsonIgnoreProperties("quantity")
     private SeriesResponse series;
     private List<ProductDetailResponse> productDetails;
 }

@@ -1,5 +1,6 @@
 package com.ptithcm2021.laptopshop.exception;
 
+import jakarta.annotation.Nullable;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
@@ -18,7 +19,7 @@ public enum ErrorCode {
     IDENTIFIER_UNDETERMINED(1009, "Identifier undetermined", HttpStatus.BAD_REQUEST),
     OTP_INCORRECT(1010,"OTP incorrect" , HttpStatus.BAD_REQUEST),
     ROLE_EXISTED(1011,"Role already exists" , HttpStatus.CONFLICT ),
-    CANNOT_DELETE(1012,"Cannot delete role" , HttpStatus.CONFLICT ),
+    CANNOT_DELETE(1012,"Cannot delete" , HttpStatus.CONFLICT ),
     CATEGORY_NOT_FOUND(1013,"Category does not exist" , HttpStatus.NOT_FOUND ),
     COLOR_NOT_FOUND(1014,"Color does not exist" , HttpStatus.NOT_FOUND ),
     COLOR_NAME_EXISTED(1015,"color name already existed" , HttpStatus.CONFLICT ),
@@ -54,7 +55,21 @@ public enum ErrorCode {
     STATUS_INVALID(1045, "Status invalid",HttpStatus.BAD_REQUEST ),
     API_CANNOT_CHANGE_TO_SHIPPING(1046, "Api cannot change to shipping", HttpStatus.BAD_REQUEST),
     NOT_ENOUGH_STOCK(1047, "Not enough stock", HttpStatus.BAD_REQUEST),
-    CANNOT_PAYMENT(1048,"Cannot payment" , HttpStatus.BAD_REQUEST);
+    CANNOT_PAYMENT(1048,"Cannot payment" , HttpStatus.BAD_REQUEST),
+    SUPPLIER_NOT_FOUND(1049, "Supplier not found", HttpStatus.BAD_REQUEST),
+    PURCHASE_ORDER_NOT_FOUND(1050, "Purchase order not found", HttpStatus.NOT_FOUND),
+    PURCHASE_ORDER_CANNOT_BE_UPDATED(1051, "Purchase order cannot be updated",HttpStatus.BAD_REQUEST),
+    PURCHASE_ORDER_DETAIL_NOT_FOUND(1052, "Purchase order detail not found", HttpStatus.NOT_FOUND),
+    QUANTITY_MUST_BE_ONE_FOR_SERIAL_NUMBER(1053, "Quantity must be one for serial number", HttpStatus.BAD_REQUEST),
+    PURCHASE_ORDER_COMPLETED(1054, "Purchase order completed", HttpStatus.BAD_REQUEST),
+    PRODUCT_DETAIL_NOT_MATCH(1055, "Product detail not match", HttpStatus.CONFLICT),
+    QUANTITY_EXCEED_PURCHASE_ORDER_DETAIL(1056,"Quantity exceed purchase order detail" ,HttpStatus.CONFLICT),
+    SERIAL_NUMBER_QUANTITY_MISMATCH(1057,"Serial number quantity mismatch" ,HttpStatus.BAD_REQUEST ),
+    PURCHASE_ORDER_DETAIL_NOT_BELONG_TO_PURCHASE_ORDER(1058,"Purchase order detail not belong to purchase order" , HttpStatus.CONFLICT),
+    SERIAL_NUMBER_ALREADY_EXISTS( 1059,"Serial number already exists" ,HttpStatus.CONFLICT),
+    QUANTITY_EXCEED_PURCHASE_ORDER(1060, "Quantity exceed purchase order",HttpStatus.CONFLICT),
+    GOODS_RECEIPT_NOTE_NOT_FOUND(1061,"Goods receipt note not found",HttpStatus.NOT_FOUND),
+    ;
 
     private final String message;
     private final int code;

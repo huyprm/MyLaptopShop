@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 
 @Constraint(validatedBy = DOBValidator.class)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
-@Retention(RetentionPolicy.RUNTIME)
+    @Retention(RetentionPolicy.RUNTIME)
 public @interface DOBConstraint {
     String message() default "Invalid date of birth, incorrect format dd/MM/yyyy";
     Class<?>[] groups() default {};

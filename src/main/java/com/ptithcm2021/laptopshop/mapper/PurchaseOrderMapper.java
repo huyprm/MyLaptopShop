@@ -1,0 +1,27 @@
+package com.ptithcm2021.laptopshop.mapper;
+
+import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrderDetailResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrderResponse;
+import com.ptithcm2021.laptopshop.model.entity.PurchaseOrder;
+import com.ptithcm2021.laptopshop.model.entity.PurchaseOrderDetail;
+import com.ptithcm2021.laptopshop.model.entity.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+@Mapper(componentModel = "spring")
+public interface PurchaseOrderMapper {
+
+    @Mapping(target = "supplierName", source = "supplier.name")
+    @Mapping(target = "userOrderName", source = "userOrder", qualifiedByName = "username")
+    @Mapping(target = "userId", source = "userOrder.id")
+    PurchaseOrderResponse toPurchaseOrderResponse(PurchaseOrder purchaseOrder);
+
+    @Mapping(target ="title", source = "productDetail.title")
+    PurchaseOrderDetailResponse toPurchaseOrderDetailResponse(PurchaseOrderDetail purchaseOrderDetail);
+
+    @Named("username")
+    default String mapUsername(User user) {
+        return user.getFirstName()+" "+user.getLastName();
+    }
+}

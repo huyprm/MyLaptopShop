@@ -1,17 +1,17 @@
 package com.ptithcm2021.laptopshop.model.dto.response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SeriesResponse {
-    private int id;
-    private String name;
-    private String description;
-    private LocalDate createdDate;
+@Builder
+public class PurchaseOrderDetailResponse {
+    private Long id;
+    private String title;
+    private Integer quantity;
+    private Integer unitCost;
 }
