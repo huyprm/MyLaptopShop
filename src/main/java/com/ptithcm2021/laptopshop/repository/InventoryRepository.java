@@ -16,9 +16,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     @Query("SELECT i.quantity FROM Inventory i WHERE i.productDetail.id = :id")
     Optional<Integer> findQuantityById(@Param("id") Long id);
 
-    @Query("select count(*) from InventoryTransaction where productDetail.id = :id and transactionType = 'IMPORT'")
-    Integer countImportTransactionsByProductDetailId(@Param("id") Long id);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT i FROM Inventory i WHERE i.productDetail.id = :id")
     Optional<Inventory> findInventoryForUpdate(@Param("id") Long id);

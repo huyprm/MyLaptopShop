@@ -6,10 +6,7 @@ import com.ptithcm2021.laptopshop.mapper.CartMapper;
 import com.ptithcm2021.laptopshop.model.dto.request.CartRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.CartResponse;
 import com.ptithcm2021.laptopshop.model.entity.*;
-import com.ptithcm2021.laptopshop.repository.CartRepository;
-import com.ptithcm2021.laptopshop.repository.InventoryRepository;
-import com.ptithcm2021.laptopshop.repository.ProductDetailRepository;
-import com.ptithcm2021.laptopshop.repository.UserRepository;
+import com.ptithcm2021.laptopshop.repository.*;
 import com.ptithcm2021.laptopshop.service.CartService;
 import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +25,12 @@ public class CartServiceImpl implements CartService {
     private final ProductDetailRepository productDetailRepository;
     private final CartMapper cartMapper;
     private final InventoryRepository inventoryRepository;
+    private final GoodsReceiptNoteRepository goodsReceiptNoteRepository;
 
     @Override
     public CartResponse addCart(CartRequest cartRequest) {
-        int quantity = inventoryRepository.countImportTransactionsByProductDetailId(cartRequest.getProductDetailId());
-        if (quantity ==0)
+        int quantity = goodsReceiptNoteRepository.countGRNByProductDetailId(cartRequest.getProductDetailId());
+        if (quantity == 0)
             throw new AppException(ErrorCode.PRODUCT_NOT_AVAILABLE);
 
         Inventory inventory = inventoryRepository.findById(cartRequest.getProductDetailId())

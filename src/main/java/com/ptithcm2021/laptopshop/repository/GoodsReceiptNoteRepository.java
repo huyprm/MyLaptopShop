@@ -23,4 +23,7 @@ public interface GoodsReceiptNoteRepository extends JpaRepository<GoodsReceiptNo
 
     Page<GoodsReceiptNote> findAllByPurchaseOrderCode(String purchaseOrderCode,
                                                     Pageable pageable);
+
+    @Query("SELECT COUNT(g) FROM GRNDetail g WHERE g.purchaseOrderDetail.id = :productDetailId")
+    int countGRNByProductDetailId(Long productDetailId);
 }

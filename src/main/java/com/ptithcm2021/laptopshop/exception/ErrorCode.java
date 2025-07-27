@@ -69,6 +69,16 @@ public enum ErrorCode {
     SERIAL_NUMBER_ALREADY_EXISTS( 1059,"Serial number already exists" ,HttpStatus.CONFLICT),
     QUANTITY_EXCEED_PURCHASE_ORDER(1060, "Quantity exceed purchase order",HttpStatus.CONFLICT),
     GOODS_RECEIPT_NOTE_NOT_FOUND(1061,"Goods receipt note not found",HttpStatus.NOT_FOUND),
+    ORDER_INVALID_STATUS(1062, "Order invalid status", HttpStatus.CONFLICT),
+    ORDER_DETAIL_NOT_FOUND(1063, "Order detail not found", HttpStatus.NOT_FOUND),
+    QUANTITY_EXCEED_ORDER(1064, "Quantity exceed order", HttpStatus.CONFLICT),
+    SERIAL_NUMBER_NOT_FOUND(1065, "Serial number not found", HttpStatus.NOT_FOUND),
+    SERIAL_NUMBER_SOLD(1066, "Serial number sold", HttpStatus.BAD_REQUEST),
+    PRODUCT_NOT_MATCH_SERIAL_NUMBER(1067, "Product not match serial number", HttpStatus.CONFLICT),
+    SERIAL_NUMBER_NOT_BELONGS_TO_PRODUCT(1068, "Serial number not belong to product", HttpStatus.CONFLICT),
+    ADDRESS_NOT_BELONG_TO_USER(1069, "Address not belong to user", HttpStatus.CONFLICT),
+    DELIVERY_NOTE_NOT_FOUND(1070, "Delivery note not found", HttpStatus.NOT_FOUND),
+    DELIVERY_CAN_NOT_BE_UPDATED(1071, "Delivery can not be updated", HttpStatus.CONFLICT),
     ;
 
     private final String message;

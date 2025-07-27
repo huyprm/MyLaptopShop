@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface SerialProductItemRepository extends JpaRepository<SerialProductItem, Long> {
     @Modifying
@@ -18,4 +21,10 @@ public interface SerialProductItemRepository extends JpaRepository<SerialProduct
                            @Param("productDetailId") Long productDetailId);
 
     boolean existsBySerialNumber(String serial);
+
+    Optional<SerialProductItem> findBySerialNumber(String serialNumber);
+
+    @Query("SELECT s.serialNumber FROM SerialProductItem s " +
+           "WHERE s.productDetail.id = :productDetailId AND s.isActive = true")
+    List<String> findAllSerialNumbersByProductDetailIdAndActive(Long productDetailId);
 }

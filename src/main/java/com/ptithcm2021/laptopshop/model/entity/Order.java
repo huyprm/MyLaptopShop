@@ -25,6 +25,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    private String code;
+
     private String pdfUrl;
 
     @Enumerated(EnumType.STRING)
@@ -33,7 +36,8 @@ public class Order {
     @CreatedDate
     private LocalDateTime createdDate;
 
-    private int amount;
+    private int totalQuantity;
+    private int totalPrice;
     private int shopDiscount;
     private int userDiscount;
 

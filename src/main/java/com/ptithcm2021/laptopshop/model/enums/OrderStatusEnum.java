@@ -7,7 +7,9 @@ public enum OrderStatusEnum {
     PENDING("Chờ thanh toán", 1),
     AWAITING("Chờ xử lý", 2),
     PROCESSING("Đang xử lý", 3),
-    SHIPPING("Đang giao", 4),
+
+    PARTIALLY_DELIVERED("Đã giao 1 phần", 4),
+    DELIVERED("Đang giao", 4),
     COMPLETED("Hoàn thành", 5),
     CANCELED("Đã hủy",5);
 

@@ -29,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,8 +46,6 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentStrategyFactory paymentStrategyFactory;
     private final PromotionService promotionService;
     private final InventoryService inventoryService;
-    private final SerialProductItemRepository serialProductItemRepository;
-    private final EventPublisherHelper eventPublisherHelper;
 
 
     @Override
@@ -58,6 +58,8 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = new Order();
         order.setPaymentMethod(orderRequest.getPaymentMethod());
+        order.setNote(orderRequest.getNote());
+        order.setCode(generateCode("OD"));
 
         if (orderRequest.getPaymentMethod() == PaymentMethodEnum.COD)
             order.setStatus(OrderStatusEnum.AWAITING);
@@ -70,16 +72,20 @@ public class OrderServiceImpl implements OrderService {
 
         Address address = addressRepository.findById(orderRequest.getAddressId())
                 .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
+
+        if (!address.getUser().getId().equals(user.getId())) {
+            throw new AppException(ErrorCode.ADDRESS_NOT_BELONG_TO_USER);
+        }
         order.setAddress(address.getAddress());
         order.setPhone(address.getPhone());
         order.setRecipient(address.getRecipient());
 
-        int totalAmount = handelOrderDetail(orderRequest.getDetailRequest(), order);
+        OrderDetailRecord unit = handelOrderDetail(orderRequest.getDetailRequest(), order);
 
         int userDiscount = promotionService.applyPromotion(
                 orderRequest.getUserPromotionId(),
                 orderRequest.getUserId(),
-                totalAmount,
+                unit.totalPrice(),
                 order::setUserDiscount,
                 null
         );
@@ -87,21 +93,22 @@ public class OrderServiceImpl implements OrderService {
         int shopDiscount = promotionService.applyPromotion(
                 orderRequest.getShopPromotionId(),
                 orderRequest.getUserId(),
-                totalAmount,
+                unit.totalPrice(),
                 order::setShopDiscount,
                 null
         );
 
-        totalAmount = totalAmount - shopDiscount - userDiscount;
+        int totalPrice = unit.totalPrice - shopDiscount - userDiscount;
 
-        order.setAmount(totalAmount);
+        order.setTotalPrice(totalPrice);
+        order.setTotalQuantity(unit.totalQuantity);
 
         orderRepository.save(order);
 
         OrderResponse response = mapToOrderResponse(order);
 
         if (!orderRequest.getPaymentMethod().equals(PaymentMethodEnum.COD)){
-            PaymentResponse paymentResponse = handlePayment(order.getId(), orderRequest.getPaymentMethod(), totalAmount, user.getId());
+            PaymentResponse paymentResponse = handlePayment(order.getId(), orderRequest.getPaymentMethod(), totalPrice, user.getId());
             response.setPayUrl(paymentResponse.getPayUrl());
         }
 
@@ -128,54 +135,54 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        if (status ==OrderStatusEnum.SHIPPING){
+        if (status == OrderStatusEnum.PARTIALLY_DELIVERED || status == OrderStatusEnum.DELIVERED){
             throw new AppException(ErrorCode.API_CANNOT_CHANGE_TO_SHIPPING);
         }
         order.setStatus(status);
         orderRepository.save(order);
     }
 
-    @Transactional
-    @Override
-    public void changeOrderStatusToShipping(Long orderId, Map<Long, List<String>> serialNumbers) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
-
-        if( order.getStatus() != OrderStatusEnum.PENDING && order.getStatus() != OrderStatusEnum.PROCESSING) {
-            throw new AppException(ErrorCode.STATUS_INVALID);
-        }
-
-//        int totalQuantity = order.getOrderDetails().stream().mapToInt(OrderDetail::getQuantity).sum();
+//    @Transactional
+//    @Override
+//    public void changeOrderStatusToShipping(Long orderId, Map<Long, List<String>> serialNumbers) {
+//        Order order = orderRepository.findById(orderId)
+//                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 //
-//        int totalSerials = serialNumbers.values()
-//                .stream()
-//                .mapToInt(List::size)
-//                .sum();
-//
-//        if (totalSerials != totalQuantity) {
-//            throw new AppException(ErrorCode.NOT_ENOUGH_STOCK);
+//        if( order.getStatus() != OrderStatusEnum.PENDING && order.getStatus() != OrderStatusEnum.PROCESSING) {
+//            throw new AppException(ErrorCode.STATUS_INVALID);
 //        }
-
-        order.getOrderDetails().forEach(orderDetail -> {
-            List<String> serials = serialNumbers.get(orderDetail.getId().getProductDetailId());
-            if (serials == null || serials.size() != orderDetail.getQuantity()) {
-                throw new AppException(ErrorCode.NOT_ENOUGH_STOCK);
-            }
-
-            serials.forEach(serialNumber -> {
-                int executor = serialProductItemRepository.deactivateIfExists(serialNumber, orderDetail.getId().getProductDetailId());
-                if (executor == 0)
-                    throw new RuntimeException("Serial number already exists: " + serialNumber);
-                eventPublisherHelper.publish(new ExportOrderEvent(null, serialNumber, orderDetail.getId().getProductDetailId(), order.getId()));
-            });
-
-            orderDetail.setSerialNumber(serials);
-        });
-
-        order.setStatus(OrderStatusEnum.SHIPPING);
-
-        orderRepository.save(order);
-    }
+//
+////        int totalQuantity = order.getOrderDetails().stream().mapToInt(OrderDetail::getQuantity).sum();
+////
+////        int totalSerials = serialNumbers.values()
+////                .stream()
+////                .mapToInt(List::size)
+////                .sum();
+////
+////        if (totalSerials != totalQuantity) {
+////            throw new AppException(ErrorCode.NOT_ENOUGH_STOCK);
+////        }
+//
+//        order.getOrderDetails().forEach(orderDetail -> {
+//            List<String> serials = serialNumbers.get(orderDetail.getId().getProductDetailId());
+//            if (serials == null || serials.size() != orderDetail.getQuantity()) {
+//                throw new AppException(ErrorCode.NOT_ENOUGH_STOCK);
+//            }
+//
+//            serials.forEach(serialNumber -> {
+//                int executor = serialProductItemRepository.deactivateIfExists(serialNumber, orderDetail.getId().getProductDetailId());
+//                if (executor == 0)
+//                    throw new RuntimeException("Serial number already exists: " + serialNumber);
+//                eventPublisherHelper.publish(new ExportOrderEvent(null, serialNumber, orderDetail.getId().getProductDetailId(), order.getId()));
+//            });
+//
+//            orderDetail.setSerialNumber(serials);
+//        });
+//
+//        order.setStatus(OrderStatusEnum.DELIVERED);
+//
+//        orderRepository.save(order);
+//    }
 
     @Transactional
     @Override
@@ -243,7 +250,7 @@ public class OrderServiceImpl implements OrderService {
             throw new AppException(ErrorCode.CANNOT_PAYMENT);
         }
 
-        return handlePayment(orderId, order.getPaymentMethod(), order.getAmount(), order.getUser().getId());
+        return handlePayment(orderId, order.getPaymentMethod(), order.getTotalPrice(), order.getUser().getId());
     }
 
     @Override
@@ -258,11 +265,12 @@ public class OrderServiceImpl implements OrderService {
 
         orderRepository.save(order);
 
-        return handlePayment(orderId, order.getPaymentMethod(), order.getAmount(), order.getUser().getId());
+        return handlePayment(orderId, order.getPaymentMethod(), order.getTotalPrice(), order.getUser().getId());
     }
 
-    private Integer handelOrderDetail(List<OrderRequest.OrderDetailRequest> detailRequests, Order order) {
-        int totalAmount = 0;
+    private OrderDetailRecord handelOrderDetail(List<OrderRequest.OrderDetailRequest> detailRequests, Order order) {
+        int totalPrice = 0;
+        int totalQuantity = 0;
         for (OrderRequest.OrderDetailRequest detailRequest : detailRequests) {
 
             Inventory inventory = inventoryRepository.findInventoryForUpdate(detailRequest.getProductDetailId())
@@ -294,17 +302,18 @@ public class OrderServiceImpl implements OrderService {
                     .productPromotionId(detailRequest.getProductPromotionId() != null ? detailRequest.getProductPromotionId() : null)
                     .quantity(detailRequest.getQuantity())
                     .originalPrice(productDetail.getOriginalPrice())
-                    .price(price)
+                    .price(productDetail.getOriginalPrice() - discount)
                     .build();
 
             order.getOrderDetails().add(orderDetail);
 
-            totalAmount += price;
+            totalPrice += price;
+            totalQuantity += detailRequest.getQuantity();
         }
-        return totalAmount;
+        return new OrderDetailRecord(totalPrice, totalQuantity);
     }
 
-
+    private record OrderDetailRecord(int totalPrice, int totalQuantity) {}
 
     private OrderResponse mapToOrderResponse(Order order) {
 
@@ -312,14 +321,17 @@ public class OrderServiceImpl implements OrderService {
                 .id(order.getId())
                 .address(order.getAddress())
                 .phone(order.getPhone())
+                .code(order.getCode())
                 .recipient(order.getRecipient())
                 .userId(order.getUser().getId())
                 .status(order.getStatus())
+                .note(order.getNote())
                 .createdAt(order.getCreatedDate())
                 .userDiscount(order.getUserDiscount())
                 .shopDiscount(order.getShopDiscount())
                 .paymentMethod(order.getPaymentMethod())
-                .amount(order.getAmount())
+                .totalPrice(order.getTotalPrice())
+                .totalQuantity(order.getTotalQuantity())
                 .orderDetails(order.getOrderDetails().stream()
                         .map(detail -> OderDetailResponse.builder()
                                 .colorName(detail.getProductDetail().getColor().getName())
@@ -348,6 +360,14 @@ public class OrderServiceImpl implements OrderService {
                 .pay(paymentRequest);
     }
 
+    private String generateCode(String prefix) {
+        String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String baseCode = prefix + currentDate;
 
+        int count = orderRepository.countByCodeStartingWith(baseCode);
+        int nextCount = count + 1;
+
+        return baseCode +'-' + String.format("%03d", nextCount);
+    }
 
 }

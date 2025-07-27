@@ -8,16 +8,16 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-@Component
-@RequiredArgsConstructor
-public class ExportProductListener {
-    private final InventoryServiceImpl inventoryService;
-    @Async
-    @EventListener
-    public void handle(ExportOrderEvent event) {
-        inventoryService.createInvetoryTransaction(
-                event.getSerialNumber(),
-                event.getProductDetailId(),
-                event.getOrderId());
-    }
-}
+//@Component
+//@RequiredArgsConstructor
+//public class ExportProductListener {
+//    private final InventoryServiceImpl inventoryService;
+//    @Async
+//    @EventListener
+//    public void handle(ExportOrderEvent event) {
+//        inventoryService.createInvetoryTransaction(
+//                event.getSerialNumber(),
+//                event.getProductDetailId(),
+//                event.getOrderId());
+//    }
+//}

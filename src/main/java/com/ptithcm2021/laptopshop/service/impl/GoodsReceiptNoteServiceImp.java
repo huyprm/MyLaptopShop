@@ -53,7 +53,7 @@ public class GoodsReceiptNoteServiceImp implements GoodsReceiptNoteService {
             throw new AppException(ErrorCode.PURCHASE_ORDER_COMPLETED);
         }
 
-        // Fetch all needed ProductDetail and PurchaseOrderDetail in batch
+        // Fetch all necessary ProductDetail and PurchaseOrderDetail in batch
         List<Long> productDetailIds = request.getDetailRequestList().stream()
                 .map(GoodsReceiptNoteRequest.GoodsReceiptNoteDetailRequest::getProductDetailId)
                 .distinct()
@@ -179,6 +179,7 @@ public class GoodsReceiptNoteServiceImp implements GoodsReceiptNoteService {
         List<GRNDetail> details = new ArrayList<>();
 
         for (var req : requests) {
+            // Nếu mở rộng cho sản phẩm không có serial number, cần bỏ qua phần kiểm tra serial number và increment quantity accordingly
             // Validate quantity
             if (req.getSerialNumber().size() != req.getQuantity()) {
                 throw new AppException(ErrorCode.SERIAL_NUMBER_QUANTITY_MISMATCH);
@@ -195,10 +196,12 @@ public class GoodsReceiptNoteServiceImp implements GoodsReceiptNoteService {
                 throw new AppException(ErrorCode.PURCHASE_ORDER_DETAIL_NOT_FOUND);
             }
 
+            // Check if PurchaseOrderDetail belongs to the PurchaseOrder
             if (!poDetail.getPurchaseOrder().getId().equals(purchaseOrder.getId())) {
                 throw new AppException(ErrorCode.PURCHASE_ORDER_DETAIL_NOT_BELONG_TO_PURCHASE_ORDER);
             }
 
+            // Check if ProductDetail matches the PurchaseOrderDetail
             if (!poDetail.getProductDetail().getId().equals(productDetail.getId())) {
                 throw new AppException(ErrorCode.PRODUCT_DETAIL_NOT_MATCH);
             }
@@ -223,7 +226,7 @@ public class GoodsReceiptNoteServiceImp implements GoodsReceiptNoteService {
                         .productDetail(productDetail)
                         .purchaseOrderDetail(poDetail)
                         .serialNumber(serialProductItem)
-                        .quantity(req.getQuantity()) // Nếu 1 serial = 1 sản phẩm
+                        .quantity(1) // Nếu 1 serial = 1 sản phẩm
                         .unitPrice(req.getUnitPrice())
                         .build();
 

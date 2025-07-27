@@ -45,14 +45,14 @@ public class OrderController {
                 .build();
     }
 
-    @PutMapping("/change-status/shipping/{id}")
-    public ApiResponse<Void> changeOrderStatusToShipping(@PathVariable Long id,
-                                                          @RequestBody Map<Long, List<String>> serialNumbers) {
-        orderService.changeOrderStatusToShipping(id, serialNumbers);
-        return ApiResponse.<Void>builder()
-                .message("Order status changed to shipping successfully")
-                .build();
-    }
+//    @PutMapping("/change-status/shipping/{id}")
+//    public ApiResponse<Void> changeOrderStatusToShipping(@PathVariable Long id,
+//                                                          @RequestBody Map<Long, List<String>> serialNumbers) {
+//        orderService.changeOrderStatusToShipping(id, serialNumbers);
+//        return ApiResponse.<Void>builder()
+//                .message("Order status changed to shipping successfully")
+//                .build();
+//    }
 
     @PutMapping("/{oderId}")
     public ApiResponse<PaymentResponse> changPaymentMethod(@PathVariable Long oderId,

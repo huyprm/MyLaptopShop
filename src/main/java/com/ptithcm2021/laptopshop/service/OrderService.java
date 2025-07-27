@@ -18,7 +18,7 @@ public interface OrderService {
 
     void changeOrderStatus(Long orderId, OrderStatusEnum status);
 
-    void changeOrderStatusToShipping(Long orderId, Map<Long, List<String>> serialNumbers);
+    //void changeOrderStatusToShipping(Long orderId, Map<Long, List<String>> serialNumbers);
 
     void removeOrder();
 

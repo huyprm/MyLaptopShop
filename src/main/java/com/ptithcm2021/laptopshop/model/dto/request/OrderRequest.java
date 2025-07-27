@@ -19,6 +19,8 @@ public class OrderRequest {
     private String userId;
     @NotNull
     private Long addressId;
+
+    private String note;
     @NotEmpty
     private List<OrderDetailRequest> detailRequest;
     private Long userPromotionId;
