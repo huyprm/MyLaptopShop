@@ -43,4 +43,12 @@ public class ReviewController {
     public ApiResponse<ChildReviewResponse> getReply(@RequestParam long reviewId) {
         return ApiResponse.<ChildReviewResponse>builder().data(reviewService.getChildReviewById(reviewId)).build();
     }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> deleteReview(@PathVariable Long id) {
+        reviewService.deleteReview(id);
+        return ApiResponse.<Void>builder()
+                .message("Review deleted successfully")
+                .build();
+    }
 }

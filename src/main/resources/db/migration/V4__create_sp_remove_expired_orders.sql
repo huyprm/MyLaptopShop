@@ -15,7 +15,7 @@ begin
     end if;
 
     update inventories i
-    set quantity = quantity + od.quantity
+    set quantity = i.quantity + od.quantity
     from order_details od
     join orders o on od.order_id = o.id
     where i.product_detail_id = od.product_detail_id

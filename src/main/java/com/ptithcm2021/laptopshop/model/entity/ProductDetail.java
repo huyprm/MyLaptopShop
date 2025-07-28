@@ -16,6 +16,10 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
+@NamedStoredProcedureQuery(
+        name = "sp_update_discount_price",
+        procedureName = "sp_update_discount_price"
+)
 public class ProductDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -18,4 +18,6 @@ public interface ReviewService {
     List<ParentReviewResponse> getParentReviews(long productDetailId);
 
     ChildReviewResponse getChildReviewById(long id);
+
+    void deleteReview(long reviewId);
 }

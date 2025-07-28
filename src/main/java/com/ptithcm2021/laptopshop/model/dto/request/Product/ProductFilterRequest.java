@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductFilterRequest {
+    private String keyword;
     private Integer brandId;
     private Integer categoryId;
     private Integer seriesId;

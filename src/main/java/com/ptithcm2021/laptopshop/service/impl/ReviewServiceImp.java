@@ -15,7 +15,6 @@ import com.ptithcm2021.laptopshop.repository.UserRepository;
 import com.ptithcm2021.laptopshop.service.ReviewService;
 import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -146,5 +145,22 @@ public class ReviewServiceImp implements ReviewService {
                 //.childReviewResponses(reviewRepository.findAllByParentReviewId(review.getId()))
                 .replyOnUser(review.getReplyOnUser().getFirstName() + " " + review.getReplyOnUser().getLastName())
                 .build();
+    }
+
+    @Override
+    public void deleteReview(long reviewId) {
+        String userId = FetchUserIdUtil.fetchUserId();
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!review.getReviewer().getId().equals(userId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        try {
+            reviewRepository.deleteById(reviewId);
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.CANNOT_DELETE);
+        }
     }
 }

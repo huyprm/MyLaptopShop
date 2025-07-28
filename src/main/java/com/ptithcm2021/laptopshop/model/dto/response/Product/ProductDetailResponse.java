@@ -15,7 +15,7 @@ public class ProductDetailResponse {
     private long productId;
     private ColorResponse color;
     private int originalPrice;
-    private int discountPrice;
+    //private int discountPrice;
     private String slug;
     private String title;
     private String warrantyProd;

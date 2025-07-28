@@ -30,4 +30,6 @@ public interface ProductDetailMapper {
     default String firstImage(List<String> images){
         return  (images != null && !images.isEmpty()) ? images.getFirst() : null;
     }
+
+
 }

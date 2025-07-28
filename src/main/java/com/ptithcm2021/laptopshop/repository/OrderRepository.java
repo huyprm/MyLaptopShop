@@ -23,7 +23,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT o FROM Order o WHERE o.status = 'PENDING' AND o.createdDate < :threshold")
     List<Order> findAllOrderExpiredPayment(LocalDateTime threshold);
 
-    @Procedure(name = "remove_expired_orders")
+    @Query(value = "SELECT remove_expired_orders()", nativeQuery = true)
     void removeExpiredOrders();
 
     int countByCodeStartingWith(String baseCode);

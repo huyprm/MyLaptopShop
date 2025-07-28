@@ -57,6 +57,7 @@ public class CartServiceImpl implements CartService {
                     .id(cartId)
                     .user(user)
                     .productDetail(product)
+                    .productPromotionId(cartRequest.getProductPromotionId())
                     .quantity(cartRequest.getQuantity())
                     .build();
         } else cart.setQuantity(cart.getQuantity() + cartRequest.getQuantity());
@@ -83,6 +84,7 @@ public class CartServiceImpl implements CartService {
             throw new AppException(ErrorCode.PRODUCT_IS_OUT_OF_QUANTITY);
 
         cart.setQuantity(cartRequest.getQuantity());
+        cart.setProductPromotionId(cartRequest.getProductPromotionId());
 
         return cartMapper.toCartResponse(cartRepository.save(cart));
     }

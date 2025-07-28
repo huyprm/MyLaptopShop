@@ -34,6 +34,9 @@ public class Review {
     @JoinColumn(name = "parent_id")
     private Review parentReview;
 
+    @OneToMany(mappedBy = "parentReview", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> replies;
+
     @ManyToOne(fetch =  FetchType.LAZY)
     @JoinColumn(name = "reply_on_user")
     private User replyOnUser;
