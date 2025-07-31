@@ -22,9 +22,6 @@ public class ProductDetailRequest {
     @NotNull
     private Integer originalPrice;
 
-    @NotNull
-    private Integer discountPrice;
-
     @NotBlank
     private String slug;
 

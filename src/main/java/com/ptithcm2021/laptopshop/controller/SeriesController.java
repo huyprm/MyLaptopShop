@@ -4,6 +4,7 @@ import com.ptithcm2021.laptopshop.model.dto.request.SeriesRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.ApiResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.SeriesResponse;
 import com.ptithcm2021.laptopshop.service.SeriesService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,14 +16,14 @@ import java.util.List;
 public class SeriesController {
     private final SeriesService seriesService;
 
-    @PostMapping("/create")
-    public ApiResponse<SeriesResponse> createSeries(@RequestBody SeriesRequest seriesRequest,
-                                                    @RequestParam Integer brandId) {
+    @PostMapping("/create/by-brand/{brandId}")
+    public ApiResponse<SeriesResponse> createSeries(@RequestBody @Valid SeriesRequest seriesRequest,
+                                                    @PathVariable int brandId) {
         return ApiResponse.<SeriesResponse>builder().data(seriesService.addSeries(seriesRequest, brandId)).build();
     }
 
     @PutMapping("/update/{id}")
-    public ApiResponse<SeriesResponse> updateSeries(@RequestBody SeriesRequest seriesRequest, @PathVariable Integer id) {
+    public ApiResponse<SeriesResponse> updateSeries(@RequestBody @Valid SeriesRequest seriesRequest, @PathVariable Integer id) {
         return ApiResponse.<SeriesResponse>builder().data(seriesService.updateSeries(seriesRequest, id)).build();
     }
 

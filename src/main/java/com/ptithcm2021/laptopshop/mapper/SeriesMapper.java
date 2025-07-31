@@ -5,11 +5,14 @@ import com.ptithcm2021.laptopshop.model.dto.response.SeriesResponse;
 import com.ptithcm2021.laptopshop.model.entity.Product;
 import com.ptithcm2021.laptopshop.model.entity.Series;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring")
 public interface SeriesMapper {
+
+    @Mapping(target = "brandName", source = "brand.name")
     SeriesResponse toSeriesResponse(Series series);
 
     Series toSeries(SeriesRequest seriesRequest);

@@ -16,7 +16,7 @@ public class OpenAPIConfig {
     @Bean
     public OpenAPI customOpenApi() {
         return new OpenAPI()
-                .servers(List.of(new Server().url("https://dev.api.mylaptopshop.me/"),
+                .servers(List.of(new Server().url("https://dev.api.mylaptopshop.me"),
                         new Server().url("http://localhost:8080")))
                 .info(new Info()
                         .version("1.0")

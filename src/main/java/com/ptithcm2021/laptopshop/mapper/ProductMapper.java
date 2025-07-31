@@ -13,5 +13,6 @@ public interface ProductMapper {
     //@Mapping(source = "series.id", target = "seriesId")
     //@Mapping(source = "category.id", target = "categoryId")
     ProductResponse toResponse(Product product);
+
     Product toProduct(ProductRequest request);
 }

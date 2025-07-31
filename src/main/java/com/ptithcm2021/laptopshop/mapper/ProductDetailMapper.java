@@ -18,6 +18,7 @@ public interface ProductDetailMapper {
     @Mapping(target = "quantity", source = "inventory.quantity")
     ProductDetailResponse toResponse(ProductDetail productDetail);
 
+    @Mapping(target = "discountPrice", source = "originalPrice")
     ProductDetail toProductDetail(ProductDetailRequest request);
 
     @Mapping(target = "productId", source = "product.id")

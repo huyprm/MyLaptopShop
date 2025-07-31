@@ -272,6 +272,7 @@ public class DeliveryNoteServiceImpl implements DeliveryNoteService {
 
                         if( status == DeliveryNoteStatus.COMPLETED) {
                             serialProductItem.setActive(false);
+                            productDetail.setSoldQuantity(productDetail.getSoldQuantity() + 1);
                         }
 
                         DeliveryNoteDetail deliveryNoteDetail = DeliveryNoteDetail.builder()
