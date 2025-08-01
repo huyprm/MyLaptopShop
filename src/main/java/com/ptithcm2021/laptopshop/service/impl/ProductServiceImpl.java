@@ -121,11 +121,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @CacheEvict(value = "products", key = "'product:' + #id")
     public void deleteProduct(long id) {
-        if (!productRepository.existsById(id)) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-        }
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
         try{
-            productRepository.deleteById(id);
+            productRepository.delete(product);
         }catch (Exception e){
             log.error("Delete product failed: " + e.getMessage());
             throw new AppException(ErrorCode.CANNOT_DELETE);

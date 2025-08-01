@@ -1,7 +1,8 @@
 package com.ptithcm2021.laptopshop.mapper;
 
-import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrderDetailResponse;
-import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrderResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrder.PurchaseOrderDetailResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrder.PurchaseOrderListResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrder.PurchaseOrderResponse;
 import com.ptithcm2021.laptopshop.model.entity.PurchaseOrder;
 import com.ptithcm2021.laptopshop.model.entity.PurchaseOrderDetail;
 import com.ptithcm2021.laptopshop.model.entity.User;
@@ -16,6 +17,11 @@ public interface PurchaseOrderMapper {
     @Mapping(target = "userOrderName", source = "userOrder", qualifiedByName = "username")
     @Mapping(target = "userId", source = "userOrder.id")
     PurchaseOrderResponse toPurchaseOrderResponse(PurchaseOrder purchaseOrder);
+
+    @Mapping(target = "supplierName", source = "supplier.name")
+    @Mapping(target = "userOrderName", source = "userOrder", qualifiedByName = "username")
+    @Mapping(target = "userId", source = "userOrder.id")
+    PurchaseOrderListResponse toPurchaseOrderListResponse(PurchaseOrder purchaseOrder);
 
     @Mapping(target ="title", source = "productDetail.title")
     PurchaseOrderDetailResponse toPurchaseOrderDetailResponse(PurchaseOrderDetail purchaseOrderDetail);

@@ -1,7 +1,8 @@
 package com.ptithcm2021.laptopshop.mapper;
 
-import com.ptithcm2021.laptopshop.model.dto.response.GoodsReceiptNoteDetailResponse;
-import com.ptithcm2021.laptopshop.model.dto.response.GoodsReceiptNoteResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.GoodsNoteReciept.GoodsReceiptNoteDetailResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.GoodsNoteReciept.GoodsReceiptNoteListResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.GoodsNoteReciept.GoodsReceiptNoteResponse;
 import com.ptithcm2021.laptopshop.model.entity.GRNDetail;
 import com.ptithcm2021.laptopshop.model.entity.GoodsReceiptNote;
 import com.ptithcm2021.laptopshop.model.entity.User;
@@ -17,8 +18,14 @@ public interface GoodsReceiptNoteMapper {
     @Mapping(target = "purchaseOrderCode", source = "purchaseOrder.code")
     GoodsReceiptNoteResponse toResponse(GoodsReceiptNote goodsReceiptNote);
 
+    @Mapping(target = "staffName", source = "staff", qualifiedByName = "name")
+    @Mapping(target = "staffId", source = "goodsReceiptNote.staff.id")
+    @Mapping(target = "purchaseOrderCode", source = "purchaseOrder.code")
+    GoodsReceiptNoteListResponse toListResponse(GoodsReceiptNote goodsReceiptNote);
+
     @Mapping(target = "productTitle", source = "productDetail.title")
     @Mapping(target = "serialNumber", source = "serialNumber.serialNumber")
+    @Mapping(target = "thumbnail", source = "productDetail.thumbnail")
     GoodsReceiptNoteDetailResponse toDetailResponse(GRNDetail grnDetail);
 
     @Named("name")

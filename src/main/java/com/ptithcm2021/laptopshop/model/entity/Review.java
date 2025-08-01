@@ -49,6 +49,6 @@ public class Review {
     private List<String> reviewImages;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_detail_id")
+    @JoinColumn(name = "product_detail_id", nullable = false)
     private ProductDetail productDetail;
 }

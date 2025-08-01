@@ -1,13 +1,13 @@
 package com.ptithcm2021.laptopshop.service.impl;
 
-import com.ptithcm2021.laptopshop.event.EventPublisherHelper;
-import com.ptithcm2021.laptopshop.event.ExportOrderEvent;
 import com.ptithcm2021.laptopshop.exception.AppException;
 import com.ptithcm2021.laptopshop.exception.ErrorCode;
+import com.ptithcm2021.laptopshop.mapper.OrderMapper;
 import com.ptithcm2021.laptopshop.model.dto.request.OrderRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.PaymentRequest;
-import com.ptithcm2021.laptopshop.model.dto.response.OderDetailResponse;
-import com.ptithcm2021.laptopshop.model.dto.response.OrderResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.Order.OderDetailResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.Order.OrderListResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.Order.OrderResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.PaymentResponse;
 import com.ptithcm2021.laptopshop.model.entity.*;
@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,7 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentStrategyFactory paymentStrategyFactory;
     private final PromotionService promotionService;
     private final InventoryService inventoryService;
+    private final OrderMapper orderMapper;
 
 
     @Override
@@ -266,6 +268,22 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
 
         return handlePayment(orderId, order.getPaymentMethod(), order.getTotalPrice(), order.getUser().getId());
+    }
+
+    @Override
+    public PageWrapper<OrderListResponse> getAllOrders(int page, int size, OrderStatusEnum statusEnum, String keyword) {
+        Pageable pageable = PageRequest.of(page, size).withSort(Sort.by(Sort.Direction.DESC, "createdDate"));
+
+        String wrappedKeyword = keyword != null && !keyword.isBlank() ? "%" + keyword + "%" : null;
+
+        Page<Order> orders = orderRepository.findByCodeAndStatus(wrappedKeyword, statusEnum, pageable);
+        return PageWrapper.<OrderListResponse>builder()
+                .content(orders.stream().map(orderMapper::toOrderListResponse).toList())
+                .pageSize(orders.getSize())
+                .pageNumber(orders.getNumber())
+                .totalPages(orders.getTotalPages())
+                .totalElements(orders.getTotalElements())
+                .build();
     }
 
     private OrderDetailRecord handelOrderDetail(List<OrderRequest.OrderDetailRequest> detailRequests, Order order) {

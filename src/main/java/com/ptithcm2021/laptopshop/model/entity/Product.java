@@ -32,6 +32,6 @@ public class Product {
     @JoinColumn(name = "series_id", nullable = false)
     private Series series;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProductDetail> productDetails;
 }

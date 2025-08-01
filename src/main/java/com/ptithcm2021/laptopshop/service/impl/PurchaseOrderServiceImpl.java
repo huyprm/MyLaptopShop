@@ -5,13 +5,13 @@ import com.ptithcm2021.laptopshop.exception.ErrorCode;
 import com.ptithcm2021.laptopshop.mapper.PurchaseOrderMapper;
 import com.ptithcm2021.laptopshop.model.dto.request.PurChaseOrderRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
-import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrderResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrder.PurchaseOrderListResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrder.PurchaseOrderResponse;
 import com.ptithcm2021.laptopshop.model.entity.*;
 import com.ptithcm2021.laptopshop.model.enums.PurchaseOrderStatusEnum;
 import com.ptithcm2021.laptopshop.repository.*;
 import com.ptithcm2021.laptopshop.service.PurchaseOrderService;
 import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
-import jakarta.persistence.criteria.Fetch;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -107,22 +107,15 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     }
 
     @Override
-    public PageWrapper<PurchaseOrderResponse> getPurchaseOrders(int page, int size, PurchaseOrderStatusEnum statusEnum) {
+    public PageWrapper<PurchaseOrderListResponse> getPurchaseOrders(int page, int size, PurchaseOrderStatusEnum statusEnum, String keyword) {
         Pageable pageable = Pageable.ofSize(size).withPage(page);
-        if (statusEnum == null) {
-            Page<PurchaseOrder> purchaseOrderPage = purchaseOrderRepository.findAll(pageable);
-            return PageWrapper.<PurchaseOrderResponse>builder()
-                    .content(purchaseOrderPage.stream().map(purchaseOrderMapper::toPurchaseOrderResponse).collect(Collectors.toList()))
-                    .totalPages(purchaseOrderPage.getTotalPages())
-                    .totalElements(purchaseOrderPage.getTotalElements())
-                    .pageNumber(purchaseOrderPage.getNumber())
-                    .pageSize(purchaseOrderPage.getSize())
-                    .build();
-        }
-        Page<PurchaseOrder> purchaseOrderPage = purchaseOrderRepository.findAllByStatus(statusEnum, pageable);
 
-        return PageWrapper.<PurchaseOrderResponse>builder()
-                .content(purchaseOrderPage.stream().map(purchaseOrderMapper::toPurchaseOrderResponse).collect(Collectors.toList()))
+        String wrappedKeyword = (keyword == null || keyword.isBlank()) ? null : "%" + keyword + "%";
+
+        Page<PurchaseOrder> purchaseOrderPage = purchaseOrderRepository.findByStatusAndCodeContaining(statusEnum, wrappedKeyword, pageable);
+
+        return PageWrapper.<PurchaseOrderListResponse>builder()
+                .content(purchaseOrderPage.stream().map(purchaseOrderMapper::toPurchaseOrderListResponse).collect(Collectors.toList()))
                 .totalPages(purchaseOrderPage.getTotalPages())
                 .totalElements(purchaseOrderPage.getTotalElements())
                 .pageNumber(purchaseOrderPage.getNumber())

@@ -92,7 +92,11 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .orElseThrow(() -> new AppException(ErrorCode.COLOR_NOT_FOUND));
 
         productDetail.setColor(color);
-        productDetail.setInventory(new Inventory());
+        productDetail.setInventory(
+                Inventory.builder()
+                        .productDetail(productDetail)
+                        .quantity(0)
+                        .build());
 
         ProductDetailResponse response = productDetailMapper
                 .toResponse(productDetailRepository.save(productDetail));

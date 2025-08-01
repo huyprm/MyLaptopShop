@@ -2,10 +2,10 @@ package com.ptithcm2021.laptopshop.controller;
 
 import com.ptithcm2021.laptopshop.model.dto.request.GoodsReceiptNoteRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.ApiResponse;
-import com.ptithcm2021.laptopshop.model.dto.response.GoodsReceiptNoteResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.GoodsNoteReciept.GoodsReceiptNoteListResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.GoodsNoteReciept.GoodsReceiptNoteResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.service.GoodsReceiptNoteService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,36 +30,30 @@ public class GoodsReceiptNoteController {
                 .build();
     }
 
-    @GetMapping("/code/{code}")
-    public ApiResponse<GoodsReceiptNoteResponse> getGoodsReceiptNoteById(@PathVariable String code) {
-        return ApiResponse.<GoodsReceiptNoteResponse>builder()
-                .data(goodsReceiptNoteService.getGRNByCode(code))
-                .build();
-    }
-
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     public ApiResponse<GoodsReceiptNoteResponse> getGoodsReceiptNoteById(@PathVariable Long id) {
         return ApiResponse.<GoodsReceiptNoteResponse>builder()
                 .data(goodsReceiptNoteService.getGRNById(id))
                 .build();
     }
 
-    @GetMapping("/list")
-    public ApiResponse<PageWrapper<GoodsReceiptNoteResponse>> getGoodsReceiptNoteList(
+    @GetMapping("/search-by-code")
+    public ApiResponse<PageWrapper<GoodsReceiptNoteListResponse>> getGoodsReceiptNoteListByPurchaseOrderCode(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ApiResponse.<PageWrapper<GoodsReceiptNoteResponse>>builder()
-                .data(goodsReceiptNoteService.getGRNList(page, size))
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String grnCode) {
+        return ApiResponse.<PageWrapper<GoodsReceiptNoteListResponse>>builder()
+                .data(goodsReceiptNoteService.getGRNListByPurchaseOrderCode(page, size, grnCode))
                 .build();
     }
 
     @GetMapping("/list-by-purchase-order")
-    public ApiResponse<PageWrapper<GoodsReceiptNoteResponse>> getGoodsReceiptNoteListByPurchaseOrderCode(
+    public ApiResponse<PageWrapper<GoodsReceiptNoteResponse>> getGoodsReceiptNoteByPurchaseOrderId(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam String purchaseOrderCode) {
+            @RequestParam() long purchaseOrderId) {
         return ApiResponse.<PageWrapper<GoodsReceiptNoteResponse>>builder()
-                .data(goodsReceiptNoteService.getGRNListByPurchaseOrderCode(page, size, purchaseOrderCode))
+                .data(goodsReceiptNoteService.getGRNListByPurchaseOrderId(page, size, purchaseOrderId))
                 .build();
     }
 }

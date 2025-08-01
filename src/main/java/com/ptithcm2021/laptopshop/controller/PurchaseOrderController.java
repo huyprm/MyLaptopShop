@@ -3,9 +3,8 @@ package com.ptithcm2021.laptopshop.controller;
 import com.ptithcm2021.laptopshop.model.dto.request.PurChaseOrderRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.ApiResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
-import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrderDetailResponse;
-import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrderResponse;
-import com.ptithcm2021.laptopshop.model.entity.PurchaseOrder;
+import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrder.PurchaseOrderListResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrder.PurchaseOrderResponse;
 import com.ptithcm2021.laptopshop.model.enums.PurchaseOrderStatusEnum;
 import com.ptithcm2021.laptopshop.service.PurchaseOrderService;
 import jakarta.validation.Valid;
@@ -43,11 +42,12 @@ public class PurchaseOrderController {
         return ApiResponse.<Void>builder().build();
     }
 
-    @GetMapping()
-    public ApiResponse<PageWrapper<PurchaseOrderResponse>> getPurchaseOrders(@RequestParam(required = false) PurchaseOrderStatusEnum statusEnum,
-                                                                             @RequestParam(defaultValue = "0") Integer page,
-                                                                             @RequestParam(defaultValue = "10") Integer size) {
-        return ApiResponse.<PageWrapper<PurchaseOrderResponse>>builder()
-                .data(purchaseOrderService.getPurchaseOrders(page, size, statusEnum)).build();
+    @GetMapping("/search-by-code")
+    public ApiResponse<PageWrapper<PurchaseOrderListResponse>> getPurchaseOrders(@RequestParam(required = false) PurchaseOrderStatusEnum statusEnum,
+                                                                                 @RequestParam(required = false) String keyword,
+                                                                                 @RequestParam(defaultValue = "0") Integer page,
+                                                                                 @RequestParam(defaultValue = "10") Integer size) {
+        return ApiResponse.<PageWrapper<PurchaseOrderListResponse>>builder()
+                .data(purchaseOrderService.getPurchaseOrders(page, size, statusEnum, keyword)).build();
     }
 }

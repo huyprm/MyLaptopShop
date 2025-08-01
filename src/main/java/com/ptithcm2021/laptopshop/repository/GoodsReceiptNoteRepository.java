@@ -2,6 +2,7 @@ package com.ptithcm2021.laptopshop.repository;
 
 import com.ptithcm2021.laptopshop.model.entity.GoodsReceiptNote;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,9 +22,13 @@ public interface GoodsReceiptNoteRepository extends JpaRepository<GoodsReceiptNo
 
     Optional<GoodsReceiptNote> findByCode(String code);
 
-    Page<GoodsReceiptNote> findAllByPurchaseOrderCode(String purchaseOrderCode,
+    @Query("SELECT g FROM GoodsReceiptNote g WHERE :grnCode is null or g.code like :grnCode")
+    Page<GoodsReceiptNote> findAllByGRNCode(String grnCode,
                                                     Pageable pageable);
 
     @Query("SELECT COUNT(g) FROM GRNDetail g WHERE g.purchaseOrderDetail.id = :productDetailId")
     int countGRNByProductDetailId(Long productDetailId);
+
+    Page<GoodsReceiptNote> findAllByPurchaseOrderId(long purchaseOrderId,
+                                                    Pageable pageable);
 }

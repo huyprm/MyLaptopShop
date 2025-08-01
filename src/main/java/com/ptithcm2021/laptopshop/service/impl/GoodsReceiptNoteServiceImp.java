@@ -4,7 +4,8 @@ import com.ptithcm2021.laptopshop.exception.AppException;
 import com.ptithcm2021.laptopshop.exception.ErrorCode;
 import com.ptithcm2021.laptopshop.mapper.GoodsReceiptNoteMapper;
 import com.ptithcm2021.laptopshop.model.dto.request.GoodsReceiptNoteRequest;
-import com.ptithcm2021.laptopshop.model.dto.response.GoodsReceiptNoteResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.GoodsNoteReciept.GoodsReceiptNoteListResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.GoodsNoteReciept.GoodsReceiptNoteResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.entity.*;
 import com.ptithcm2021.laptopshop.model.enums.PurchaseOrderStatusEnum;
@@ -15,6 +16,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -138,13 +140,17 @@ public class GoodsReceiptNoteServiceImp implements GoodsReceiptNoteService {
     }
 
     @Override
-    public PageWrapper<GoodsReceiptNoteResponse> getGRNList(int page, int size) {
-        Page<GoodsReceiptNote> grnList = goodsReceiptNoteRepository.findAll(PageRequest.of(page, size));
-        List<GoodsReceiptNoteResponse> responses = grnList.stream()
-                .map(goodsReceiptNoteMapper::toResponse)
+    public PageWrapper<GoodsReceiptNoteListResponse> getGRNListByPurchaseOrderCode(int page, int size, String grnCode) {
+        String wrappedCode = (grnCode== null || grnCode.isBlank()) ? null : '%'+grnCode+'%';
+
+        PageRequest pageRequest = PageRequest.of(page, size).withSort(Sort.by(Sort.Direction.DESC, "receivedDate"));
+
+        Page<GoodsReceiptNote> grnList = goodsReceiptNoteRepository.findAllByGRNCode(wrappedCode, pageRequest);
+        List<GoodsReceiptNoteListResponse> responses = grnList.stream()
+                .map(goodsReceiptNoteMapper::toListResponse)
                 .collect(Collectors.toList());
 
-        return PageWrapper.<GoodsReceiptNoteResponse>builder()
+        return PageWrapper.<GoodsReceiptNoteListResponse>builder()
                 .content(responses)
                 .totalPages(grnList.getTotalPages())
                 .totalElements(grnList.getTotalElements())
@@ -154,8 +160,9 @@ public class GoodsReceiptNoteServiceImp implements GoodsReceiptNoteService {
     }
 
     @Override
-    public PageWrapper<GoodsReceiptNoteResponse> getGRNListByPurchaseOrderCode(int page, int size, String purchaseOrderCode) {
-        Page<GoodsReceiptNote> grnList = goodsReceiptNoteRepository.findAllByPurchaseOrderCode(purchaseOrderCode, PageRequest.of(page, size));
+    public PageWrapper<GoodsReceiptNoteResponse> getGRNListByPurchaseOrderId(int page, int size, long purchaseOrderId) {
+
+        Page<GoodsReceiptNote> grnList = goodsReceiptNoteRepository.findAllByPurchaseOrderId(purchaseOrderId, PageRequest.of(page, size));
         List<GoodsReceiptNoteResponse> responses = grnList.stream()
                 .map(goodsReceiptNoteMapper::toResponse)
                 .collect(Collectors.toList());

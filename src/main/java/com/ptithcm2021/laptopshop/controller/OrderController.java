@@ -2,22 +2,20 @@ package com.ptithcm2021.laptopshop.controller;
 
 import com.ptithcm2021.laptopshop.model.dto.request.OrderRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.ApiResponse;
-import com.ptithcm2021.laptopshop.model.dto.response.OrderResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.Order.OrderListResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.Order.OrderResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.PaymentResponse;
 import com.ptithcm2021.laptopshop.model.enums.OrderStatusEnum;
 import com.ptithcm2021.laptopshop.model.enums.PaymentMethodEnum;
 import com.ptithcm2021.laptopshop.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.models.annotations.OpenAPI31;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,15 +42,6 @@ public class OrderController {
                 .message("Order status updated successfully")
                 .build();
     }
-
-//    @PutMapping("/change-status/shipping/{id}")
-//    public ApiResponse<Void> changeOrderStatusToShipping(@PathVariable Long id,
-//                                                          @RequestBody Map<Long, List<String>> serialNumbers) {
-//        orderService.changeOrderStatusToShipping(id, serialNumbers);
-//        return ApiResponse.<Void>builder()
-//                .message("Order status changed to shipping successfully")
-//                .build();
-//    }
 
     @PutMapping("/{oderId}")
     public ApiResponse<PaymentResponse> changPaymentMethod(@PathVariable Long oderId,
@@ -99,6 +88,17 @@ public class OrderController {
         return ApiResponse.<PageWrapper<OrderResponse>>builder()
                 .message("Orders retrieved successfully")
                 .data(pageWrapper)
+                .build();
+    }
+
+    @GetMapping("/search")
+    public ApiResponse<PageWrapper<OrderListResponse>> searchOrders(@RequestParam(required = false) String code,
+                                                                    @RequestParam(required = false) OrderStatusEnum status,
+                                                                    @RequestParam(defaultValue = "0") int page,
+                                                                    @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageWrapper<OrderListResponse>>builder()
+                .message("Orders searched successfully")
+                .data(orderService.getAllOrders(page, size, status, code))
                 .build();
     }
 }

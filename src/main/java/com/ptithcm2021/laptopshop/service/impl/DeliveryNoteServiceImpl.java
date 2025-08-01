@@ -5,7 +5,8 @@ import com.ptithcm2021.laptopshop.exception.ErrorCode;
 import com.ptithcm2021.laptopshop.mapper.DeliveryNoteMapper;
 import com.ptithcm2021.laptopshop.model.dto.request.DeliveryNoteDetailRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.DeliveryNoteRequest;
-import com.ptithcm2021.laptopshop.model.dto.response.DeliveryNoteResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.DeliveryNote.DeliveryNoteListResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.DeliveryNote.DeliveryNoteResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.entity.*;
 import com.ptithcm2021.laptopshop.model.enums.DeliveryNoteStatus;
@@ -17,6 +18,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -177,15 +179,12 @@ public class DeliveryNoteServiceImpl implements DeliveryNoteService {
     }
 
     @Override
-    public PageWrapper<DeliveryNoteResponse> getDeliveryNotes(int page, int size) {
-        Page<DeliveryNote> deliveryNotes = deliveryNoteRepository.findAll(PageRequest.of(page, size));
-
-        List<DeliveryNoteResponse> responses = deliveryNotes.stream()
-                .map(deliveryNoteMapper::toDeliveryNoteResponse)
-                .collect(Collectors.toList());
-
+    public PageWrapper<DeliveryNoteResponse> getDeliveryNotesByOrderId(int page, int size, long orderId) {
+        Page<DeliveryNote> deliveryNotes = deliveryNoteRepository.findByOrderId(orderId, PageRequest.of(page, size));
         return PageWrapper.<DeliveryNoteResponse>builder()
-                .content(responses)
+                .content(deliveryNotes.stream()
+                        .map(deliveryNoteMapper::toDeliveryNoteResponse)
+                        .collect(Collectors.toList()))
                 .pageNumber(page)
                 .pageSize(size)
                 .totalPages(deliveryNotes.getTotalPages())
@@ -194,14 +193,16 @@ public class DeliveryNoteServiceImpl implements DeliveryNoteService {
     }
 
     @Override
-    public PageWrapper<DeliveryNoteResponse> getDeliveryNotesByProductDetailId(int page, int size, String orderCode) {
-        Page<DeliveryNote> deliveryNotes = deliveryNoteRepository.findAllByOrderCode(PageRequest.of(page, size), orderCode);
+    public PageWrapper<DeliveryNoteListResponse> getDeliveryNotesByCode(int page, int size, String orderCode, DeliveryNoteStatus status) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "date"));
+        String wrappedOrderCode = (orderCode == null || orderCode.isBlank()) ? "" : '%'+orderCode+'%';
+        Page<DeliveryNote> deliveryNotes = deliveryNoteRepository.findAllByOrderCodeAndStatus(wrappedOrderCode, status, pageRequest);
 
-        List<DeliveryNoteResponse> responses = deliveryNotes.stream()
-                .map(deliveryNoteMapper::toDeliveryNoteResponse)
+        List<DeliveryNoteListResponse> responses = deliveryNotes.stream()
+                .map(deliveryNoteMapper::toDeliveryNoteListResponse)
                 .collect(Collectors.toList());
 
-        return PageWrapper.<DeliveryNoteResponse>builder()
+        return PageWrapper.<DeliveryNoteListResponse>builder()
                 .content(responses)
                 .pageNumber(page)
                 .pageSize(size)

@@ -1,6 +1,5 @@
-package com.ptithcm2021.laptopshop.model.dto.response;
+package com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrder;
 
-import com.ptithcm2021.laptopshop.model.dto.request.PurChaseOrderRequest;
 import com.ptithcm2021.laptopshop.model.enums.PurchaseOrderStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

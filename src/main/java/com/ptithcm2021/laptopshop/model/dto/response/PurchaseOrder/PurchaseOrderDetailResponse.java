@@ -1,4 +1,4 @@
-package com.ptithcm2021.laptopshop.model.dto.response;
+package com.ptithcm2021.laptopshop.model.dto.response.PurchaseOrder;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

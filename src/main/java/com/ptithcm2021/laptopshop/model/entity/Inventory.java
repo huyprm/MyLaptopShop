@@ -14,7 +14,7 @@ public class Inventory {
     @Id
     private Long productDetailId;
 
-    @MapsId("productDetailId")
+    @MapsId()
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;

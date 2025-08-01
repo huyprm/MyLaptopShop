@@ -29,4 +29,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     int countByCodeStartingWith(String baseCode);
 
     Optional<Order> findByCode(String code);
+
+    @Query("SELECT o FROM Order o WHERE (:code is null or o.code like :code) AND (:status is null or o.status = :status)")
+    Page<Order> findByCodeAndStatus(String code, OrderStatusEnum status, Pageable pageable);
 }

@@ -29,7 +29,7 @@ public class ProductDetail {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @OneToOne(mappedBy = "productDetail", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "productDetail", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private Config config;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,4 +58,7 @@ public class ProductDetail {
 
     @OneToOne(mappedBy = "productDetail", orphanRemoval = true, cascade = CascadeType.ALL)
     private Inventory inventory;
+
+    @OneToMany(mappedBy = "productDetail", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Review> review;
 }

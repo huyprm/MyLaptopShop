@@ -1,4 +1,4 @@
-package com.ptithcm2021.laptopshop.model.dto.response;
+package com.ptithcm2021.laptopshop.model.dto.response.GoodsNoteReciept;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,13 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GoodsReceiptNoteResponse {
+public class GoodsReceiptNoteListResponse {
     private Long id;
     private String code;
     private LocalDate receivedDate;
@@ -21,5 +20,4 @@ public class GoodsReceiptNoteResponse {
     private String staffId;
     private String purchaseOrderCode;
     private Integer totalQuantity;
-    private List<GoodsReceiptNoteDetailResponse> grnDetail;
 }

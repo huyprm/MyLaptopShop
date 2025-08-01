@@ -1,8 +1,8 @@
 package com.ptithcm2021.laptopshop.service;
 
 import com.ptithcm2021.laptopshop.model.dto.request.GoodsReceiptNoteRequest;
-import com.ptithcm2021.laptopshop.model.dto.response.GoodsReceiptNoteDetailResponse;
-import com.ptithcm2021.laptopshop.model.dto.response.GoodsReceiptNoteResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.GoodsNoteReciept.GoodsReceiptNoteListResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.GoodsNoteReciept.GoodsReceiptNoteResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -16,7 +16,7 @@ public interface GoodsReceiptNoteService {
 
     GoodsReceiptNoteResponse getGRNById(Long id);
 
-    PageWrapper<GoodsReceiptNoteResponse> getGRNList(int page, int size);
+    PageWrapper<GoodsReceiptNoteListResponse> getGRNListByPurchaseOrderCode(int page, int size, String purchaseOrderCode);
 
-    PageWrapper<GoodsReceiptNoteResponse> getGRNListByPurchaseOrderCode(int page, int size, String purchaseOrderCode);
+    PageWrapper<GoodsReceiptNoteResponse> getGRNListByPurchaseOrderId(int page, int size, long purchaseOrderId);
 }
