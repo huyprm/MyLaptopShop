@@ -143,7 +143,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             PurchaseOrderDetail purchaseOrderDetail = PurchaseOrderDetail.builder()
                     .purchaseOrder(purchaseOrder)
                     .quantity(detailRequest.getQuantity())
-                    .unitCost(detailRequest.getPrice())
+                    .unitCost(detailRequest.getUnitCost())
                     .productDetail(productDetail)
                     .build();
 

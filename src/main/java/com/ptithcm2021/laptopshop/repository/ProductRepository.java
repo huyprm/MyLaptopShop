@@ -75,5 +75,25 @@ public interface ProductRepository extends JpaRepository<Product,Long>, JpaSpeci
     """)
     Page<ItemProductProjection> findOneProductDetailOfProductProjection(Pageable pageable);
 
-    Page<Product> findAll(Pageable pageable);
+
+    @Query(value = """
+    SELECT DISTINCT p.* FROM product_details pd
+    RIGHT JOIN products p ON pd.product_id = p.id
+    WHERE (:keyword IS NULL OR to_tsvector('simple', pd.title) @@ plainto_tsquery('simple', :keyword))
+      AND (:brandId IS NULL OR p.brand_id = :brandId)
+    """,
+            countQuery = """
+    SELECT COUNT(DISTINCT p.id) FROM product_details pd
+    RIGHT JOIN products p ON pd.product_id = p.id
+    WHERE (:keyword IS NULL OR to_tsvector('simple', pd.title) @@ plainto_tsquery('simple', :keyword))
+      AND (:brandId IS NULL OR p.brand_id = :brandId)
+    """,
+            nativeQuery = true)
+    Page<Product> searchByKeywordAndBrand(
+            @Param("keyword") String keyword,
+            @Param("brandId") Integer brandId,
+            Pageable pageable
+    );
+
+
 }

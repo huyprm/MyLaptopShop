@@ -16,6 +16,7 @@ import java.util.List;
 public class PurchaseOrderResponse {
     private Long id;
     private String supplierName;
+    private int supplierId;
     private String userOrderName;
     private String userId;
     private String code;

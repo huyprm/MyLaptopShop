@@ -30,7 +30,7 @@ public interface ProductService {
 
     ProductResponse getProduct(long id);
 
-    PagedModel<ProductResponse> getProducts(Pageable pageable);
+    PagedModel<ProductResponse> getProducts(Pageable pageable, String keyword, Integer brandId);
 
     PageWrapper<ItemProductProjection> getItemProducts(Pageable pageable);
     PageWrapper<ItemProductResponse> getItemProductsFilter(int size, int page, ProductFilterRequest request);

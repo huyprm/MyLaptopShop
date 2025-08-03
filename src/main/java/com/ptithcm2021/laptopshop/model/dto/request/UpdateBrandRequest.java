@@ -18,5 +18,7 @@ public class UpdateBrandRequest {
     private String description;
     @NotBlank
     private String image;
+    @NotBlank
+    private String bgColor;
     private Map<Integer,SeriesRequest> seriesRequests;
 }

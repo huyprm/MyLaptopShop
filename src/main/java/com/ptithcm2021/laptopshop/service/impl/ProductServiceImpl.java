@@ -140,8 +140,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PagedModel<ProductResponse> getProducts(Pageable pageable) {
-        return new PagedModel<>(productRepository.findAll(pageable).map(productMapper::toResponse));
+    public PagedModel<ProductResponse> getProducts(Pageable pageable, String keyword, Integer brandId) {
+        return new PagedModel<>(productRepository.searchByKeywordAndBrand(keyword, brandId, pageable).map(productMapper::toResponse));
     }
 
     @Override

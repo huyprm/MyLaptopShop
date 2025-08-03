@@ -2,6 +2,7 @@ package com.ptithcm2021.laptopshop.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.redisson.api.RCascadeType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -25,10 +26,11 @@ public class Brand {
     private String name;
     private String description;
     private String image;
+    private String bgColor;
 
     @CreatedDate
     private LocalDate createdDate;
 
-    @OneToMany(mappedBy = "brand")
+    @OneToMany(mappedBy = "brand", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Series> series;
 }

@@ -71,9 +71,11 @@ public class ProductController {
 
     @GetMapping()
     public ApiResponse<PagedModel<ProductResponse>> getAllProducts(@RequestParam(defaultValue = "0") int page,
-                                                                   @RequestParam(defaultValue = "10") int size){
+                                                                   @RequestParam(defaultValue = "10") int size,
+                                                                   @RequestParam(required = false) String keyword,
+                                                                   @RequestParam(required = false) Integer brandId){
         Pageable pageable = Pageable.ofSize(size).withPage(page);
-        return ApiResponse.<PagedModel<ProductResponse>>builder().data(productService.getProducts(pageable)).build();
+        return ApiResponse.<PagedModel<ProductResponse>>builder().data(productService.getProducts(pageable, keyword, brandId)).build();
     }
 
     @GetMapping("/sort-options")

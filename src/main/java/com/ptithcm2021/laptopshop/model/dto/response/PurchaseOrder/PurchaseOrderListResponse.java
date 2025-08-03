@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class PurchaseOrderListResponse {
     private Long id;
     private String supplierName;
+    private int supplierId;
     private String userOrderName;
     private String userId;
     private String code;

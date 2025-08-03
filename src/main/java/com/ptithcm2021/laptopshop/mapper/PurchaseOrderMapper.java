@@ -14,6 +14,7 @@ import org.mapstruct.Named;
 public interface PurchaseOrderMapper {
 
     @Mapping(target = "supplierName", source = "supplier.name")
+    @Mapping(target = "supplierId", source = "supplier.id")
     @Mapping(target = "userOrderName", source = "userOrder", qualifiedByName = "username")
     @Mapping(target = "userId", source = "userOrder.id")
     PurchaseOrderResponse toPurchaseOrderResponse(PurchaseOrder purchaseOrder);
@@ -24,6 +25,8 @@ public interface PurchaseOrderMapper {
     PurchaseOrderListResponse toPurchaseOrderListResponse(PurchaseOrder purchaseOrder);
 
     @Mapping(target ="title", source = "productDetail.title")
+    @Mapping(target = "thumbnail", source = "productDetail.thumbnail")
+    @Mapping(target = "productDetailId", source = "productDetail.id")
     PurchaseOrderDetailResponse toPurchaseOrderDetailResponse(PurchaseOrderDetail purchaseOrderDetail);
 
     @Named("username")

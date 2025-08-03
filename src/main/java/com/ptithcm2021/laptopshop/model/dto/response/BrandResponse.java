@@ -15,5 +15,6 @@ public class BrandResponse {
     private String name;
     private String description;
     private String image;
+    private String bgColor;
     private List<SeriesResponse> series;
 }

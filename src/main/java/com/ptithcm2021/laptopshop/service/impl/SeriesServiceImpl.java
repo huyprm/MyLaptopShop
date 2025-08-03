@@ -61,8 +61,7 @@ public class SeriesServiceImpl implements SeriesService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict(value = "brands", key = "'all'"), @CacheEvict(value = "series", key = "'all'")},
-            put = @CachePut(value = "series", key = "#seriesId"))
+            @CacheEvict(value = "brands", key = "'all'"), @CacheEvict(value = "series", key = "'all'")})
     public void deleteSeries(int seriesId) {
         if(!seriesRepository.existsById(seriesId)) {
             throw new AppException(ErrorCode.SERIES_NOT_FOUND);

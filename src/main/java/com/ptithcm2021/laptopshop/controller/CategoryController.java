@@ -23,7 +23,7 @@ public class CategoryController {
         return ApiResponse.<CategoryResponse>builder().data(categoryService.createCategory(request)).build();
     }
 
-    @PostMapping("/{id}/update")
+    @PutMapping("/{id}/update")
     public ApiResponse<CategoryResponse> updateCategory(@PathVariable int id, @RequestBody @Valid CategoryRequest request){
         return ApiResponse.<CategoryResponse>builder().data(categoryService.updateCategory(request,id)).build();
     }

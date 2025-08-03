@@ -29,6 +29,6 @@ public class PurChaseOrderRequest {
         @Min(1)
         private Integer quantity;
         @Min(0)
-        private Integer price;
+        private Integer unitCost;
     }
 }
