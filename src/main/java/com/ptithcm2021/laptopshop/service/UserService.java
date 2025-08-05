@@ -3,6 +3,7 @@ package com.ptithcm2021.laptopshop.service;
 import com.ptithcm2021.laptopshop.model.dto.request.ChangeUserRoleRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.CreateUserRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.UpdateUserRequest;
+import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.UserResponse;
 import com.ptithcm2021.laptopshop.model.enums.LoginTypeEnum;
 import jakarta.mail.MessagingException;
@@ -34,4 +35,7 @@ public interface UserService {
 
     @PreAuthorize("hasAuthority('SCOPE_OWNER')")
     void deleteUser();
+
+    @PreAuthorize("hasAuthority('SCOPE_OWNER')")
+    PageWrapper<UserResponse> getAllUsers(int page, int size, boolean blocked);
 }

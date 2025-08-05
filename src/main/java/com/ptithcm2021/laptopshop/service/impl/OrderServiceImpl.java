@@ -14,6 +14,7 @@ import com.ptithcm2021.laptopshop.model.entity.*;
 import com.ptithcm2021.laptopshop.model.enums.OrderStatusEnum;
 import com.ptithcm2021.laptopshop.model.enums.PaymentMethodEnum;
 import com.ptithcm2021.laptopshop.repository.*;
+import com.ptithcm2021.laptopshop.service.CacheService;
 import com.ptithcm2021.laptopshop.service.InventoryService;
 import com.ptithcm2021.laptopshop.service.OrderService;
 import com.ptithcm2021.laptopshop.service.PromotionService;
@@ -21,6 +22,9 @@ import com.ptithcm2021.laptopshop.strategy.PaymentStrategyFactory;
 import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
     private final PromotionService promotionService;
     private final InventoryService inventoryService;
     private final OrderMapper orderMapper;
-
+    private final CacheService cacheService;
 
     @Override
     @Transactional
@@ -134,6 +138,7 @@ public class OrderServiceImpl implements OrderService {
         if(status == OrderStatusEnum.CANCELED) {
             for (OrderDetail orderDetail : order.getOrderDetails()) {
                 inventoryRepository.increaseQuantity(orderDetail.getProductDetail().getId(), orderDetail.getQuantity());
+                cacheService.evictSingleProduct(orderDetail.getProductDetail().getId());
             }
         }
 
@@ -144,47 +149,6 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
     }
 
-//    @Transactional
-//    @Override
-//    public void changeOrderStatusToShipping(Long orderId, Map<Long, List<String>> serialNumbers) {
-//        Order order = orderRepository.findById(orderId)
-//                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
-//
-//        if( order.getStatus() != OrderStatusEnum.PENDING && order.getStatus() != OrderStatusEnum.PROCESSING) {
-//            throw new AppException(ErrorCode.STATUS_INVALID);
-//        }
-//
-////        int totalQuantity = order.getOrderDetails().stream().mapToInt(OrderDetail::getQuantity).sum();
-////
-////        int totalSerials = serialNumbers.values()
-////                .stream()
-////                .mapToInt(List::size)
-////                .sum();
-////
-////        if (totalSerials != totalQuantity) {
-////            throw new AppException(ErrorCode.NOT_ENOUGH_STOCK);
-////        }
-//
-//        order.getOrderDetails().forEach(orderDetail -> {
-//            List<String> serials = serialNumbers.get(orderDetail.getId().getProductDetailId());
-//            if (serials == null || serials.size() != orderDetail.getQuantity()) {
-//                throw new AppException(ErrorCode.NOT_ENOUGH_STOCK);
-//            }
-//
-//            serials.forEach(serialNumber -> {
-//                int executor = serialProductItemRepository.deactivateIfExists(serialNumber, orderDetail.getId().getProductDetailId());
-//                if (executor == 0)
-//                    throw new RuntimeException("Serial number already exists: " + serialNumber);
-//                eventPublisherHelper.publish(new ExportOrderEvent(null, serialNumber, orderDetail.getId().getProductDetailId(), order.getId()));
-//            });
-//
-//            orderDetail.setSerialNumber(serials);
-//        });
-//
-//        order.setStatus(OrderStatusEnum.DELIVERED);
-//
-//        orderRepository.save(order);
-//    }
 
     @Transactional
     @Override
@@ -327,6 +291,8 @@ public class OrderServiceImpl implements OrderService {
 
             totalPrice += price;
             totalQuantity += detailRequest.getQuantity();
+
+            cacheService.evictSingleProduct(productDetail.getId());
         }
         return new OrderDetailRecord(totalPrice, totalQuantity);
     }

@@ -47,7 +47,7 @@ public enum ErrorCode {
     PROMOTION_IS_EXPIRED(1037, "Promotion is expired", HttpStatus.BAD_REQUEST),
     CAN_NOT_COLLECTED(1038,"This promo code could not be collected" , HttpStatus.BAD_REQUEST),
     PROMOTION_IS_NOT_VALID(1039,"Promotion is not available for this product" ,HttpStatus.BAD_REQUEST ),
-    PROMOTION_USED_UP(1040,"This promotion has already been used up" ,HttpStatus.BAD_REQUEST ),
+    PROMOTION_USED(1040,"This promotion has already been used" ,HttpStatus.BAD_REQUEST ),
     ORDER_VALUE_NOT_ENOUGH(1041,"Order value is not eligible for this promotion", HttpStatus.BAD_REQUEST),
     ORDER_NOT_FOUND(1042, "Order not found",HttpStatus.NOT_FOUND ),
     INVENTORY_NOT_FOUND(1043, "Inventory not found",HttpStatus.NOT_FOUND ),
@@ -79,7 +79,9 @@ public enum ErrorCode {
     ADDRESS_NOT_BELONG_TO_USER(1069, "Address not belong to user", HttpStatus.CONFLICT),
     DELIVERY_NOTE_NOT_FOUND(1070, "Delivery note not found", HttpStatus.NOT_FOUND),
     DELIVERY_CAN_NOT_BE_UPDATED(1071, "Delivery can not be updated", HttpStatus.CONFLICT),
-    ;
+    PRODUCT_DETAIL_NOT_BELONG_TO_PRODUCT(1072, "Product detail not belong to product", HttpStatus.CONFLICT),
+    INVALID_RATING(1073, "Invalid rating", HttpStatus.CONFLICT),
+    PROMOTION_USAGE_LIMIT_EXCEEDED(1074, "The promotion code has reached its maximum usage limit", HttpStatus.CONFLICT);
 
     private final String message;
     private final int code;

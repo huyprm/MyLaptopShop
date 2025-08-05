@@ -63,7 +63,10 @@ public class Promotion {
             orphanRemoval = true)
     private List<ProductPromotion> productPromotions;
 
-    @OneToMany(mappedBy = "promotion")
+    @OneToMany(mappedBy = "promotion",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private List<UserPromotion>  userPromotions;
 
     @OneToOne(mappedBy = "promotion")

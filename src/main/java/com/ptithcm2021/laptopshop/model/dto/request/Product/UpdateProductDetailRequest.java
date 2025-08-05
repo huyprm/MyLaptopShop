@@ -1,19 +1,21 @@
 package com.ptithcm2021.laptopshop.model.dto.request.Product;
 
-import com.ptithcm2021.laptopshop.model.entity.Color;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.FetchType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ProductDetailRequest {
+@NoArgsConstructor
+public class UpdateProductDetailRequest {
+    @NotNull
+    private Long id;
+
     @NotNull
     private Integer colorId;
 
@@ -36,6 +38,4 @@ public class ProductDetailRequest {
     private List<String> images;
 
     private ConfigRequest configRequest;
-
-    private Long productId;
 }

@@ -110,9 +110,9 @@ public class ProductServiceImpl implements ProductService {
             product.setDescription(request.getDescription());
         }
 
-        if (request.getProductDetailRequestMap() != null) {
-            request.getProductDetailRequestMap().forEach((aLong, productDetailRequest) ->{
-                productDetailService.updateProductDetail(productDetailRequest, aLong);
+        if (request.getProductDetailRequest() != null) {
+            request.getProductDetailRequest().forEach((productDetailRequest) ->{
+                productDetailService.updateProductDetail(productDetailRequest, product);
             });
         }
         return productMapper.toResponse(productRepository.save(product));

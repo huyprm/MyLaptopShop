@@ -45,9 +45,9 @@ public class OrderController {
 
     @PutMapping("/{oderId}")
     public ApiResponse<PaymentResponse> changPaymentMethod(@PathVariable Long oderId,
-                                                           @RequestParam PaymentMethodEnum method) throws NoSuchAlgorithmException, InvalidKeyException {
+                                                           @RequestParam PaymentMethodEnum methodEnum) throws NoSuchAlgorithmException, InvalidKeyException {
         return  ApiResponse.<PaymentResponse>builder()
-                .data(orderService.changePaymentMethod(oderId, method))
+                .data(orderService.changePaymentMethod(oderId, methodEnum))
                 .build();
     }
 

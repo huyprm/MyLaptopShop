@@ -7,32 +7,38 @@ import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.PaymentResponse;
 import com.ptithcm2021.laptopshop.model.enums.OrderStatusEnum;
 import com.ptithcm2021.laptopshop.model.enums.PaymentMethodEnum;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 public interface OrderService {
+    @PreAuthorize("hasAnyAuthority('SCOPE_USER', 'SCOPE_OWNER')")
     OrderResponse createOrder(OrderRequest orderRequest) throws NoSuchAlgorithmException, InvalidKeyException;
 
+    @PreAuthorize("hasAnyAuthority('SCOPE_USER', 'SCOPE_OWNER', 'SCOPE_PERM_SALES')")
     void changeOrderStatus(Long orderId, OrderStatusEnum status);
-
-    //void changeOrderStatusToShipping(Long orderId, Map<Long, List<String>> serialNumbers);
 
     void removeOrder();
 
+    @PreAuthorize("hasAnyAuthority('SCOPE_USER', 'SCOPE_OWNER', 'SCOPE_PERM_SALES')")
     OrderResponse getOrderById(Long orderId);
 
     List<OrderStatusEnum> getAllOrderStatus();
 
     List<PaymentMethodEnum> getPaymentMethod();
 
+    @PreAuthorize("hasAnyAuthority('SCOPE_USER', 'SCOPE_OWNER')")
     PageWrapper<OrderResponse> getAllOrdersByUserId(OrderStatusEnum status,
                                                     int page, int size);
 
+    @PreAuthorize("hasAnyAuthority('SCOPE_USER', 'SCOPE_OWNER')")
     PaymentResponse getPaymentInfo(Long orderId) throws NoSuchAlgorithmException, InvalidKeyException;
 
+    @PreAuthorize("hasAnyAuthority('SCOPE_USER', 'SCOPE_OWNER')")
     PaymentResponse changePaymentMethod(Long orderId, PaymentMethodEnum paymentMethodEnum) throws NoSuchAlgorithmException, InvalidKeyException;
 
+    @PreAuthorize("hasAnyAuthority('SCOPE_OWNER', 'SCOPE_PERM_SALES')")
     PageWrapper<OrderListResponse> getAllOrders(int page, int size, OrderStatusEnum statusEnum, String keyword);
 }

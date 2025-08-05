@@ -4,6 +4,7 @@ import com.ptithcm2021.laptopshop.model.dto.request.ChangeUserRoleRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.CreateUserRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.UpdateUserRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.ApiResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.UserResponse;
 import com.ptithcm2021.laptopshop.service.UserService;
 import jakarta.annotation.Resource;
@@ -78,4 +79,15 @@ public class UserController {
         userService.sendOTPChangeEmail(email);
         return ApiResponse.<String>builder().message("Send OTP successful").build();
     }
+
+    @GetMapping("/all")
+    public ApiResponse<PageWrapper<UserResponse>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "false") boolean blocked) {
+        return ApiResponse.<PageWrapper<UserResponse>>builder()
+                .data(userService.getAllUsers(page, size, blocked))
+                .build();
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.ptithcm2021.laptopshop.mapper;
 
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductDetailRequest;
+import com.ptithcm2021.laptopshop.model.dto.request.Product.UpdateProductDetailRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.Product.ItemProductResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.Product.ProductDetailResponse;
 import com.ptithcm2021.laptopshop.model.entity.Inventory;
@@ -25,7 +26,7 @@ public interface ProductDetailMapper {
     @Mapping(target = "itemImage", source = "images", qualifiedByName = "itemImage")
     ItemProductResponse toItemProductResponse(ProductDetail productDetail);
 
-    void updateProductDetail(ProductDetailRequest productDetailRequest, @MappingTarget ProductDetail productDetail);
+    void updateProductDetail(UpdateProductDetailRequest productDetailRequest, @MappingTarget ProductDetail productDetail);
 
     @Named("itemImage")
     default String firstImage(List<String> images){

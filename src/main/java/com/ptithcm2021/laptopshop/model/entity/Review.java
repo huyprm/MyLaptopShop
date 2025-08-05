@@ -28,8 +28,6 @@ public class Review {
     @CreatedDate
     private LocalDateTime reviewDate;
 
-    private Integer rating;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Review parentReview;
@@ -51,4 +49,10 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_detail_id", nullable = false)
     private ProductDetail productDetail;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
+
+    private Integer rating;
 }

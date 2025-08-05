@@ -3,8 +3,8 @@ package com.ptithcm2021.laptopshop.mapper;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.Product.ProductResponse;
 import com.ptithcm2021.laptopshop.model.entity.Product;
+import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = ProductDetailMapper.class)
 public interface ProductMapper {
@@ -15,4 +15,5 @@ public interface ProductMapper {
     ProductResponse toResponse(Product product);
 
     Product toProduct(ProductRequest request);
+
 }

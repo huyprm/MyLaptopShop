@@ -7,19 +7,16 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
+@PreAuthorize("hasAnyAuthority('SCOPE_USER', 'SCOPE_OWNER')")
 public interface CartService {
-    @PreAuthorize("hasAuthority('SCOPE_USER')")
+
     CartResponse addCart(CartRequest cartRequest);
 
-    @PreAuthorize("hasAuthority('SCOPE_USER')")
     CartResponse updateCart(CartRequest cartRequest);
 
-    @PreAuthorize("hasAuthority('SCOPE_USER')")
     void removeCart(long productDetailId);
 
-    @PreAuthorize("hasAuthority('SCOPE_USER')")
     CartResponse getCart(long productDetailId);
 
-    @PreAuthorize("hasAuthority('SCOPE_USER')")
     List<CartResponse> getCartList();
 }

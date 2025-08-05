@@ -1,7 +1,6 @@
 package com.ptithcm2021.laptopshop.service;
 
 import com.ptithcm2021.laptopshop.model.dto.projection.ItemProductProjection;
-import com.ptithcm2021.laptopshop.model.dto.projection.ProductSearchProjection;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductDetailRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductFilterRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductRequest;

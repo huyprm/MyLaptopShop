@@ -1,10 +1,13 @@
 package com.ptithcm2021.laptopshop.controller;
 
 import com.ptithcm2021.laptopshop.model.dto.request.Review.CommentRequest;
+import com.ptithcm2021.laptopshop.model.dto.request.Review.RatingRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.Review.ReplyRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.ApiResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.ReviewResponse.ChildReviewResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.ReviewResponse.ParentReviewResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.ReviewResponse.RatingResponse;
 import com.ptithcm2021.laptopshop.model.entity.Review;
 import com.ptithcm2021.laptopshop.service.ReviewService;
 import jakarta.validation.Valid;
@@ -39,16 +42,41 @@ public class ReviewController {
                 .data(reviewService.getParentReviews(productDetailId)).build();
     }
 
-    @GetMapping("/reply")
-    public ApiResponse<ChildReviewResponse> getReply(@RequestParam long reviewId) {
-        return ApiResponse.<ChildReviewResponse>builder().data(reviewService.getChildReviewById(reviewId)).build();
-    }
-
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteReview(@PathVariable Long id) {
         reviewService.deleteReview(id);
         return ApiResponse.<Void>builder()
                 .message("Review deleted successfully")
+                .build();
+    }
+
+    @PostMapping("/rating")
+    public ApiResponse<RatingResponse> addRating(@RequestBody @Valid RatingRequest request){
+        RatingResponse ratingResponse = reviewService.addRating(request);
+        return ApiResponse.<RatingResponse>builder()
+                .data(ratingResponse)
+                .message("Rating added successfully")
+                .build();
+    }
+
+    @PutMapping("/rating/{reviewId}")
+    public ApiResponse<RatingResponse> updateRating(@RequestBody @Valid RatingRequest request,
+                                                    @PathVariable Long reviewId) {
+        RatingResponse ratingResponse = reviewService.updateRating(request, reviewId);
+        return ApiResponse.<RatingResponse>builder()
+                .data(ratingResponse)
+                .message("Rating updated successfully")
+                .build();
+    }
+
+    @GetMapping("/ratings")
+    public ApiResponse<PageWrapper<RatingResponse>> getRatingsByProductDetailId(
+            @RequestParam long productDetailId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageWrapper<RatingResponse>>builder()
+                .data(reviewService.getRatingsByProductDetailId(productDetailId, page, size))
+                .message("Ratings retrieved successfully")
                 .build();
     }
 }

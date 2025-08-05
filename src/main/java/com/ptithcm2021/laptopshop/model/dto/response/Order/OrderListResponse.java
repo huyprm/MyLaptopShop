@@ -18,7 +18,7 @@ public class OrderListResponse {
     private String code;
     private String userId;
     private OrderStatusEnum status;
-    private LocalDateTime createdAt;
+    private LocalDateTime createdDate;
     private PaymentMethodEnum paymentMethod;
     private String note;
     private int totalQuantity;

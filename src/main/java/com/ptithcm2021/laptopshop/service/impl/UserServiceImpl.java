@@ -6,6 +6,7 @@ import com.ptithcm2021.laptopshop.mapper.UserMapper;
 import com.ptithcm2021.laptopshop.model.dto.request.ChangeUserRoleRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.CreateUserRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.UpdateUserRequest;
+import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.UserResponse;
 import com.ptithcm2021.laptopshop.model.entity.*;
 import com.ptithcm2021.laptopshop.model.enums.LoginTypeEnum;
@@ -21,6 +22,9 @@ import com.ptithcm2021.laptopshop.util.TemplateEmailUtil;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -33,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -219,5 +224,18 @@ public class UserServiceImpl implements UserService {
         user.getLoginIdentifiers().clear();
         log.info(String.valueOf(user.getLoginIdentifiers().getClass()));
         userRepository.save(user);
+    }
+
+    @Override
+    public PageWrapper<UserResponse> getAllUsers(int page, int size, boolean blocked) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> users = userRepository.findAllByBlocked(pageable, blocked);
+        return PageWrapper.<UserResponse>builder()
+                .content(users.stream().map(userMapper::toUserResponse).collect(Collectors.toList()))
+                .pageNumber(users.getNumber())
+                .pageSize(users.getSize())
+                .totalElements(users.getTotalElements())
+                .totalPages(users.getTotalPages())
+                .build();
     }
 }

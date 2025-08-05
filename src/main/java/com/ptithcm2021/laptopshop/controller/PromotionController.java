@@ -1,5 +1,6 @@
 package com.ptithcm2021.laptopshop.controller;
 
+import com.ptithcm2021.laptopshop.model.dto.projection.VoucherProjection;
 import com.ptithcm2021.laptopshop.model.dto.request.PromotionRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.ApiResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
@@ -66,8 +67,8 @@ public class PromotionController {
     }
 
     @GetMapping("/my-vouchers")
-    public ApiResponse<List<PromotionResponse>> myVouchers() {
-        return ApiResponse.<List<PromotionResponse>>builder()
+    public ApiResponse<List<VoucherProjection>> myVouchers() {
+        return ApiResponse.<List<VoucherProjection>>builder()
                 .data(promotionService.myVouchers()).build();
     }
 

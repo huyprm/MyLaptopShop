@@ -9,4 +9,6 @@ public enum PermissionEnum {
     PERM_BRAND,
     PERM_SALES,
     PERM_WAREHOUSE,
+    PERM_PERMISSION,
+    PERM_PROMOTION
 }

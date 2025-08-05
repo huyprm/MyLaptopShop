@@ -22,7 +22,7 @@ public class PromotionRequest {
     private String code;
     @NotBlank
     private String description;
-    @NotBlank
+    @NotNull
     private Integer discountValue;
     @NotNull
     private DiscountUnitEnum discountUnit;
@@ -37,4 +37,5 @@ public class PromotionRequest {
 
     private LocalDateTime endDate;
     private List<Long> productDetailIds;
+    private List<String> userIds;
 }

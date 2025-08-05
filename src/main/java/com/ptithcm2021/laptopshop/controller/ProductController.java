@@ -1,7 +1,6 @@
 package com.ptithcm2021.laptopshop.controller;
 
 import com.ptithcm2021.laptopshop.model.dto.projection.ItemProductProjection;
-import com.ptithcm2021.laptopshop.model.dto.projection.ProductSearchProjection;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductFilterRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.UpdateProductRequest;
@@ -15,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedModel;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,7 +74,7 @@ public class ProductController {
                                                                    @RequestParam(defaultValue = "10") int size,
                                                                    @RequestParam(required = false) String keyword,
                                                                    @RequestParam(required = false) Integer brandId){
-        Pageable pageable = Pageable.ofSize(size).withPage(page);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "p.id"));
         return ApiResponse.<PagedModel<ProductResponse>>builder().data(productService.getProducts(pageable, keyword, brandId)).build();
     }
 

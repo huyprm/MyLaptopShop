@@ -49,6 +49,8 @@ public class ProductDetail {
     private double totalRating = 0.0;
     @Builder.Default
     private int soldQuantity = 0;
+    @Builder.Default
+    private int totalReviews = 0;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> images;

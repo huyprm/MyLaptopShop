@@ -1,24 +1,35 @@
 package com.ptithcm2021.laptopshop.service.impl;
 
+import com.ptithcm2021.laptopshop.event.EventPublisherHelper;
+import com.ptithcm2021.laptopshop.event.RatingProductEvent;
 import com.ptithcm2021.laptopshop.exception.AppException;
 import com.ptithcm2021.laptopshop.exception.ErrorCode;
+import com.ptithcm2021.laptopshop.mapper.ReviewMapper;
 import com.ptithcm2021.laptopshop.model.dto.request.Review.CommentRequest;
+import com.ptithcm2021.laptopshop.model.dto.request.Review.RatingRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.Review.ReplyRequest;
+import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.ReviewResponse.ChildReviewResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.ReviewResponse.ParentReviewResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.ReviewResponse.RatingResponse;
+import com.ptithcm2021.laptopshop.model.entity.Order;
 import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
 import com.ptithcm2021.laptopshop.model.entity.Review;
 import com.ptithcm2021.laptopshop.model.entity.User;
+import com.ptithcm2021.laptopshop.repository.OrderRepository;
 import com.ptithcm2021.laptopshop.repository.ProductDetailRepository;
 import com.ptithcm2021.laptopshop.repository.ReviewRepository;
 import com.ptithcm2021.laptopshop.repository.UserRepository;
 import com.ptithcm2021.laptopshop.service.ReviewService;
 import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,9 +39,14 @@ public class ReviewServiceImp implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductDetailRepository productDetailRepository;
     private final UserRepository userRepository;
+    private final ReviewMapper reviewMapper;
+    private final OrderRepository orderRepository;
+    private final EventPublisherHelper eventPublisherHelper;
+
     @Override
     public ParentReviewResponse addComment(CommentRequest commentRequest) {
         String userId = FetchUserIdUtil.fetchUserId();
+
         ProductDetail productDetail = productDetailRepository
                 .findById(commentRequest.getProductDetailId()).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
@@ -46,14 +62,7 @@ public class ReviewServiceImp implements ReviewService {
 
         reviewRepository.save(review);
 
-        ParentReviewResponse parentReviewResponse = ParentReviewResponse.builder()
-                .id(review.getId())
-                .reviewDate(review.getReviewDate())
-                .content(review.getContent())
-                .reviewImages(review.getReviewImages())
-                .userId(userId)
-                .username(review.getReviewer().getFirstName() + " " + review.getReviewer().getLastName())
-                .build();
+        ParentReviewResponse parentReviewResponse = reviewMapper.toResponse(review);
 
         simpMessagingTemplate.convertAndSend("/topic/comments/" + productDetail.getId(), parentReviewResponse);
         return parentReviewResponse;
@@ -84,16 +93,7 @@ public class ReviewServiceImp implements ReviewService {
 
         reviewRepository.save(reply);
 
-        ChildReviewResponse childReviewResponse = ChildReviewResponse.builder()
-                .id(reply.getId())
-                .reviewDate(reply.getReviewDate())
-                .content(reply.getContent())
-                .reviewImages(reply.getReviewImages())
-                .userId(reply.getReviewer().getId())
-                .username(reply.getReviewer().getFirstName() + " " + reply.getReviewer().getLastName())
-                .parentId(parent.getId())
-                .replyOnUser(reply.getReplyOnUser().getFirstName() + " " + reply.getReplyOnUser().getLastName())
-                .build();
+        ChildReviewResponse childReviewResponse = reviewMapper.toChildResponse(reply);
 
         simpMessagingTemplate.convertAndSend("/topic/comments/" + parent.getProductDetail().getId(), childReviewResponse);
         return childReviewResponse;
@@ -103,48 +103,17 @@ public class ReviewServiceImp implements ReviewService {
     public List<ParentReviewResponse> getParentReviews(long productDetailId) {
         List<Review> reviews = reviewRepository.findReviewParentByProductDetailId(productDetailId);
 
-        List<ParentReviewResponse> responses = new ArrayList<>();
+        return reviews.stream().map(review -> {
+            List<ChildReviewResponse> childResponses = reviewRepository.findAllByParentReviewId(review.getId())
+                    .stream()
+                    .map(reviewMapper::toChildResponse)
+                    .toList();
 
-        reviews.forEach(review -> {
-            ParentReviewResponse parentReviewResponse = ParentReviewResponse.builder()
-                    .id(review.getId())
-                    .productDetailId(productDetailId)
-                    .reviewDate(review.getReviewDate())
-                    .content(review.getContent())
-                    .reviewImages(review.getReviewImages())
-                    .userId(review.getReviewer().getId())
-                    .username(review.getReviewer().getFirstName() + " " + review.getReviewer().getLastName())
-                    .childReviewResponses(reviewRepository.findAllByParentReviewId(review.getId()).stream().map(reply -> ChildReviewResponse.builder()
-                            .id(reply.getId())
-                            .reviewDate(reply.getReviewDate())
-                            .content(reply.getContent())
-                            .reviewImages(reply.getReviewImages())
-                            .userId(reply.getReviewer().getId())
-                            .username(reply.getReviewer().getFirstName() + " " + reply.getReviewer().getLastName())
-                            .parentId(review.getId())
-                            .replyOnUser(reply.getReplyOnUser().getFirstName() + " " + reply.getReplyOnUser().getLastName())
-                            .build()).toList())
-                    .build();
-            responses.add(parentReviewResponse);
-        });
-        return responses;
-    }
+            ParentReviewResponse response = reviewMapper.toResponse(review);
 
-    @Override
-    public ChildReviewResponse getChildReviewById(long id) {
-        Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
-
-        return ChildReviewResponse.builder()
-                .id(review.getId())
-                .reviewDate(review.getReviewDate())
-                .content(review.getContent())
-                .reviewImages(review.getReviewImages())
-                .userId(review.getReviewer().getId())
-                .username(review.getReviewer().getFirstName() + " " + review.getReviewer().getLastName())
-                //.childReviewResponses(reviewRepository.findAllByParentReviewId(review.getId()))
-                .replyOnUser(review.getReplyOnUser().getFirstName() + " " + review.getReplyOnUser().getLastName())
-                .build();
+            response.setChildReviewResponses(childResponses);
+            return response;
+        }).toList();
     }
 
     @Override
@@ -157,10 +126,102 @@ public class ReviewServiceImp implements ReviewService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
+        if( review.getOrder() != null){
+            eventPublisherHelper.publish(new RatingProductEvent(
+                review.getId(),
+                review.getProductDetail().getId(),
+                review.getRating(),
+                null,
+                "delete"
+            ));
+        }
+
         try {
             reviewRepository.deleteById(reviewId);
         } catch (Exception e) {
             throw new AppException(ErrorCode.CANNOT_DELETE);
         }
+    }
+
+    @Override
+    public RatingResponse addRating(RatingRequest ratingRequest) {
+        if (ratingRequest.getRating() < 1 || ratingRequest.getRating() > 5) {
+            throw new AppException(ErrorCode.INVALID_RATING);
+        }
+
+        String userId = FetchUserIdUtil.fetchUserId();
+
+        ProductDetail productDetail = productDetailRepository
+                .findById(ratingRequest.getProductDetailId()).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        Order order = orderRepository.findById(ratingRequest.getOrderId())
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        Review review = reviewMapper.toReview(ratingRequest);
+        review.setProductDetail(productDetail);
+        review.setReviewer(user);
+        review.setOrder(order);
+
+        reviewRepository.save(review);
+
+        eventPublisherHelper.publish(new RatingProductEvent(
+                review.getId(),
+                productDetail.getId(),
+                null,
+                ratingRequest.getRating(),
+                "create"));
+
+        return reviewMapper.toRatingResponse(review);
+    }
+
+    @Override
+    public RatingResponse updateRating(RatingRequest ratingRequest, long reviewId) {
+        if (ratingRequest.getRating() < 1 || ratingRequest.getRating() > 5) {
+            throw new AppException(ErrorCode.INVALID_RATING);
+        }
+
+        String userId = FetchUserIdUtil.fetchUserId();
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!review.getReviewer().getId().equals(userId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        int oldRating = review.getRating();
+
+        review.setRating(ratingRequest.getRating());
+        review.setContent(ratingRequest.getContent());
+        review.setReviewImages(ratingRequest.getReviewImage());
+
+        reviewRepository.save(review);
+
+        eventPublisherHelper.publish(new RatingProductEvent(
+                review.getId(),
+                review.getProductDetail().getId(),
+                oldRating,
+                ratingRequest.getRating(),
+                "update"));
+
+        return reviewMapper.toRatingResponse(review);
+    }
+
+    @Override
+    public PageWrapper<RatingResponse> getRatingsByProductDetailId(long productDetailId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "reviewDate"));
+        Page<Review> reviews = reviewRepository.findAllRatingByProductDetailId(productDetailId, pageable);
+        return PageWrapper.<RatingResponse>builder()
+                .content(reviews.getContent().stream()
+                        .map(reviewMapper::toRatingResponse)
+                        .toList())
+                .pageNumber(reviews.getNumber())
+                .pageSize(reviews.getSize())
+                .totalElements(reviews.getTotalElements())
+                .totalPages(reviews.getTotalPages())
+                .build();
     }
 }

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -16,5 +17,5 @@ public class UpdateProductRequest {
     private Integer brandId;
     private Integer categoryId;
     private Integer seriesId;
-    private Map<Long, ProductDetailRequest> productDetailRequestMap;
+    private List<UpdateProductDetailRequest> productDetailRequest;
 }
