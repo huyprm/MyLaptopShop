@@ -39,5 +39,5 @@ jobs:
           docker pull ${{secrets.DOCKER_USERNAME}}/laptopshop:${{ env.VERSION }}
           docker stop laptopshop || true
           docker rm laptopshop || true
-          dock run -d -- name laptopshop --env-file .env -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/laptopshop:${{ env.VERSION }}
+          dock run -d --name laptopshop --env-file .env -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/laptopshop:${{ env.VERSION }}
     
