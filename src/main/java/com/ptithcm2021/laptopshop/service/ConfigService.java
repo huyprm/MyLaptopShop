@@ -7,10 +7,10 @@ import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 public interface ConfigService {
-    //@PreAuthorize("hasAnyAuthority('SCOPE_OWNER', 'SCOPE_PERM_PRODUCT')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_OWNER', 'SCOPE_PERM_PRODUCT')")
     ConfigResponse createConfig (ConfigRequest config);
 
-    //@PreAuthorize("hasAnyAuthority('SCOPE_OWNER', 'SCOPE_PERM_PRODUCT')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_OWNER', 'SCOPE_PERM_PRODUCT')")
     ConfigResponse createConfig(ConfigRequest request, ProductDetail productDetail);
 
     @PreAuthorize("hasAnyAuthority('SCOPE_OWNER', 'SCOPE_PERM_PRODUCT')")
