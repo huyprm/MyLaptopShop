@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -34,16 +35,14 @@ public class FileServiceImpl implements FileService {
         Map<String, Object> options = ObjectUtils.asMap("folder", "avatar");
 
         long start = System.currentTimeMillis();
-        log.info("⬆️ Uploading file: {} ({} bytes)", file.getOriginalFilename(), file.getSize());
 
-        Map uploadResult;
-        try (InputStream inputStream = file.getInputStream()) {
-            uploadResult = cloudinary.uploader().upload(inputStream, options);
-        }
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), options);
+//        byte[] bytes = file.getBytes();
+//        try (InputStream inputStream = new ByteArrayInputStream(bytes)) {
+//            uploadResult = cloudinary.uploader().upload(inputStream, options);
+//        }
 
         long duration = System.currentTimeMillis() - start;
-        log.info("✅ Uploaded file in {} ms. Result URL: {}", duration, uploadResult.get("url"));
-
         return uploadResult.get("url").toString();
     }
 
