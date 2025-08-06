@@ -26,4 +26,7 @@ public interface RankLevelRepository extends JpaRepository<RankLevel,Integer> {
     )
     Optional<RankLevel> findNextRankIsActive(@Param("currentRankPriority") int currentRankPriority);
 
+    @Query("SELECT COUNT(r) FROM RankLevel r WHERE r.id IN :rankIds AND r.active = true")
+    long countByActiveRankIds(@Param("rankIds") List<Integer> rankIds);
+
 }

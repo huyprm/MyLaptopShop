@@ -1,17 +1,11 @@
-package com.ptithcm2021.laptopshop.model.dto.response;
+package com.ptithcm2021.laptopshop.model.dto.response.Promotion;
 
-import com.ptithcm2021.laptopshop.model.dto.response.Product.ItemProductResponse;
-import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
-import com.ptithcm2021.laptopshop.model.entity.ProductPromotion;
-import com.ptithcm2021.laptopshop.model.entity.User;
 import com.ptithcm2021.laptopshop.model.enums.DiscountUnitEnum;
 import com.ptithcm2021.laptopshop.model.enums.PromotionTypeEnum;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,5 +31,5 @@ public class PromotionResponse {
     private String userId;
     private String username;
     private LocalDateTime createdAt;
-    private List<Long> productDetailIds;
+//    private List<Long> productDetailIds;
 }

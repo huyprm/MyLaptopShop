@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class UserPromotion {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_promotion_seq")
+    @SequenceGenerator(name = "user_promotion_seq", sequenceName = "user_promotions_id_seq", allocationSize = 100)
     private Long id;
 
     @ManyToOne()

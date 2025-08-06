@@ -1,5 +1,6 @@
 package com.ptithcm2021.laptopshop.model.dto.response;
 
+import com.ptithcm2021.laptopshop.model.dto.response.Promotion.PromotionResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

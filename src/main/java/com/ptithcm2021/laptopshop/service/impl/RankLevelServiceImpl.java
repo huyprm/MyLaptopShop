@@ -45,6 +45,7 @@ public class RankLevelServiceImpl implements RankLevelService {
         if (request.getPromotionId() != null) {
             Promotion promotion = promotionRepository.findById(request.getPromotionId())
                     .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND));
+
             if (!promotion.getPromotionType().equals(PromotionTypeEnum.GIFT)){
                 throw new AppException(ErrorCode.PROMOTION_NOT_GIFT);
             }
@@ -69,6 +70,7 @@ public class RankLevelServiceImpl implements RankLevelService {
         if (request.getPromotionId() != null && !request.getPromotionId().equals(rankLevel.getPromotion().getId())) {
             Promotion promotion = promotionRepository.findById(request.getPromotionId())
                     .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND));
+
             if (!promotion.getPromotionType().equals(PromotionTypeEnum.GIFT)){
                 throw new AppException(ErrorCode.PROMOTION_NOT_GIFT);
             }

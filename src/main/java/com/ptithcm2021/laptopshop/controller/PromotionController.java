@@ -4,10 +4,12 @@ import com.ptithcm2021.laptopshop.model.dto.projection.VoucherProjection;
 import com.ptithcm2021.laptopshop.model.dto.request.PromotionRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.ApiResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
-import com.ptithcm2021.laptopshop.model.dto.response.PromotionResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.Promotion.PromotionDetailResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.Promotion.PromotionResponse;
 import com.ptithcm2021.laptopshop.model.enums.PromotionStatusEnum;
 import com.ptithcm2021.laptopshop.model.enums.PromotionTypeEnum;
 import com.ptithcm2021.laptopshop.service.PromotionService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,16 @@ import java.util.List;
 public class PromotionController {
     private final PromotionService promotionService;
 
+    @Operation(
+            summary = "Tạo chương trình khuyến mãi",
+            description = """
+        Tạo một promotion với loại tương ứng. Có 6 loại promotion:
+        
+        - USER_PROMOTION: cần truyền danh sách `userIds` trong trường `ids`
+        - PRODUCT_DISCOUNT: cần truyền danh sách `productIds` trong trường `ids`
+        - GIFT: có thể truyền hoặc không
+        - SHOP_DISCOUNT, ALL_USER, ALL_PRODUCT: không yêu cầu `ids`
+        """)
     @PostMapping("/create")
     public ApiResponse<PromotionResponse> create(@RequestBody @Valid PromotionRequest promotionRequest) {
         return ApiResponse.<PromotionResponse>builder()
@@ -47,10 +59,12 @@ public class PromotionController {
     @GetMapping("/list")
     public ApiResponse<PageWrapper<PromotionResponse>> getPromotions(
             @RequestParam(required = false) PromotionTypeEnum promotionType,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) PromotionStatusEnum status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ApiResponse.<PageWrapper<PromotionResponse>>builder()
-                .data(promotionService.getPromotions(promotionType, page, size)).build();
+                .data(promotionService.getPromotions(code, status, promotionType, page, size)).build();
     }
 
     @GetMapping("/types")
@@ -72,13 +86,22 @@ public class PromotionController {
                 .data(promotionService.myVouchers()).build();
     }
 
-    @GetMapping("/product/{id}")
+    @GetMapping("/product-detail/{id}")
     public ApiResponse<List<PromotionResponse>> productPromotion(@PathVariable long id,
                                                                  @RequestParam(required = false) PromotionStatusEnum promotionStatus) {
         return ApiResponse.<List<PromotionResponse>>builder()
                 .message("Promotion redeemed successfully")
                 .data(promotionService.getProductPromotions(id, promotionStatus))
                 .build();
+    }
+
+    @GetMapping("details/{id}")
+    public ApiResponse<PageWrapper<PromotionDetailResponse>> getPromotionDetailsByType(
+            @PathVariable long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageWrapper<PromotionDetailResponse>>builder()
+                .data(promotionService.getPromotionDetailsByType(id, page, size)).build();
     }
 
 

@@ -1,0 +1,1 @@
+ALTER SEQUENCE user_promotions_id_seq INCREMENT BY 100;

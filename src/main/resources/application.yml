@@ -17,9 +17,18 @@ spring:
       max-request-size: 10MB
   jpa:
     database: postgresql
-    hibernate:
-      ddl-auto: update
-    show-sql: true
+    properties:
+        hibernate:
+          id:
+            new_generator_mappings: true
+          ddl-auto: update
+          show_sql: true
+          jdbc:
+            batch_size: 100
+            order_inserts: true
+            order_updates: true
+            batch_versioned_data: true
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL}

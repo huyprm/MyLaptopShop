@@ -3,7 +3,8 @@ package com.ptithcm2021.laptopshop.service;
 import com.ptithcm2021.laptopshop.model.dto.projection.VoucherProjection;
 import com.ptithcm2021.laptopshop.model.dto.request.PromotionRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
-import com.ptithcm2021.laptopshop.model.dto.response.PromotionResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.Promotion.PromotionDetailResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.Promotion.PromotionResponse;
 import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
 import com.ptithcm2021.laptopshop.model.enums.PromotionStatusEnum;
 import com.ptithcm2021.laptopshop.model.enums.PromotionTypeEnum;
@@ -26,7 +27,7 @@ public interface PromotionService {
     PromotionResponse getPromotion(long id);
 
     @PreAuthorize("hasAnyAuthority('SCOPE_PERM_PROMOTION', 'SCOPE_OWNER')")
-    PageWrapper<PromotionResponse> getPromotions(PromotionTypeEnum promotionType, int page, int size);
+    PageWrapper<PromotionResponse> getPromotions(String keyword, PromotionStatusEnum status, PromotionTypeEnum promotionType, int page, int size);
 
     List<PromotionTypeEnum> getPromotionTypes();
 
@@ -42,4 +43,6 @@ public interface PromotionService {
     int applyPromotion(Long promotionId, String userId, int totalAmount, Consumer<Integer> setDiscountFn, @Nullable ProductDetail productDetail);
 
     void handlePromotionUserExpiredOrUsage();
+
+    PageWrapper<PromotionDetailResponse> getPromotionDetailsByType(long id, int page, int size);
 }

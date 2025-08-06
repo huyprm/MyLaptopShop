@@ -81,7 +81,11 @@ public enum ErrorCode {
     DELIVERY_CAN_NOT_BE_UPDATED(1071, "Delivery can not be updated", HttpStatus.CONFLICT),
     PRODUCT_DETAIL_NOT_BELONG_TO_PRODUCT(1072, "Product detail not belong to product", HttpStatus.CONFLICT),
     INVALID_RATING(1073, "Invalid rating", HttpStatus.CONFLICT),
-    PROMOTION_USAGE_LIMIT_EXCEEDED(1074, "The promotion code has reached its maximum usage limit", HttpStatus.CONFLICT);
+    PROMOTION_USAGE_LIMIT_EXCEEDED(1074, "The promotion code has reached its maximum usage limit", HttpStatus.CONFLICT),
+    RANK_INVALID(1075, "Rank level invalid", HttpStatus.CONFLICT),
+    LIST_USER_EMPTY(1076,"User list cannot be empty" , HttpStatus.BAD_REQUEST),
+    LIST_PRODUCT_EMPTY(1077, "Product list cannot be empty",HttpStatus.BAD_REQUEST ),
+    LIST_RANK_EMPTY(1078, "Rank list cannot be empty", HttpStatus.BAD_REQUEST);
 
     private final String message;
     private final int code;

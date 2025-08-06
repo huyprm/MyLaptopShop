@@ -1,22 +1,24 @@
 package com.ptithcm2021.laptopshop.service.impl;
 
+import com.ptithcm2021.laptopshop.event.CreateUserPromotionEvent;
+import com.ptithcm2021.laptopshop.event.EventPublisherHelper;
 import com.ptithcm2021.laptopshop.exception.AppException;
 import com.ptithcm2021.laptopshop.exception.ErrorCode;
 import com.ptithcm2021.laptopshop.mapper.PromotionMapper;
 import com.ptithcm2021.laptopshop.model.dto.projection.VoucherProjection;
 import com.ptithcm2021.laptopshop.model.dto.request.PromotionRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
-import com.ptithcm2021.laptopshop.model.dto.response.PromotionResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.Promotion.PromotionDetailResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.Promotion.PromotionResponse;
 import com.ptithcm2021.laptopshop.model.entity.*;
 import com.ptithcm2021.laptopshop.model.enums.DiscountUnitEnum;
 import com.ptithcm2021.laptopshop.model.enums.PromotionStatusEnum;
 import com.ptithcm2021.laptopshop.model.enums.PromotionTypeEnum;
-import com.ptithcm2021.laptopshop.repository.ProductDetailRepository;
-import com.ptithcm2021.laptopshop.repository.PromotionRepository;
-import com.ptithcm2021.laptopshop.repository.UserRepository;
+import com.ptithcm2021.laptopshop.repository.*;
 import com.ptithcm2021.laptopshop.service.PromotionService;
 import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
 import jakarta.annotation.Nullable;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +44,13 @@ public class PromotionServiceImpl implements PromotionService {
     private final ProductDetailRepository productDetailRepository;
     private final UserRepository userRepository;
     private final RedissonClient redissonClient;
+    private final RankLevelRepository rankLevelRepository;
+    private final UserPromotionRepository userPromotionRepository;
+    private final EntityManager entityManager;
+    private final EventPublisherHelper eventPublisherHelper;
 
     @Override
+    @Transactional
     public PromotionResponse addPromotion(PromotionRequest request) {
         if (request.getEndDate() != null &&
                 request.getEndDate().isBefore(request.getStartDate())) {
@@ -51,23 +58,37 @@ public class PromotionServiceImpl implements PromotionService {
         }
 
         String userId = FetchUserIdUtil.fetchUserId();
-        User userCreate = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!userRepository.existsById(userId)) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        User userCreate = userRepository.getReferenceById(userId);
 
         Promotion promotion = promotionMapper.toPromotion(request);
 
-        if (request.getProductDetailIds() != null && !request.getProductDetailIds().isEmpty()
-                && request.getPromotionType() == PromotionTypeEnum.PRODUCT_DISCOUNT) {
-            handleProductPromotions(request.getProductDetailIds(), promotion);
-        }
-
-        if( request.getPromotionType() == PromotionTypeEnum.USER_PROMOTION
-                && request.getUserIds() != null && !request.getUserIds().isEmpty()) {
-            handleUserPromotion(request.getUserIds(), promotion);
-        }
-
         promotion.setUserCreate(userCreate);
-        return promotionMapper.toPromotionResponse(promotionRepository.save(promotion));
+        promotionRepository.save(promotion);
+
+        if (request.getPromotionType() == PromotionTypeEnum.PRODUCT_DISCOUNT) {
+            if (request.getProductDetailIds() == null || request.getProductDetailIds().isEmpty()) {
+                throw new AppException(ErrorCode.LIST_PRODUCT_EMPTY);
+            }
+            handleProductPromotions(request.getProductDetailIds(), promotion);
+
+        }else if (request.getPromotionType() == PromotionTypeEnum.USER_PROMOTION){
+
+            if( request.getUserIds() == null || request.getUserIds().isEmpty()) {
+                throw new AppException(ErrorCode.LIST_USER_EMPTY);
+            }
+            handleUserPromotion(request.getUserIds(), promotion);
+
+        }else if (request.getPromotionType() == PromotionTypeEnum.GIFT){
+
+            if( request.getProductDetailIds() != null && !request.getProductDetailIds().isEmpty()) {
+                handleGiftPromotion(request.getRankLevelIds(), promotion);
+            }
+
+        }
+        return promotionMapper.toPromotionResponse(promotion);
     }
 
     @Override
@@ -76,19 +97,28 @@ public class PromotionServiceImpl implements PromotionService {
         Promotion promotion = promotionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND));
 
-        promotionMapper.updatePromotion(request,promotion);
+        promotionMapper.updatePromotion(request, promotion);
 
         validatePromotionDate(LocalDateTime.now(), promotion);
 
-
-        if (request.getProductDetailIds() != null && !request.getProductDetailIds().isEmpty()
-                && request.getPromotionType() == PromotionTypeEnum.PRODUCT_DISCOUNT) {
+        if (request.getPromotionType() == PromotionTypeEnum.PRODUCT_DISCOUNT) {
+            if (request.getProductDetailIds() == null || request.getProductDetailIds().isEmpty()) {
+                throw new AppException(ErrorCode.LIST_PRODUCT_EMPTY);
+            }
             handleProductPromotions(request.getProductDetailIds(), promotion);
-        }
 
-        if( request.getPromotionType() == PromotionTypeEnum.USER_PROMOTION
-                && request.getUserIds() != null && !request.getUserIds().isEmpty()) {
+        }else if (request.getPromotionType() == PromotionTypeEnum.USER_PROMOTION){
+
+            if( request.getUserIds() == null || request.getUserIds().isEmpty()) {
+                throw new AppException(ErrorCode.LIST_USER_EMPTY);
+            }
             handleUserPromotion(request.getUserIds(), promotion);
+
+        }else if (request.getPromotionType() == PromotionTypeEnum.GIFT){
+
+            if( request.getProductDetailIds() != null && !request.getProductDetailIds().isEmpty()) {
+                handleGiftPromotion(request.getRankLevelIds(), promotion);
+            }
         }
 
         return promotionMapper.toPromotionResponse(promotionRepository.save(promotion));
@@ -101,7 +131,7 @@ public class PromotionServiceImpl implements PromotionService {
 
         validatePromotionDate(LocalDateTime.now(), promotion);
 
-        try{
+        try {
             promotionRepository.delete(promotion);
         } catch (Exception e) {
             throw new AppException(ErrorCode.CANNOT_DELETE);
@@ -115,22 +145,10 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public PageWrapper<PromotionResponse> getPromotions(PromotionTypeEnum promotionType, int page, int size) {
+    public PageWrapper<PromotionResponse> getPromotions(String keyword, PromotionStatusEnum status, PromotionTypeEnum promotionType, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        if (promotionType == null) {
-             Page<Promotion> promotion = promotionRepository.findAll(pageable);
-             return PageWrapper.<PromotionResponse>builder()
-                     .content(promotion.getContent().stream()
-                             .map(promotionMapper::toPromotionResponse)
-                             .toList())
-                        .pageNumber(promotion.getNumber())
-                        .pageSize(promotion.getSize())
-                        .totalElements(promotion.getTotalElements())
-                        .totalPages(promotion.getTotalPages())
-                     .build();
-        }
 
-        Page<Promotion> promotion = promotionRepository.findAllByPromotionType(promotionType,pageable);
+        Page<Promotion> promotion = promotionRepository.findAllPromotionsByFilter(keyword, status.name(), promotionType, pageable);
         return PageWrapper.<PromotionResponse>builder()
                 .content(promotion.getContent().stream()
                         .map(promotionMapper::toPromotionResponse)
@@ -199,7 +217,7 @@ public class PromotionServiceImpl implements PromotionService {
                     .map(promotionMapper::toPromotionResponse)
                     .toList();
 
-        if  ( statusEnum == PromotionStatusEnum.INACTIVE)
+        if (statusEnum == PromotionStatusEnum.INACTIVE)
             return promotionRepository.findUpcomingPromotionsByProductDetailId(id, LocalDateTime.now())
                     .stream()
                     .map(promotionMapper::toPromotionResponse)
@@ -255,9 +273,6 @@ public class PromotionServiceImpl implements PromotionService {
         if (newProductIdSet.isEmpty()) {
             // Trường hợp 2: null hoặc empty → dành cho tất cả sản phẩm
             currentProductPromotions.clear();
-            currentProductPromotions.add(ProductPromotion.builder()
-                    .promotion(promotion)
-                    .build());
             return;
         }
 
@@ -283,7 +298,7 @@ public class PromotionServiceImpl implements PromotionService {
         if (promotionId == null) return 0;
 
         RLock lock = redissonClient.getLock("promotion:" + promotionId);
-        try{
+        try {
             lock.lock(5, TimeUnit.SECONDS);
 
 
@@ -291,7 +306,7 @@ public class PromotionServiceImpl implements PromotionService {
                     .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND));
 
 
-            if (promotion.getPromotionType() == PromotionTypeEnum.PRODUCT_DISCOUNT ) {
+            if (promotion.getPromotionType() == PromotionTypeEnum.PRODUCT_DISCOUNT) {
                 validatePromotionProduct(promotion, productDetail);
 
             } else
@@ -322,6 +337,46 @@ public class PromotionServiceImpl implements PromotionService {
         log.info("Deleted expired or used user promotions");
     }
 
+    @Override
+    public PageWrapper<PromotionDetailResponse> getPromotionDetailsByType(long id, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND));
+
+        switch (promotion.getPromotionType()) {
+            case USER_PROMOTION:
+            case GIFT:
+                Page<UserPromotion> userPromotionPage = promotionRepository.findUserPromotionsByPromotionId(id, pageable);
+                return PageWrapper.<PromotionDetailResponse>builder()
+                        .content(userPromotionPage.stream().map(promotionMapper::toPromotionDetailResponse).toList())
+                        .pageNumber(userPromotionPage.getNumber())
+                        .pageSize(userPromotionPage.getSize())
+                        .totalElements(userPromotionPage.getTotalElements())
+                        .totalPages(userPromotionPage.getTotalPages())
+                        .build();
+            case PRODUCT_DISCOUNT:
+               Page<ProductPromotion> productPromotionPage = promotionRepository.findProductPromotionsByPromotionId(id, pageable);
+
+               return PageWrapper.<PromotionDetailResponse>builder()
+                        .content(productPromotionPage.stream().map(promotionMapper::toPromotionDetailResponse).toList())
+                        .pageNumber(productPromotionPage.getNumber())
+                        .pageSize(productPromotionPage.getSize())
+                        .totalElements(productPromotionPage.getTotalElements())
+                        .totalPages(productPromotionPage.getTotalPages())
+                        .build();
+            case SHOP_DISCOUNT:
+                return PageWrapper.<PromotionDetailResponse>builder()
+                        .content(List.of(promotionMapper.toPromotionDetailResponse("This promotion is for the entire shop.")))
+                        .pageNumber(0)
+                        .pageSize(0)
+                        .totalElements(0)
+                        .totalPages(0)
+                        .build();
+        }
+        throw new AppException(ErrorCode.PROMOTION_NOT_FOUND);
+    }
+
     private void validatePromotionProduct(Promotion promotion, ProductDetail productDetail) {
         LocalDateTime currentTime = LocalDateTime.now();
 
@@ -345,7 +400,7 @@ public class PromotionServiceImpl implements PromotionService {
         }
 
         if (promotion.getUsageLimit() != null) {
-            if (promotion.getUsageLimit() == promotion.getUsageCount() + 1) {
+            if (promotion.getUsageLimit() < promotion.getUsageCount() + 1) {
                 log.warn("Promotion is not valid: {}", promotion.getId());
                 throw new AppException(ErrorCode.PROMOTION_USAGE_LIMIT_EXCEEDED);
             }
@@ -383,15 +438,21 @@ public class PromotionServiceImpl implements PromotionService {
         }
 
         // Check if the promotion is valid for the user
-        if (promotion.getPromotionType() == PromotionTypeEnum.USER_PROMOTION) {
+        PromotionTypeEnum type = promotion.getPromotionType();
+
+        if (type == PromotionTypeEnum.USER_PROMOTION ||
+                type == PromotionTypeEnum.GIFT ||
+                type == PromotionTypeEnum.ALL_USER) {
+
             List<Promotion> promotionsList = promotionRepository.findAvailableUserPromotions(userId, currentTime);
+
             Map<Long, Promotion> promotionMap = promotionsList.stream()
                     .collect(Collectors.toMap(Promotion::getId, p -> p));
 
             if (promotionMap.get(promotion.getId()) != null) {
                 Promotion promotionUsed = promotionMap.get(promotion.getId());
 
-                if(!promotionUsed.getUserPromotions().isEmpty()) {
+                if (!promotionUsed.getUserPromotions().isEmpty()) {
 
                     Optional<UserPromotion> userPromotion = promotionRepository.findByUserIdAndPromotionId(userId, promotion.getId());
 
@@ -402,7 +463,7 @@ public class PromotionServiceImpl implements PromotionService {
                         log.warn("Promotion is not valid: {}", promotion.getId());
                         throw new AppException(ErrorCode.PROMOTION_USED);
                     }
-                }else {
+                } else {
                     User user = userRepository.findById(userId)
                             .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -413,14 +474,14 @@ public class PromotionServiceImpl implements PromotionService {
                                     .used(true)
                                     .build());
                 }
-            }else {
+            } else {
                 log.warn("Promotion is not valid: {}", promotion.getId());
                 throw new AppException(ErrorCode.PROMOTION_USED);
             }
         }
 
         if (promotion.getUsageLimit() != null) {
-            if (promotion.getUsageLimit() == promotion.getUsageCount() + 1) {
+            if (promotion.getUsageLimit() < promotion.getUsageCount() + 1) {
                 log.warn("Promotion is not valid: {}", promotion.getId());
                 throw new AppException(ErrorCode.PROMOTION_USAGE_LIMIT_EXCEEDED);
             }
@@ -441,11 +502,10 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     private void handleUserPromotion(List<String> userIds, Promotion promotion) {
-        if (promotion.getUserPromotions() == null) {
-            promotion.setUserPromotions(new ArrayList<>());
-        }
 
-        List<UserPromotion> currentUserPromotions = promotion.getUserPromotions();
+        List<UserPromotion> currentUserPromotions = Optional.ofNullable(promotion.getUserPromotions())
+                .orElse(Collections.emptyList());
+
 
         Set<String> newUserIdSet = new HashSet<>(Optional.ofNullable(userIds).orElse(Collections.emptyList()));
 
@@ -470,25 +530,77 @@ public class PromotionServiceImpl implements PromotionService {
         if (newUserIdSet.isEmpty()) {
             // TH2: Rõ ràng là empty → dành cho tất cả user
             currentUserPromotions.clear();
-            currentUserPromotions.add(UserPromotion.builder()
-                    .promotion(promotion)
-                    .build());
+
             return;
         }
 
         // TH3: Có userId mới → thêm vào
-        List<User> users = userRepository.findAllById(toAdd);
-        if (users.size() != toAdd.size()) {
+        long found = userRepository.countByIdIn(toAdd);
+        if (found != toAdd.size()) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
+        eventPublisherHelper.publish(new CreateUserPromotionEvent(toAdd, promotion));
 
-        users.forEach(user -> {
-            UserPromotion userPromotion = UserPromotion.builder()
-                    .user(user)
-                    .promotion(promotion)
-                    .build();
-            currentUserPromotions.add(userPromotion);
-        });
     }
 
+    private void handleGiftPromotion(List<Integer> rankLevelIds, Promotion promotion) {
+        List<Integer> newRankLevelIdSet = rankLevelIds.stream().distinct().toList();
+        long countRankLevelIsValid = rankLevelRepository.countByActiveRankIds(newRankLevelIdSet);
+
+        if (rankLevelIds.size() != countRankLevelIsValid) {
+            throw new AppException(ErrorCode.RANK_INVALID);
+        }
+
+        List<String> userIds = userRepository.findUserIdsByRankIds(newRankLevelIdSet);
+
+        handleUserPromotion(userIds, promotion);
+    }
+
+    @Transactional
+    public void handleEventCreateUserPromotion(Set<String> userIds, Promotion promotion) {
+        int count = 0;
+        int BATCH_SIZE = 1000;
+
+        for (String userId : userIds) {
+            User userRef = entityManager.getReference(User.class, userId);
+
+            UserPromotion up = new UserPromotion();
+            up.setUser(userRef);
+            up.setPromotion(promotion);
+            up.setCollectDate(LocalDateTime.now());
+            up.setUsed(false);
+            up.setUsedDate(null);
+
+            entityManager.persist(up);
+            count++;
+
+            if (count % BATCH_SIZE == 0) {
+                entityManager.flush();
+                entityManager.clear();
+                log.info("Flushed batch of {}", count);
+
+            }
+        }
+
+        // Flush phần còn lại
+        entityManager.flush();
+        entityManager.clear();
+
+// version chưa tối ưu
+//        List<UserPromotion> newUserPromotions = toAdd.stream()
+//                .map(userId -> {
+//                    User userRef = entityManager.getReference(User.class, userId);
+//                    return UserPromotion.builder()
+//                            .user(userRef)
+//                            .promotion(promotion)
+//                            .collectDate(LocalDateTime.now())
+//                            .used(false)
+//                            .usedDate(null)
+//                            .build();
+//                })
+//                .collect(Collectors.toList());
+//
+//        userPromotionRepository.saveAll(newUserPromotions);
+
+    }
 }

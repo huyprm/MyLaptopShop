@@ -5,4 +5,6 @@ public enum PromotionTypeEnum {
     PRODUCT_DISCOUNT,
     GIFT,
     SHOP_DISCOUNT,
+    ALL_USER,
+    ALL_PRODUCT,
 }

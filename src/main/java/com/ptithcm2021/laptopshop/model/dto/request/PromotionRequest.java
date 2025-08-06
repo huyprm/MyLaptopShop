@@ -38,4 +38,5 @@ public class PromotionRequest {
     private LocalDateTime endDate;
     private List<Long> productDetailIds;
     private List<String> userIds;
+    private List<Integer> rankLevelIds;
 }
