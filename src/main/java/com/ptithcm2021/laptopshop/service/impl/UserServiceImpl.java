@@ -10,10 +10,7 @@ import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.UserResponse;
 import com.ptithcm2021.laptopshop.model.entity.*;
 import com.ptithcm2021.laptopshop.model.enums.LoginTypeEnum;
-import com.ptithcm2021.laptopshop.repository.LoginIdentifierRepository;
-import com.ptithcm2021.laptopshop.repository.RankLevelRepository;
-import com.ptithcm2021.laptopshop.repository.RoleRepository;
-import com.ptithcm2021.laptopshop.repository.UserRepository;
+import com.ptithcm2021.laptopshop.repository.*;
 import com.ptithcm2021.laptopshop.service.AddressService;
 import com.ptithcm2021.laptopshop.service.FileService;
 import com.ptithcm2021.laptopshop.service.UserService;
@@ -25,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -227,9 +225,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageWrapper<UserResponse> getAllUsers(int page, int size, boolean blocked) {
+    public PageWrapper<UserResponse> getAllUsers(int page, int size, String keyword, String roleId, boolean blocked) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<User> users = userRepository.findAllByBlocked(pageable, blocked);
+
+        Page<User> users = userRepository.findAll(
+                UserSpecification.filter(
+                        keyword,
+                        roleId,
+                        blocked
+                ),
+                pageable);
+
         return PageWrapper.<UserResponse>builder()
                 .content(users.stream().map(userMapper::toUserResponse).collect(Collectors.toList()))
                 .pageNumber(users.getNumber())

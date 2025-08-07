@@ -4,6 +4,7 @@ import com.ptithcm2021.laptopshop.model.enums.OrderStatusEnum;
 import com.ptithcm2021.laptopshop.model.enums.PaymentMethodEnum;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -35,6 +36,8 @@ public class Order {
 
     @CreatedDate
     private LocalDateTime createdDate;
+
+    private LocalDateTime completedAt;
 
     private int totalQuantity;
     private int totalPrice;

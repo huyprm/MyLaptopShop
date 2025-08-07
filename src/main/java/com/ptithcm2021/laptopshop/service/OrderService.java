@@ -1,5 +1,6 @@
 package com.ptithcm2021.laptopshop.service;
 
+import com.ptithcm2021.laptopshop.model.dto.projection.*;
 import com.ptithcm2021.laptopshop.model.dto.request.OrderRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.Order.OrderListResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.Order.OrderResponse;
@@ -11,6 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 public interface OrderService {
@@ -41,4 +44,16 @@ public interface OrderService {
 
     @PreAuthorize("hasAnyAuthority('SCOPE_OWNER', 'SCOPE_PERM_SALES')")
     PageWrapper<OrderListResponse> getAllOrders(int page, int size, OrderStatusEnum statusEnum, String keyword);
+
+    @PreAuthorize("hasAnyAuthority('SCOPE_OWNER')")
+    DashboardSummaryProjection getDashboardSummary();
+
+    @PreAuthorize("hasAnyAuthority('SCOPE_OWNER')")
+    List<DashboardCustomerTopProjection> getDashboardCustomerTop(int limit);
+
+    @PreAuthorize("hasAnyAuthority('SCOPE_OWNER')")
+    DashboardRevenueProjection getDashboardRevenue(LocalDate from, LocalDate to);
+
+    @PreAuthorize("hasAnyAuthority('SCOPE_OWNER')")
+    List<DashboardTopProductProjection> getDashboardTopProducts(int limit);
 }

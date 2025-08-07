@@ -88,7 +88,7 @@ public class PromotionController {
 
     @GetMapping("/product-detail/{id}")
     public ApiResponse<List<PromotionResponse>> productPromotion(@PathVariable long id,
-                                                                 @RequestParam(required = false) PromotionStatusEnum promotionStatus) {
+                                                                 @RequestParam PromotionStatusEnum promotionStatus) {
         return ApiResponse.<List<PromotionResponse>>builder()
                 .message("Promotion redeemed successfully")
                 .data(promotionService.getProductPromotions(id, promotionStatus))

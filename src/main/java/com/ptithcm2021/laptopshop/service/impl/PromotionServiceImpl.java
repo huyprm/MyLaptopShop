@@ -148,7 +148,11 @@ public class PromotionServiceImpl implements PromotionService {
     public PageWrapper<PromotionResponse> getPromotions(String keyword, PromotionStatusEnum status, PromotionTypeEnum promotionType, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Promotion> promotion = promotionRepository.findAllPromotionsByFilter(keyword, status.name(), promotionType, pageable);
+        String statusName = null;
+        if (status !=null) {
+            statusName = status.name();
+        }
+        Page<Promotion> promotion = promotionRepository.findAllPromotionsByFilter(keyword, statusName, promotionType, pageable);
         return PageWrapper.<PromotionResponse>builder()
                 .content(promotion.getContent().stream()
                         .map(promotionMapper::toPromotionResponse)
@@ -223,10 +227,7 @@ public class PromotionServiceImpl implements PromotionService {
                     .map(promotionMapper::toPromotionResponse)
                     .toList();
 
-        return promotionRepository.findProductPromotions(id)
-                .stream()
-                .map(promotionMapper::toPromotionResponse)
-                .toList();
+        return null;
     }
 
     private void validatePromotionDate(LocalDateTime now, Promotion promotion) {
@@ -345,9 +346,9 @@ public class PromotionServiceImpl implements PromotionService {
                 .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND));
 
         switch (promotion.getPromotionType()) {
-            case USER_PROMOTION:
-            case GIFT:
+            case USER_PROMOTION: {
                 Page<UserPromotion> userPromotionPage = promotionRepository.findUserPromotionsByPromotionId(id, pageable);
+
                 return PageWrapper.<PromotionDetailResponse>builder()
                         .content(userPromotionPage.stream().map(promotionMapper::toPromotionDetailResponse).toList())
                         .pageNumber(userPromotionPage.getNumber())
@@ -355,6 +356,25 @@ public class PromotionServiceImpl implements PromotionService {
                         .totalElements(userPromotionPage.getTotalElements())
                         .totalPages(userPromotionPage.getTotalPages())
                         .build();
+            }
+            case GIFT: {
+                Page<UserPromotion> userPromotionPage = promotionRepository.findUserPromotionsByPromotionId(id, pageable);
+                List<PromotionDetailResponse> userPromotion;
+                if(userPromotionPage.isEmpty()){
+                    userPromotion = List.of(promotionMapper.toPromotionDetailResponse("This promotion applies to users according to rank"));
+                }else {
+                    userPromotion = userPromotionPage.stream()
+                            .map(promotionMapper::toPromotionDetailResponse)
+                            .toList();
+                }
+                return PageWrapper.<PromotionDetailResponse>builder()
+                        .content(userPromotion)
+                        .pageNumber(userPromotionPage.getNumber())
+                        .pageSize(userPromotionPage.getSize())
+                        .totalElements(userPromotionPage.getTotalElements())
+                        .totalPages(userPromotionPage.getTotalPages())
+                        .build();
+            }
             case PRODUCT_DISCOUNT:
                Page<ProductPromotion> productPromotionPage = promotionRepository.findProductPromotionsByPromotionId(id, pageable);
 
@@ -367,7 +387,23 @@ public class PromotionServiceImpl implements PromotionService {
                         .build();
             case SHOP_DISCOUNT:
                 return PageWrapper.<PromotionDetailResponse>builder()
-                        .content(List.of(promotionMapper.toPromotionDetailResponse("This promotion is for the entire shop.")))
+                        .content(List.of(promotionMapper.toPromotionDetailResponse("This promotion is for the entire shop")))
+                        .pageNumber(0)
+                        .pageSize(0)
+                        .totalElements(0)
+                        .totalPages(0)
+                        .build();
+            case ALL_USER:
+                return PageWrapper.<PromotionDetailResponse>builder()
+                        .content(List.of(promotionMapper.toPromotionDetailResponse("This promotion applies to all users")))
+                        .pageNumber(0)
+                        .pageSize(0)
+                        .totalElements(0)
+                        .totalPages(0)
+                        .build();
+            case ALL_PRODUCT:
+                return PageWrapper.<PromotionDetailResponse>builder()
+                        .content(List.of(promotionMapper.toPromotionDetailResponse("This promotion applies to all products")))
                         .pageNumber(0)
                         .pageSize(0)
                         .totalElements(0)

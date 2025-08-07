@@ -1,5 +1,6 @@
 package com.ptithcm2021.laptopshop.repository;
 
+import com.ptithcm2021.laptopshop.model.dto.projection.DashboardStockLowProjection;
 import com.ptithcm2021.laptopshop.model.dto.projection.ItemProductDetailProjection;
 import com.ptithcm2021.laptopshop.model.dto.projection.ItemProductProjection;
 import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
@@ -14,6 +15,8 @@ import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ProductDetailRepository extends JpaRepository<ProductDetail,Long>, JpaSpecificationExecutor<ProductDetail> {
 
@@ -25,4 +28,20 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail,Lon
             "WHERE :keyword is null or to_tsvector('simple', pd.title) @@ plainto_tsquery('simple',:keyword)", nativeQuery = true)
     Page<ItemProductDetailProjection> searchProductDetails(String keyword,
                                                            Pageable pageable);
+
+    @Query("""
+        SELECT
+            pd.id as productDetailId,
+            pd.title as title,
+            pd.thumbnail as thumbnail,
+            pd.originalPrice as originalPrice,
+            pd.discountPrice as discountPrice,
+            i.quantity as quantity
+        FROM ProductDetail pd
+        JOIN Inventory i ON pd.id = i.productDetail.id
+        WHERE i.quantity < :threshold
+        ORDER BY i.quantity ASC
+        LIMIT :limit
+""")
+    List<DashboardStockLowProjection> getStockLowProducts(int limit, int threshold);
 }

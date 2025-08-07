@@ -4,6 +4,7 @@ import com.ptithcm2021.laptopshop.exception.AppException;
 import com.ptithcm2021.laptopshop.exception.ErrorCode;
 import com.ptithcm2021.laptopshop.mapper.ProductDetailMapper;
 import com.ptithcm2021.laptopshop.mapper.ProductMapper;
+import com.ptithcm2021.laptopshop.model.dto.projection.DashboardStockLowProjection;
 import com.ptithcm2021.laptopshop.model.dto.projection.ItemProductDetailProjection;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductDetailRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.UpdateProductDetailRequest;
@@ -26,6 +27,8 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -181,6 +184,11 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .totalElements(result.getTotalElements())
                 .totalPages(result.getTotalPages())
                 .build();
+    }
+
+    @Override
+    public List<DashboardStockLowProjection> getStockLowProducts(int limit, int threshold) {
+        return productDetailRepository.getStockLowProducts(limit, threshold);
     }
 
     private ProductDetailResponse createProductDetailInternal(ProductDetailRequest productDetailRequest, Product product) {

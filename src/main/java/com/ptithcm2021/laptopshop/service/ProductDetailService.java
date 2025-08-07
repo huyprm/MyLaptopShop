@@ -1,5 +1,6 @@
 package com.ptithcm2021.laptopshop.service;
 
+import com.ptithcm2021.laptopshop.model.dto.projection.DashboardStockLowProjection;
 import com.ptithcm2021.laptopshop.model.dto.projection.ItemProductDetailProjection;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.ProductDetailRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.Product.UpdateProductDetailRequest;
@@ -7,6 +8,8 @@ import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
 import com.ptithcm2021.laptopshop.model.dto.response.Product.ProductDetailResponse;
 import com.ptithcm2021.laptopshop.model.entity.Product;
 import org.springframework.security.access.prepost.PreAuthorize;
+
+import java.util.List;
 
 @PreAuthorize("hasAnyAuthority('SCOPE_OWNER', 'SCOPE_PERM_PRODUCT')")
 public interface ProductDetailService {
@@ -24,4 +27,7 @@ public interface ProductDetailService {
     void handleDeleteRating(Long productDetailId, int rating);
 
     PageWrapper<ItemProductDetailProjection> getProductDetails(String keyword, int page, int size);
+
+    @PreAuthorize("hasAnyAuthority('SCOPE_OWNER')")
+    List<DashboardStockLowProjection> getStockLowProducts(int limit, int threshold);
 }

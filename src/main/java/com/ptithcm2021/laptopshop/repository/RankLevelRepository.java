@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface RankLevelRepository extends JpaRepository<RankLevel,Integer> {
-    @Query("SELECT r FROM RankLevel r WHERE r.active = true")
+    @Query("SELECT r FROM RankLevel r WHERE r.active = true order by r.priority")
     List<RankLevel> findAllByIsActive();
 
 

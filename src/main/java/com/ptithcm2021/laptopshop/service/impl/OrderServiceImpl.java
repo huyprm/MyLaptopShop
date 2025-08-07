@@ -3,6 +3,10 @@ package com.ptithcm2021.laptopshop.service.impl;
 import com.ptithcm2021.laptopshop.exception.AppException;
 import com.ptithcm2021.laptopshop.exception.ErrorCode;
 import com.ptithcm2021.laptopshop.mapper.OrderMapper;
+import com.ptithcm2021.laptopshop.model.dto.projection.DashboardCustomerTopProjection;
+import com.ptithcm2021.laptopshop.model.dto.projection.DashboardRevenueProjection;
+import com.ptithcm2021.laptopshop.model.dto.projection.DashboardSummaryProjection;
+import com.ptithcm2021.laptopshop.model.dto.projection.DashboardTopProductProjection;
 import com.ptithcm2021.laptopshop.model.dto.request.OrderRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.PaymentRequest;
 import com.ptithcm2021.laptopshop.model.dto.response.Order.OderDetailResponse;
@@ -35,6 +39,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -145,6 +151,11 @@ public class OrderServiceImpl implements OrderService {
         if (status == OrderStatusEnum.PARTIALLY_DELIVERED || status == OrderStatusEnum.DELIVERED){
             throw new AppException(ErrorCode.API_CANNOT_CHANGE_TO_SHIPPING);
         }
+
+        if (order.getStatus() == OrderStatusEnum.COMPLETED && order.getCompletedAt() == null) {
+            order.setCompletedAt(LocalDateTime.now());
+        }
+
         order.setStatus(status);
         orderRepository.save(order);
     }
@@ -248,6 +259,26 @@ public class OrderServiceImpl implements OrderService {
                 .totalPages(orders.getTotalPages())
                 .totalElements(orders.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public DashboardSummaryProjection getDashboardSummary() {
+        return orderRepository.getDashboardSummary();
+    }
+
+    @Override
+    public List<DashboardCustomerTopProjection> getDashboardCustomerTop(int limit) {
+        return orderRepository.getDashboardCustomerTop(limit);
+    }
+
+    @Override
+    public DashboardRevenueProjection getDashboardRevenue(LocalDate from, LocalDate to) {
+        return orderRepository.getDashboardRevenue(from, to);
+    }
+
+    @Override
+    public List<DashboardTopProductProjection> getDashboardTopProducts(int limit) {
+        return orderRepository.getDashboardTopProduct(limit);
     }
 
     private OrderDetailRecord handelOrderDetail(List<OrderRequest.OrderDetailRequest> detailRequests, Order order) {

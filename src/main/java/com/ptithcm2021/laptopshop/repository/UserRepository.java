@@ -3,7 +3,9 @@ package com.ptithcm2021.laptopshop.repository;
 import com.ptithcm2021.laptopshop.model.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor<User> {
     Page<User> findAllByBlocked(Pageable page, boolean blocked);
 
     @Query("""
@@ -21,4 +23,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<String> findUserIdsByRankIds(List<Integer> rankIds);
 
     long countByIdIn(Set<String> toAdd);
+
+
 }

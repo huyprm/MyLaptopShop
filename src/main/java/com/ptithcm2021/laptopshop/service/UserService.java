@@ -37,5 +37,5 @@ public interface UserService {
     void deleteUser();
 
     @PreAuthorize("hasAuthority('SCOPE_OWNER')")
-    PageWrapper<UserResponse> getAllUsers(int page, int size, boolean blocked);
+    PageWrapper<UserResponse> getAllUsers(int page, int size, String keyword, String roleId, boolean blocked);
 }

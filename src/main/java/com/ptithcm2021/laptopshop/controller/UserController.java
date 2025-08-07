@@ -84,9 +84,11 @@ public class UserController {
     public ApiResponse<PageWrapper<UserResponse>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "false") boolean blocked) {
+            @RequestParam(defaultValue = "false") boolean blocked,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String roleId) {
         return ApiResponse.<PageWrapper<UserResponse>>builder()
-                .data(userService.getAllUsers(page, size, blocked))
+                .data(userService.getAllUsers(page, size, keyword, roleId, blocked))
                 .build();
     }
 

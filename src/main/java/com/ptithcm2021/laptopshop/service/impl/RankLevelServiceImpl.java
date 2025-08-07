@@ -117,7 +117,6 @@ public class RankLevelServiceImpl implements RankLevelService {
     public List<RankLevelResponse> getAllRankLevelsIsActive() {
         List<RankLevel> rankLevels = rankLevelRepository.findAllByIsActive();
         return rankLevels.stream()
-                .sorted(Comparator.comparing(RankLevel::getPriority))
                 .map(rankLevelMapper::toResponse)
                 .toList();
     }
