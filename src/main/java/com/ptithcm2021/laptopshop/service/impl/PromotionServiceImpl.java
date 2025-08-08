@@ -129,7 +129,7 @@ public class PromotionServiceImpl implements PromotionService {
         Promotion promotion = promotionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND));
 
-        validatePromotionDate(LocalDateTime.now(), promotion);
+//        validatePromotionDate(LocalDateTime.now(), promotion);
 
         try {
             promotionRepository.delete(promotion);

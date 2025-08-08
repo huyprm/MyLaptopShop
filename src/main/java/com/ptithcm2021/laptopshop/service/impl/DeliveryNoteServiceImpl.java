@@ -89,6 +89,7 @@ public class DeliveryNoteServiceImpl implements DeliveryNoteService {
         deliveryNote.setNote(request.getNote());
         deliveryNote.setTotalQuantity(deliveryRecord.total);
         deliveryNote.setStaff(user);
+        deliveryNote.setStatus(request.getStatus());
 
         return deliveryNoteMapper.toDeliveryNoteResponse(deliveryNoteRepository.save(deliveryNote));
     }
