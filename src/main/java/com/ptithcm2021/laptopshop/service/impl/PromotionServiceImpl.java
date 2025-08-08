@@ -147,6 +147,9 @@ public class PromotionServiceImpl implements PromotionService {
     @Override
     public PageWrapper<PromotionResponse> getPromotions(String keyword, PromotionStatusEnum status, PromotionTypeEnum promotionType, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
+        if (keyword != null && !keyword.isBlank()) {
+            keyword = "%" + keyword + "%";
+        }
 
         String statusName = null;
         if (status !=null) {

@@ -124,7 +124,7 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
 
     @Query("""
    SELECT p FROM Promotion p
-   WHERE (:keyword IS NULL OR p.code LIKE CONCAT('%', :keyword, '%'))
+   WHERE (:keyword IS NULL OR p.code LIKE :keyword)
      AND (:type IS NULL OR p.promotionType = :type)
      AND (
            :status IS NULL

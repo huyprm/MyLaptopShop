@@ -51,6 +51,7 @@ spring:
     compose:
       enabled: false
 
+
 springdoc:
   swagger-ui:
     enabled: true
@@ -86,4 +87,7 @@ momo:
   public-key: ${MOMO_PUBLIC_KEY}
   endpoint: ${MOMO_ENDPOINT}
 
+logging:
+  level:
+    root: warn
 
