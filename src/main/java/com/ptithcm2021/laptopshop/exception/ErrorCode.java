@@ -85,7 +85,8 @@ public enum ErrorCode {
     RANK_INVALID(1075, "Rank level invalid", HttpStatus.CONFLICT),
     LIST_USER_EMPTY(1076,"User list cannot be empty" , HttpStatus.BAD_REQUEST),
     LIST_PRODUCT_EMPTY(1077, "Product list cannot be empty",HttpStatus.BAD_REQUEST ),
-    LIST_RANK_EMPTY(1078, "Rank list cannot be empty", HttpStatus.BAD_REQUEST);
+    LIST_RANK_EMPTY(1078, "Rank list cannot be empty", HttpStatus.BAD_REQUEST),
+    ORDER_CANNOT_BE_COMPLETED(1079, "Order cannot be completed", HttpStatus.BAD_REQUEST);
 
     private final String message;
     private final int code;

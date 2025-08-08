@@ -3,6 +3,7 @@ package com.ptithcm2021.laptopshop.controller;
 import com.cloudinary.Api;
 import com.ptithcm2021.laptopshop.model.dto.projection.*;
 import com.ptithcm2021.laptopshop.model.dto.response.ApiResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.DashboardRevenueResponse;
 import com.ptithcm2021.laptopshop.service.OrderService;
 import com.ptithcm2021.laptopshop.service.ProductDetailService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class DashboardController {
     }
 
     @GetMapping("/revenue")
-    public ApiResponse<DashboardRevenueProjection> getDashboard(
+    public ApiResponse<List<DashboardRevenueResponse>> getDashboard(
                     @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate from,
                     @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate to) {
 
@@ -46,7 +47,7 @@ public class DashboardController {
             from = to.minusMonths(5); // lấy 6 tháng gần nhất
         }
 
-        return ApiResponse.<DashboardRevenueProjection>builder()
+        return ApiResponse.<List<DashboardRevenueResponse>>builder()
                 .message("Dashboard Revenue")
                 .data(orderService.getDashboardRevenue(from, to))
                 .build();

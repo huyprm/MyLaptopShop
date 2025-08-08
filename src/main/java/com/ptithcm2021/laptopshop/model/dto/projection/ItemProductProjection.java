@@ -14,4 +14,8 @@ public interface ItemProductProjection {
     Integer getSoldQuantity();
 
     String getTitle();
+
+    String getWarrantyProd();
+
+    String getItemImage();
 }

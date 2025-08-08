@@ -9,6 +9,7 @@ import com.ptithcm2021.laptopshop.model.dto.projection.DashboardSummaryProjectio
 import com.ptithcm2021.laptopshop.model.dto.projection.DashboardTopProductProjection;
 import com.ptithcm2021.laptopshop.model.dto.request.OrderRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.PaymentRequest;
+import com.ptithcm2021.laptopshop.model.dto.response.DashboardRevenueResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.Order.OderDetailResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.Order.OrderListResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.Order.OrderResponse;
@@ -59,6 +60,8 @@ public class OrderServiceImpl implements OrderService {
     private final InventoryService inventoryService;
     private final OrderMapper orderMapper;
     private final CacheService cacheService;
+    private final SerialProductItemRepository serialProductItemRepository;
+    private final GoodsReceiptNoteRepository goodsReceiptNoteRepository;
 
     @Override
     @Transactional
@@ -152,9 +155,9 @@ public class OrderServiceImpl implements OrderService {
             throw new AppException(ErrorCode.API_CANNOT_CHANGE_TO_SHIPPING);
         }
 
-        if (order.getStatus() == OrderStatusEnum.COMPLETED && order.getCompletedAt() == null) {
+        if(status == OrderStatusEnum.COMPLETED && order.getStatus() == OrderStatusEnum.DELIVERED) {
             order.setCompletedAt(LocalDateTime.now());
-        }
+        } else throw new AppException(ErrorCode.ORDER_CANNOT_BE_COMPLETED);
 
         order.setStatus(status);
         orderRepository.save(order);
@@ -272,8 +275,54 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public DashboardRevenueProjection getDashboardRevenue(LocalDate from, LocalDate to) {
-        return orderRepository.getDashboardRevenue(from, to);
+    public List<DashboardRevenueResponse> getDashboardRevenue(LocalDate from, LocalDate to) {
+
+        YearMonth current = YearMonth.from(from);
+        YearMonth end = YearMonth.from(to);
+        List<DashboardRevenueResponse> dashboardRevenueResponses = new ArrayList<>();
+
+        while (!current.isAfter(end)) {
+            LocalDate currentDate = current.atDay(1);
+            LocalDate endDate = current.atEndOfMonth();
+            List<Order> orders = orderRepository.findAllByCreatedDateBetween(currentDate.atStartOfDay(), endDate.atStartOfDay());
+
+            long monthlyRevenue = 0;
+            long monthlyGrossProfit = 0;
+            long monthlyTotalCost = 0;
+            YearMonth yearMonth = current;
+
+            for (Order order : orders) {
+                if (order.getStatus() == OrderStatusEnum.COMPLETED) {
+                    monthlyRevenue += order.getTotalPrice();
+
+                    for (OrderDetail orderDetail : order.getOrderDetails()) {
+
+
+                        for(String serialNumber : orderDetail.getSerialNumber()) {
+                            SerialProductItem serialProductItem = serialProductItemRepository.findBySerialNumber(serialNumber)
+                                    .orElseThrow(() -> new AppException(ErrorCode.SERIAL_NUMBER_NOT_FOUND));
+
+
+                            monthlyGrossProfit += orderDetail.getPrice() - serialProductItem.getGrnDetail().getUnitPrice();
+                        }
+                    }
+                }
+            }
+
+            monthlyTotalCost = goodsReceiptNoteRepository.sumTotalCost(currentDate, endDate);
+
+            current = current.plusMonths(1);
+
+            dashboardRevenueResponses.add(DashboardRevenueResponse.builder()
+                    .monthlyRevenue(monthlyRevenue)
+                    .monthlyGrossProfit(monthlyGrossProfit)
+                    .monthlyTotalCost(monthlyTotalCost)
+                    .yearMonth(yearMonth)
+                    .build());
+        }
+
+
+        return dashboardRevenueResponses;
     }
 
     @Override

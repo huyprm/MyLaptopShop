@@ -2,6 +2,7 @@ package com.ptithcm2021.laptopshop.service;
 
 import com.ptithcm2021.laptopshop.model.dto.projection.*;
 import com.ptithcm2021.laptopshop.model.dto.request.OrderRequest;
+import com.ptithcm2021.laptopshop.model.dto.response.DashboardRevenueResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.Order.OrderListResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.Order.OrderResponse;
 import com.ptithcm2021.laptopshop.model.dto.response.PageWrapper;
@@ -52,7 +53,7 @@ public interface OrderService {
     List<DashboardCustomerTopProjection> getDashboardCustomerTop(int limit);
 
     @PreAuthorize("hasAnyAuthority('SCOPE_OWNER')")
-    DashboardRevenueProjection getDashboardRevenue(LocalDate from, LocalDate to);
+    List<DashboardRevenueResponse> getDashboardRevenue(LocalDate from, LocalDate to);
 
     @PreAuthorize("hasAnyAuthority('SCOPE_OWNER')")
     List<DashboardTopProductProjection> getDashboardTopProducts(int limit);

@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
@@ -186,7 +187,20 @@ public class ProductServiceImpl implements ProductService {
                 Sort.by(sortDirection, sortProperty)
         );
 
-        Page<ProductDetail> result = productDetailRepository.findAll(ProductDetailSpecification.filter(request), pageable);
+        List<Long> matchedIds;
+        if (request.getKeyword() != null && !request.getKeyword().isBlank()) {
+            matchedIds = productDetailRepository.findAllProductDetailIdsByKeyword(request.getKeyword());
+        } else {
+            matchedIds = null;
+        }
+
+        Specification<ProductDetail> spec = ProductDetailSpecification.filter(request);
+
+        if (matchedIds != null) {
+            spec = spec.and((root, query, cb) -> root.get("id").in(matchedIds));
+        }
+
+        Page<ProductDetail> result = productDetailRepository.findAll(spec, pageable);
 
         List<ItemProductResponse> responses = result.stream()
                 .map(productDetailMapper::toItemProductResponse)

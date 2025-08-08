@@ -37,6 +37,7 @@ public class DeliveryNoteServiceImpl implements DeliveryNoteService {
     private final SerialProductItemRepository serialProductItemRepository;
     private final UserRepository userRepository;
     private final DeliveryNoteMapper deliveryNoteMapper;
+    private final OrderDetailRepository orderDetailRepository;
 
     @Override
     @Transactional
@@ -165,6 +166,11 @@ public class DeliveryNoteServiceImpl implements DeliveryNoteService {
         }
 
         for (DeliveryNoteDetail detail : deliveryNote.getDeliveryNoteDetails()) {
+
+            OrderDetailId orderDetailId = new OrderDetailId(order.getId(), detail.getId());
+
+            OrderDetail orderDetail = orderDetailRepository.getReferenceById(orderDetailId);
+
             SerialProductItem serialProductItem = detail.getSerialNumber();
             if (!serialProductItem.isActive()) {
                 throw new AppException(ErrorCode.SERIAL_NUMBER_SOLD);
@@ -172,6 +178,7 @@ public class DeliveryNoteServiceImpl implements DeliveryNoteService {
 
             serialProductItem.setActive(false);
 
+            orderDetail.getSerialNumber().add(serialProductItem.getSerialNumber());
         }
 
         deliveryNote.setStatus(DeliveryNoteStatus.COMPLETED);
@@ -275,6 +282,7 @@ public class DeliveryNoteServiceImpl implements DeliveryNoteService {
                         if( status == DeliveryNoteStatus.COMPLETED) {
                             serialProductItem.setActive(false);
                             productDetail.setSoldQuantity(productDetail.getSoldQuantity() + 1);
+                            orderDetail.getSerialNumber().add(itemId);
                         }
 
                         DeliveryNoteDetail deliveryNoteDetail = DeliveryNoteDetail.builder()

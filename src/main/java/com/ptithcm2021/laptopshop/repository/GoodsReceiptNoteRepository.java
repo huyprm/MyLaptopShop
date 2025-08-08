@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
@@ -31,4 +32,7 @@ public interface GoodsReceiptNoteRepository extends JpaRepository<GoodsReceiptNo
 
     Page<GoodsReceiptNote> findAllByPurchaseOrderId(long purchaseOrderId,
                                                     Pageable pageable);
+
+    @Query("SELECT coalesce(sum(g.totalPrice),0) FROM GoodsReceiptNote g WHERE g.receivedDate BETWEEN :from AND :to")
+    long sumTotalCost(LocalDate from, LocalDate to);
 }

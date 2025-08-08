@@ -50,16 +50,6 @@ public class ProductDetailSpecification {
                 predicates.add(cb.le(root.get("discountPrice"), filter.getMaxPrice()));
             }
 
-            // Full-text search (dùng native function)
-            if (filter.getKeyword() != null && !filter.getKeyword().isBlank()) {
-                Predicate fullTextMatch = cb.function(
-                        "to_tsvector", String.class, cb.literal("simple"), root.get("title")
-                ).in(
-                        cb.function("plainto_tsquery", String.class, cb.literal("simple"), cb.literal(filter.getKeyword()))
-                );
-                predicates.add(fullTextMatch);
-            }
-
             // Config CPU
             if (filter.getCpu() != null && !filter.getCpu().isBlank()) {
                 predicates.add(cb.like(cb.lower(configJoin.get("cpu")), "%" + filter.getCpu().toLowerCase() + "%"));

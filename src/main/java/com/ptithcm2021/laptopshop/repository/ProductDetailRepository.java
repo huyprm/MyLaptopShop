@@ -3,6 +3,7 @@ package com.ptithcm2021.laptopshop.repository;
 import com.ptithcm2021.laptopshop.model.dto.projection.DashboardStockLowProjection;
 import com.ptithcm2021.laptopshop.model.dto.projection.ItemProductDetailProjection;
 import com.ptithcm2021.laptopshop.model.dto.projection.ItemProductProjection;
+import com.ptithcm2021.laptopshop.model.dto.response.Product.ItemProductResponse;
 import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,4 +45,13 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail,Lon
         LIMIT :limit
 """)
     List<DashboardStockLowProjection> getStockLowProducts(int limit, int threshold);
+
+
+    @Query(value = """
+                    SELECT pd.id
+                    FROM product_details pd
+                    WHERE (:keyword IS NULL OR to_tsvector('simple', pd.title) @@ plainto_tsquery('simple', :keyword))
+            """, nativeQuery = true)
+    List<Long> findAllProductDetailIdsByKeyword(String keyword);
+
 }

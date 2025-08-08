@@ -38,5 +38,6 @@ public class GoodsReceiptNote {
     @OneToMany(mappedBy = "goodsReceiptNote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GRNDetail> grnDetail;
 
+    private long totalPrice;
     private int totalQuantity;
 }

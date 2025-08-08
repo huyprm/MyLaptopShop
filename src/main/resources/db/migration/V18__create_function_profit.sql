@@ -1,0 +1,48 @@
+-- CREATE OR REPLACE FUNCTION calculate_gross_profit(
+--     from_date TIMESTAMP,
+--     to_date TIMESTAMP
+-- )
+--     RETURNS TABLE (
+--                       month TEXT,
+--                       monthly_revenue INTEGER,
+--                       monthly_cost INTEGER,
+--                       monthly_profit INTEGER
+--                   )
+--     LANGUAGE plpgsql
+-- AS $$
+-- BEGIN
+--     RETURN QUERY
+--         SELECT
+--             TO_CHAR(o.completed_at, 'YYYY-MM') AS month,
+--             SUM(o.total_price) AS monthly_revenue,
+--
+--             SUM(
+--                     (
+--                         SELECT COALESCE(SUM(grn.unit_price), 0)
+--                         FROM order_details od
+--                                  JOIN unnest(od.serial_number) AS sn(serial) ON TRUE
+--                                  JOIN serial_product_items spi ON spi.serial_number = sn.serial
+--                                  JOIN grn_details grn ON grn.id = spi.grn_detail_id
+--                         WHERE od.order_id = o.id
+--                     )
+--             ) AS monthly_cost,
+--
+--             SUM(o.total_price) -
+--             SUM(
+--                     (
+--                         SELECT COALESCE(SUM(gd.unit_price), 0)
+--                         FROM order_details od
+--                                  JOIN order_detail_serial_number odsn
+--                                       ON odsn.order_detail_order_id = od.order_id AND odsn.order_detail_product_detail_id = od.product_detail_id
+--                                  JOIN serial_product_items spi ON spi.serial_number = odsn.serial_number
+--                                  JOIN grn_details gd ON gd.id = spi.grn_detail_id
+--                         WHERE od.order_id = o.id
+--                     )
+--             ) AS monthly_profit
+--         FROM orders o
+--         WHERE o.status = 'COMPLETED'
+--           AND o.completed_at BETWEEN from_date AND to_date
+--         GROUP BY TO_CHAR(o.completed_at, 'YYYY-MM')
+--         ORDER BY month;
+-- END;
+-- $$;

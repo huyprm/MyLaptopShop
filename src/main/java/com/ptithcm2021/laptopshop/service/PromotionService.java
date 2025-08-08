@@ -36,7 +36,7 @@ public interface PromotionService {
 
     List<VoucherProjection> myVouchers();
 
-    @PreAuthorize("hasAnyAuthority('SCOPE_PERM_PROMOTION', 'SCOPE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_PERM_PROMOTION', 'SCOPE_OWNER', 'SCOPE_USER')")
     List<PromotionResponse> getProductPromotions(long id, PromotionStatusEnum statusEnum);
 
     @PreAuthorize("hasAnyAuthority('SCOPE_USER', 'SCOPE_OWNER')")
