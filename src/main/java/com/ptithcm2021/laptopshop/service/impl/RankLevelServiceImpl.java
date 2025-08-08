@@ -67,6 +67,8 @@ public class RankLevelServiceImpl implements RankLevelService {
         RankLevel rankLevel = rankLevelRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RANK_NOT_FOUND));
 
+        rankLevelMapper.updateRankLevel(request, rankLevel);
+
         if (request.getPromotionId() != null && !request.getPromotionId().equals(rankLevel.getPromotion().getId())) {
             Promotion promotion = promotionRepository.findById(request.getPromotionId())
                     .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND));

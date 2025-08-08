@@ -20,4 +20,5 @@ public class GoodsReceiptNoteListResponse {
     private String staffId;
     private String purchaseOrderCode;
     private Integer totalQuantity;
+    private Long totalPrice;
 }

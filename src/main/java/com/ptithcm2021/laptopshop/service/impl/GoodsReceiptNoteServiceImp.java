@@ -74,6 +74,7 @@ public class GoodsReceiptNoteServiceImp implements GoodsReceiptNoteService {
 
         // Validate & Create
         GoodsReceiptNote goodsReceiptNote = new GoodsReceiptNote();
+
         GRNrecord grnDetail = handleGRNDetail(request.getDetailRequestList(), goodsReceiptNote, purchaseOrder, productDetails, poDetails);
 
         int totalQuantity = grnDetail.totalQuantity();
@@ -92,7 +93,7 @@ public class GoodsReceiptNoteServiceImp implements GoodsReceiptNoteService {
         goodsReceiptNote.setCode(generateCode("GRN"));
         goodsReceiptNote.setReceivedDate(request.getReceivedDate());
         goodsReceiptNote.setNote(request.getNote());
-        goodsReceiptNote.setGrnDetail(grnDetail.detail());
+        goodsReceiptNote.setGrnDetails(grnDetail.detail());
         goodsReceiptNote.setTotalQuantity(totalQuantity);
 
         GoodsReceiptNote saved = goodsReceiptNoteRepository.save(goodsReceiptNote);
@@ -105,7 +106,7 @@ public class GoodsReceiptNoteServiceImp implements GoodsReceiptNoteService {
     public void removeGRN(Long grnId) {
         GoodsReceiptNote goodsReceiptNote = goodsReceiptNoteRepository.findById(grnId)
                 .orElseThrow(() -> new AppException(ErrorCode.GOODS_RECEIPT_NOTE_NOT_FOUND));
-        for(GRNDetail detail : goodsReceiptNote.getGrnDetail()) {
+        for(GRNDetail detail : goodsReceiptNote.getGrnDetails()) {
             if (!detail.getSerialNumber().isActive()) {
                 throw new AppException(ErrorCode.CANNOT_DELETE);
             }

@@ -21,5 +21,5 @@ public class GoodsReceiptNoteResponse {
     private String staffId;
     private String purchaseOrderCode;
     private Integer totalQuantity;
-    private List<GoodsReceiptNoteDetailResponse> grnDetail;
+    private List<GoodsReceiptNoteDetailResponse> grnDetails;
 }

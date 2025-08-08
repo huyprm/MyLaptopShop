@@ -36,7 +36,7 @@ public class GoodsReceiptNote {
     private PurchaseOrder purchaseOrder;
 
     @OneToMany(mappedBy = "goodsReceiptNote", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GRNDetail> grnDetail;
+    private List<GRNDetail> grnDetails;
 
     private long totalPrice;
     private int totalQuantity;

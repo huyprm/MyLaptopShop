@@ -132,36 +132,43 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public void changeOrderStatus(Long orderId, OrderStatusEnum status) {
+    public void changeOrderStatus(Long orderId, OrderStatusEnum newStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
-        if (order.getStatus() == OrderStatusEnum.COMPLETED || order.getStatus() == OrderStatusEnum.CANCELED) {
+        OrderStatusEnum currentStatus = order.getStatus();
+
+        if (currentStatus == OrderStatusEnum.COMPLETED || currentStatus == OrderStatusEnum.CANCELED) {
             throw new AppException(ErrorCode.ORDER_CANNOT_BE_CHANGED);
         }
 
-        if( order.getStatus().getPriority() > status.getPriority()) {
+        if (currentStatus.getPriority() > newStatus.getPriority()) {
             throw new AppException(ErrorCode.STATUS_INVALID);
         }
 
-        if(status == OrderStatusEnum.CANCELED) {
-            for (OrderDetail orderDetail : order.getOrderDetails()) {
-                inventoryRepository.increaseQuantity(orderDetail.getProductDetail().getId(), orderDetail.getQuantity());
-                cacheService.evictSingleProduct(orderDetail.getProductDetail().getId());
-            }
-        }
-
-        if (status == OrderStatusEnum.PARTIALLY_DELIVERED || status == OrderStatusEnum.DELIVERED){
+        if (newStatus == OrderStatusEnum.PARTIALLY_DELIVERED || newStatus == OrderStatusEnum.DELIVERED) {
             throw new AppException(ErrorCode.API_CANNOT_CHANGE_TO_SHIPPING);
         }
 
-        if(status == OrderStatusEnum.COMPLETED && order.getStatus() == OrderStatusEnum.DELIVERED) {
+        if (newStatus == OrderStatusEnum.COMPLETED) {
+            if (currentStatus != OrderStatusEnum.DELIVERED) {
+                throw new AppException(ErrorCode.ORDER_CANNOT_BE_COMPLETED);
+            }
             order.setCompletedAt(LocalDateTime.now());
-        } else throw new AppException(ErrorCode.ORDER_CANNOT_BE_COMPLETED);
+        }
 
-        order.setStatus(status);
+        if (newStatus == OrderStatusEnum.CANCELED) {
+            for (OrderDetail orderDetail : order.getOrderDetails()) {
+                Long productDetailId = orderDetail.getProductDetail().getId();
+                inventoryRepository.increaseQuantity(productDetailId, orderDetail.getQuantity());
+                cacheService.evictSingleProduct(productDetailId);
+            }
+        }
+
+        order.setStatus(newStatus);
         orderRepository.save(order);
     }
+
 
 
     @Transactional
