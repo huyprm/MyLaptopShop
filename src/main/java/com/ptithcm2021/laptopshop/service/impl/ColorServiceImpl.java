@@ -52,14 +52,23 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public ColorResponse updateColor(ColorRequest colorRequest, int id) {
-        if(colorRepository.existsByName(colorRequest.getName())){
-            throw new AppException(ErrorCode.COLOR_NAME_EXISTED);
-        }
-        if (colorRepository.existsByHex(colorRequest.getHex())) {
-            throw new AppException(ErrorCode.COLOR_HEX_EXISTED);
+        Color color = colorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COLOR_NOT_FOUND));
+
+        if(!colorRequest.getName().equals(color.getName())) {
+            if(colorRepository.existsByName(colorRequest.getName())){
+                throw new AppException(ErrorCode.COLOR_NAME_EXISTED);
+            }
+
+            color.setName(colorRequest.getName());
         }
 
-        Color color = colorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COLOR_NOT_FOUND));
+        if (!colorRequest.getHex().equals(color.getHex())) {
+            if (colorRepository.existsByHex(colorRequest.getHex()))
+                throw new AppException(ErrorCode.COLOR_HEX_EXISTED);
+
+            color.setHex(colorRequest.getHex());
+        }
+
         return colorMapper.toColorResponse(colorRepository.save(color));
     }
 
