@@ -16,5 +16,5 @@ public class DashboardRevenueResponse {
     private long monthlyRevenue;
     private long monthlyGrossProfit;
     private long monthlyTotalCost;
-    private YearMonth yearMonth;
+    private String yearMonth;
 }

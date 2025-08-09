@@ -4,6 +4,7 @@ import com.ptithcm2021.laptopshop.model.dto.projection.DashboardCustomerTopProje
 import com.ptithcm2021.laptopshop.model.dto.projection.DashboardRevenueProjection;
 import com.ptithcm2021.laptopshop.model.dto.projection.DashboardSummaryProjection;
 import com.ptithcm2021.laptopshop.model.dto.projection.DashboardTopProductProjection;
+import com.ptithcm2021.laptopshop.model.dto.response.DashboardRevenueResponse;
 import com.ptithcm2021.laptopshop.model.entity.Order;
 import com.ptithcm2021.laptopshop.model.entity.User;
 import com.ptithcm2021.laptopshop.model.enums.OrderStatusEnum;
@@ -50,18 +51,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 """)
     DashboardSummaryProjection getDashboardSummary();
 
-    @Query(value = """
-    SELECT DATE_TRUNC('month', o.completed_at) AS revenueDate,
-           SUM(o.total_price) AS revenue
-    FROM orders o
-    WHERE o.status = 'COMPLETED'
-      AND o.completed_at BETWEEN :fromDate AND :toDate
-    GROUP BY DATE_TRUNC('month', o.completed_at)
-    ORDER BY revenueDate
-    """, nativeQuery = true)
-    DashboardRevenueProjection getDashboardRevenue(
-            @Param("fromDate") LocalDate from,
-            @Param("toDate")  LocalDate to
+    @Query(value = "SELECT yearMonth, monthlyRevenue, monthlyGrossProfit, monthlyTotalCost " +
+            "FROM calculate_gross_profit(:year)",
+            nativeQuery = true)
+    List<DashboardRevenueProjection> getDashboardRevenue(
+            @Param("year")  int year
     );
 
 

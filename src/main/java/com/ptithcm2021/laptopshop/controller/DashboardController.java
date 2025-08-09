@@ -32,26 +32,37 @@ public class DashboardController {
                 .build();
     }
 
+    // Old version of revenue endpoint
+//    @GetMapping("/revenue")
+//    public ApiResponse<List<DashboardRevenueResponse>> getDashboard(
+//                    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate from,
+//                    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate to) {
+//
+//        LocalDate now = LocalDate.now();
+//
+//        if (to == null) {
+//            to = now;
+//        }
+//
+//        if (from == null) {
+//            from = to.minusMonths(5); // lấy 6 tháng gần nhất
+//        }
+//
+//        return ApiResponse.<List<DashboardRevenueResponse>>builder()
+//                .message("Dashboard Revenue")
+//                .data(orderService.getDashboardRevenue(from, to))
+//                .build();
+//    }
+
     @GetMapping("/revenue")
-    public ApiResponse<List<DashboardRevenueResponse>> getDashboard(
-                    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate from,
-                    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate to) {
+    public ApiResponse<List<DashboardRevenueProjection>> getDashboardRevenue(
+            @RequestParam()int year) {
 
-        LocalDate now = LocalDate.now();
-
-        if (to == null) {
-            to = now;
-        }
-
-        if (from == null) {
-            from = to.minusMonths(5); // lấy 6 tháng gần nhất
-        }
-
-        return ApiResponse.<List<DashboardRevenueResponse>>builder()
-                .message("Dashboard Revenue")
-                .data(orderService.getDashboardRevenue(from, to))
+        return ApiResponse.<List<DashboardRevenueProjection>>builder()
+                .data(orderService.getDashboardRevenue(year))
                 .build();
     }
+
 
     @GetMapping("/top-products")
     public ApiResponse<List<DashboardTopProductProjection>> getTopProducts(@RequestParam(defaultValue = "10") int limit) {

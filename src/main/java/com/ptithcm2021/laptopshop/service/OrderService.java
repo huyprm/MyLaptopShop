@@ -52,8 +52,11 @@ public interface OrderService {
     @PreAuthorize("hasAnyAuthority('SCOPE_OWNER')")
     List<DashboardCustomerTopProjection> getDashboardCustomerTop(int limit);
 
+//    @PreAuthorize("hasAnyAuthority('SCOPE_OWNER')")
+//    List<DashboardRevenueResponse> getDashboardRevenue(LocalDate from, LocalDate to);
+
     @PreAuthorize("hasAnyAuthority('SCOPE_OWNER')")
-    List<DashboardRevenueResponse> getDashboardRevenue(LocalDate from, LocalDate to);
+    List<DashboardRevenueProjection> getDashboardRevenue(int year);
 
     @PreAuthorize("hasAnyAuthority('SCOPE_OWNER')")
     List<DashboardTopProductProjection> getDashboardTopProducts(int limit);

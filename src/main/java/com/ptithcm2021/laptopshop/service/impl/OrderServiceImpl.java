@@ -27,9 +27,6 @@ import com.ptithcm2021.laptopshop.strategy.PaymentStrategyFactory;
 import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +38,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -281,55 +277,62 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.getDashboardCustomerTop(limit);
     }
 
+
+    // old version of getDashboardRevenue
+//    @Override
+//    public List<DashboardRevenueResponse> getDashboardRevenue(LocalDate from, LocalDate to) {
+//
+//        YearMonth current = YearMonth.from(from);
+//        YearMonth end = YearMonth.from(to);
+//        List<DashboardRevenueResponse> dashboardRevenueResponses = new ArrayList<>();
+//
+//        while (!current.isAfter(end)) {
+//            LocalDate currentDate = current.atDay(1);
+//            LocalDate endDate = current.atEndOfMonth();
+//            List<Order> orders = orderRepository.findAllByCreatedDateBetween(currentDate.atStartOfDay(), endDate.atStartOfDay());
+//
+//            long monthlyRevenue = 0;
+//            long monthlyGrossProfit = 0;
+//            long monthlyTotalCost = 0;
+//            YearMonth yearMonth = current;
+//
+//            for (Order order : orders) {
+//                if (order.getStatus() == OrderStatusEnum.COMPLETED) {
+//                    monthlyRevenue += order.getTotalPrice();
+//
+//                    for (OrderDetail orderDetail : order.getOrderDetails()) {
+//
+//
+//                        for(String serialNumber : orderDetail.getSerialNumber()) {
+//                            SerialProductItem serialProductItem = serialProductItemRepository.findBySerialNumber(serialNumber)
+//                                    .orElseThrow(() -> new AppException(ErrorCode.SERIAL_NUMBER_NOT_FOUND));
+//
+//
+//                            monthlyGrossProfit += orderDetail.getPrice() - serialProductItem.getGrnDetail().getUnitPrice();
+//                        }
+//                    }
+//                }
+//            }
+//
+//            monthlyTotalCost = goodsReceiptNoteRepository.sumTotalCost(currentDate, endDate);
+//
+//            current = current.plusMonths(1);
+//
+//            dashboardRevenueResponses.add(DashboardRevenueResponse.builder()
+//                    .monthlyRevenue(monthlyRevenue)
+//                    .monthlyGrossProfit(monthlyGrossProfit)
+//                    .monthlyTotalCost(monthlyTotalCost)
+//                    .yearMonth(yearMonth)
+//                    .build());
+//        }
+//
+//
+//        return dashboardRevenueResponses;
+//    }
+
     @Override
-    public List<DashboardRevenueResponse> getDashboardRevenue(LocalDate from, LocalDate to) {
-
-        YearMonth current = YearMonth.from(from);
-        YearMonth end = YearMonth.from(to);
-        List<DashboardRevenueResponse> dashboardRevenueResponses = new ArrayList<>();
-
-        while (!current.isAfter(end)) {
-            LocalDate currentDate = current.atDay(1);
-            LocalDate endDate = current.atEndOfMonth();
-            List<Order> orders = orderRepository.findAllByCreatedDateBetween(currentDate.atStartOfDay(), endDate.atStartOfDay());
-
-            long monthlyRevenue = 0;
-            long monthlyGrossProfit = 0;
-            long monthlyTotalCost = 0;
-            YearMonth yearMonth = current;
-
-            for (Order order : orders) {
-                if (order.getStatus() == OrderStatusEnum.COMPLETED) {
-                    monthlyRevenue += order.getTotalPrice();
-
-                    for (OrderDetail orderDetail : order.getOrderDetails()) {
-
-
-                        for(String serialNumber : orderDetail.getSerialNumber()) {
-                            SerialProductItem serialProductItem = serialProductItemRepository.findBySerialNumber(serialNumber)
-                                    .orElseThrow(() -> new AppException(ErrorCode.SERIAL_NUMBER_NOT_FOUND));
-
-
-                            monthlyGrossProfit += orderDetail.getPrice() - serialProductItem.getGrnDetail().getUnitPrice();
-                        }
-                    }
-                }
-            }
-
-            monthlyTotalCost = goodsReceiptNoteRepository.sumTotalCost(currentDate, endDate);
-
-            current = current.plusMonths(1);
-
-            dashboardRevenueResponses.add(DashboardRevenueResponse.builder()
-                    .monthlyRevenue(monthlyRevenue)
-                    .monthlyGrossProfit(monthlyGrossProfit)
-                    .monthlyTotalCost(monthlyTotalCost)
-                    .yearMonth(yearMonth)
-                    .build());
-        }
-
-
-        return dashboardRevenueResponses;
+    public List<DashboardRevenueProjection> getDashboardRevenue(int year) {
+        return orderRepository.getDashboardRevenue(year);
     }
 
     @Override
