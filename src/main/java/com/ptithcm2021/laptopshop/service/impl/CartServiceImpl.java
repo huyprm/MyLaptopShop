@@ -36,9 +36,6 @@ public class CartServiceImpl implements CartService {
         Inventory inventory = inventoryRepository.findById(cartRequest.getProductDetailId())
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        if (inventory.getQuantity() < cartRequest.getQuantity())
-            throw new AppException(ErrorCode.PRODUCT_IS_OUT_OF_QUANTITY);
-
         ProductDetail product = productDetailRepository.findById(cartRequest.getProductDetailId())
                 .orElseThrow(() ->  new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
@@ -53,6 +50,9 @@ public class CartServiceImpl implements CartService {
 
         Cart cart = cartRepository.findById(cartId).orElse(null);
         if (cart == null) {
+            if (inventory.getQuantity() < cartRequest.getQuantity())
+                throw new AppException(ErrorCode.PRODUCT_IS_OUT_OF_QUANTITY);
+
             cart = Cart.builder()
                     .id(cartId)
                     .user(user)
@@ -61,6 +61,9 @@ public class CartServiceImpl implements CartService {
                     .quantity(cartRequest.getQuantity())
                     .build();
         } else {
+            if (inventory.getQuantity() < cart.getQuantity() + cartRequest.getQuantity())
+                throw new AppException(ErrorCode.PRODUCT_IS_OUT_OF_QUANTITY);
+
             cart.setQuantity(cart.getQuantity() + cartRequest.getQuantity());
             cart.setProductPromotionId(cartRequest.getProductPromotionId());
         }
