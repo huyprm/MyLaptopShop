@@ -1,5 +1,6 @@
 package com.ptithcm2021.laptopshop.model.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ptithcm2021.laptopshop.model.entity.Role;
 import com.ptithcm2021.laptopshop.validator.PhoneNumberConstraint;
 import jakarta.validation.constraints.Email;
@@ -22,6 +23,7 @@ public class UserResponse {
     private String phoneNumber;
     private String dob;
     private String gender;
+    @JsonIgnoreProperties("permissions")
     private Set<Role> roles;
     private String avatar;
     private List<AddressResponse> address;

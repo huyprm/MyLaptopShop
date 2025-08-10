@@ -79,7 +79,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createUser(CreateUserRequest request){
-        String otpCache = Objects.requireNonNull(redisTemplate.opsForValue().get("otp-create:" + request.getUsername())).toString();
+        String otpCache = Optional.ofNullable(redisTemplate.opsForValue().get("otp-create:" + request.getUsername()))
+                .map(Object::toString).orElseThrow(() -> new AppException(ErrorCode.OTP_NOT_FOUND));
 
         if(request.getOtpCode().equals(otpCache)){
             redisTemplate.delete("otp-create:" + request.getUsername());

@@ -86,7 +86,8 @@ public enum ErrorCode {
     LIST_USER_EMPTY(1076,"User list cannot be empty" , HttpStatus.BAD_REQUEST),
     LIST_PRODUCT_EMPTY(1077, "Product list cannot be empty",HttpStatus.BAD_REQUEST ),
     LIST_RANK_EMPTY(1078, "Rank list cannot be empty", HttpStatus.BAD_REQUEST),
-    ORDER_CANNOT_BE_COMPLETED(1079, "Order cannot be completed", HttpStatus.BAD_REQUEST);
+    ORDER_CANNOT_BE_COMPLETED(1079, "Order cannot be completed", HttpStatus.BAD_REQUEST),
+    OTP_NOT_FOUND(1080, "Otp not found for user", HttpStatus.NOT_FOUND);
 
     private final String message;
     private final int code;

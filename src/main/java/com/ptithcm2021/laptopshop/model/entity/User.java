@@ -22,6 +22,8 @@ public class User {
 
     private String firstName;
     private String lastName;
+
+    @Column(insertable = false, updatable = false)
     private String fullName;
 
     @NotNull(message = "Email cannot be empty")
