@@ -60,7 +60,10 @@ public class CartServiceImpl implements CartService {
                     .productPromotionId(cartRequest.getProductPromotionId())
                     .quantity(cartRequest.getQuantity())
                     .build();
-        } else cart.setQuantity(cart.getQuantity() + cartRequest.getQuantity());
+        } else {
+            cart.setQuantity(cart.getQuantity() + cartRequest.getQuantity());
+            cart.setProductPromotionId(cartRequest.getProductPromotionId());
+        }
 
         return cartMapper.toCartResponse(cartRepository.save(cart));
     }
