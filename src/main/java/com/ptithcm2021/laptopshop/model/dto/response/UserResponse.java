@@ -28,4 +28,5 @@ public class UserResponse {
     private String avatar;
     private List<AddressResponse> address;
     private int amountUsed;
+    private boolean blocked;
 }

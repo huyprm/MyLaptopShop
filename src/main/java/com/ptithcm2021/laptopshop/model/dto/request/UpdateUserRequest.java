@@ -14,13 +14,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateUserRequest {
+
+    private String userId;
+
     @NotBlank(message = "First name cannot be blank")
     private String firstName;
 
     @NotBlank(message = "Last name cannot be blank")
     private String lastName;
 
-    @PhoneNumberConstraint
+    @PhoneNumberConstraint()
     private String phoneNumber;
 
     @DOBConstraint()

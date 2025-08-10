@@ -114,7 +114,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUser(UpdateUserRequest updateUserRequest) {
-        String userId = FetchUserIdUtil.fetchUserId();
+        String userId = null;
+        if(updateUserRequest.getUserId() != null && !updateUserRequest.getUserId().isBlank()){
+            userId = updateUserRequest.getUserId();
+        } else {
+            userId = FetchUserIdUtil.fetchUserId();
+        }
+        
         User user =  userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 

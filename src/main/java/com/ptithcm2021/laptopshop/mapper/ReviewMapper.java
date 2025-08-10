@@ -16,14 +16,14 @@ public interface ReviewMapper {
     Review toReview (CommentRequest commentRequest);
     Review toReview (RatingRequest ratingRequest);
 
-    @Mapping(target = "username", source = "reviewer", qualifiedByName = "username")
+    @Mapping(target = "username", source = "reviewer.fullName")
     @Mapping(target = "userId", source = "reviewer.id")
     @Mapping(target = "productDetailId", source = "productDetail.id")
     @Mapping(target = "childReviewResponses", ignore = true)
     ParentReviewResponse toResponse(Review review);
 
-    @Mapping(target = "username", source = "reviewer", qualifiedByName = "username")
-    @Mapping(target = "replyOnUser", source = "replyOnUser", qualifiedByName = "username")
+    @Mapping(target = "username", source = "reviewer.fullName")
+    @Mapping(target = "replyOnUser", source = "replyOnUser.fullName")
     @Mapping(target = "parentId", source = "parentReview.id")
     @Mapping(target = "userId", source = "reviewer.id")
     ChildReviewResponse toChildResponse(Review review);
@@ -33,6 +33,6 @@ public interface ReviewMapper {
         return user.getFirstName() + " " + user.getLastName();
     }
 
-    @Mapping(target = "username", source = "reviewer", qualifiedByName = "username")
+    @Mapping(target = "username", source = "reviewer.fullName")
     RatingResponse toRatingResponse(Review review);
 }

@@ -18,6 +18,9 @@ public interface UserService {
 
     void createUser(CreateUserRequest createUserRequest) throws MessagingException;
 
+    @PreAuthorize(
+            "(hasAuthority('SCOPE_USER') and #updateUserRequest.userId == null) or hasAuthority('SCOPE_OWNER')"
+    )
     UserResponse updateUser(UpdateUserRequest updateUserRequest);
 
     @PreAuthorize("hasAuthority('SCOPE_OWNER')")

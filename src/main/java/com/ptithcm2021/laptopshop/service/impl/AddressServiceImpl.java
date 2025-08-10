@@ -55,10 +55,15 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+    @Transactional
     public AddressResponse addAddress(AddressRequest request) {
         String userId = FetchUserIdUtil.fetchUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if(request.isDefault()){
+            addressRepository.clearDefaultForUser(userId);
+        }
 
         Address address = Address.builder()
                 .user(user)
@@ -101,11 +106,19 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+    @Transactional
     public AddressResponse updateAddress(AddressRequest request, Long id) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
 
+        if(request.isDefault()){
+            addressRepository.clearDefaultForUser(address.getUser().getId());
+        }
+
         address.setAddress(request.getAddress());
+        address.setPhone(request.getPhone());
+        address.setRecipient(request.getRecipient());
+        address.setDefault(request.isDefault());
         addressRepository.save(address);
 
         return AddressResponse.builder()
