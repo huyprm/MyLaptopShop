@@ -62,8 +62,8 @@ public class UserController {
     }
 
     @DeleteMapping()
-    public ApiResponse<Void> deleteUser(){
-        userService.deleteUser();
+    public ApiResponse<Void> deleteUser(@RequestParam(required = false) String userId) {
+        userService.deleteUser(userId);
         return ApiResponse.<Void>builder().message("Delete user successful").build();
     }
 

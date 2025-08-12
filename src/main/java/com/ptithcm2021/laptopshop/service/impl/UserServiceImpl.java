@@ -220,14 +220,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser() {
-        String userId = FetchUserIdUtil.fetchUserId();
+    public void deleteUser(String userId) {
+        if(userId == null || userId.isBlank()){
+            userId = FetchUserIdUtil.fetchUserId();
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         user.setBlocked(true);
         user.getLoginIdentifiers().clear();
-        log.info(String.valueOf(user.getLoginIdentifiers().getClass()));
+
         userRepository.save(user);
     }
 

@@ -36,8 +36,10 @@ public interface UserService {
 
     void sendOTPChangeEmail(String email) throws MessagingException;
 
-    @PreAuthorize("hasAuthority('SCOPE_OWNER')")
-    void deleteUser();
+    @PreAuthorize(
+            "(hasAuthority('SCOPE_USER') and #userId == null) or (hasAuthority('SCOPE_OWNER') and #userId != null)"
+    )
+    void deleteUser(String userId);
 
     @PreAuthorize("hasAuthority('SCOPE_OWNER')")
     PageWrapper<UserResponse> getAllUsers(int page, int size, String keyword, String roleId, boolean blocked);
