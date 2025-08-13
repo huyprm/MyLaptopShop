@@ -95,6 +95,7 @@ public class GoodsReceiptNoteServiceImp implements GoodsReceiptNoteService {
         goodsReceiptNote.setNote(request.getNote());
         goodsReceiptNote.setGrnDetails(grnDetail.detail());
         goodsReceiptNote.setTotalQuantity(totalQuantity);
+        goodsReceiptNote.setTotalPrice(grnDetail.totalPrice);
 
         GoodsReceiptNote saved = goodsReceiptNoteRepository.save(goodsReceiptNote);
 

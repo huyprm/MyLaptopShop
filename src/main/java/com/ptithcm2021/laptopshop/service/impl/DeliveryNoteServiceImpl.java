@@ -167,7 +167,7 @@ public class DeliveryNoteServiceImpl implements DeliveryNoteService {
 
         for (DeliveryNoteDetail detail : deliveryNote.getDeliveryNoteDetails()) {
 
-            OrderDetailId orderDetailId = new OrderDetailId(order.getId(), detail.getId());
+            OrderDetailId orderDetailId = new OrderDetailId(order.getId(), detail.getProductDetail().getId());
 
             OrderDetail orderDetail = orderDetailRepository.getReferenceById(orderDetailId);
 
