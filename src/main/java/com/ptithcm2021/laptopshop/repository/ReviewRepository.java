@@ -25,5 +25,6 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
     @Query("select r from Review r where r.productDetail.id = :productDetailId and r.rating is not null")
     Page<Review> findAllRatingByProductDetailId(long productDetailId, Pageable pageable);
 
+    @Query("select r from Review r where r.order.id = :orderId")
     Optional<Review> findByOrderId(long orderId);
 }

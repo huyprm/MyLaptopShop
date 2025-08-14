@@ -38,10 +38,12 @@ public class PaymentController {
         }
         int resultCode = Integer.parseInt(request.get("resultCode"));
         Long orderId = Long.parseLong(request.get("orderId"));
-        String userId = request.get("extraData");
-        Integer amount = Integer.parseInt(request.get("amount"));
+
+//        String userId = request.get("extraData");
+//        Integer amount = Integer.parseInt(request.get("amount"));
+
         if(resultCode == 0){
-            publisher.publish(new PaymentSuccessEvent(orderId, userId, amount));
+            publisher.publish(new PaymentSuccessEvent(orderId));
 
         } else {
            return ApiResponse.<Void>builder()

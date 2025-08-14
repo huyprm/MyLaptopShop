@@ -24,6 +24,7 @@ import com.ptithcm2021.laptopshop.repository.UserRepository;
 import com.ptithcm2021.laptopshop.service.ReviewService;
 import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +34,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReviewServiceImp implements ReviewService {
@@ -164,7 +166,7 @@ public class ReviewServiceImp implements ReviewService {
             throw new AppException(ErrorCode.CANNOT_RATE_BEFORE_COMPLETED);
         }
 
-        if (order.getUser().getId().equals(userId)) {
+        if (!order.getUser().getId().equals(userId)) {
             throw new AppException(ErrorCode.ORDER_CANNOT_MATCH_USER);
         }
         Review review = reviewMapper.toReview(ratingRequest);
@@ -237,6 +239,7 @@ public class ReviewServiceImp implements ReviewService {
         String userId = FetchUserIdUtil.fetchUserId();
         Review review = reviewRepository.findByOrderId((orderId))
                 .orElseThrow(() -> new AppException(ErrorCode.RATING_NOT_FOUND));
+        log.info(review.getReviewer().getId());
         if(!review.getReviewer().getId().equals(userId)) {
             throw new AppException(ErrorCode.ORDER_CANNOT_MATCH_USER);
         }

@@ -1,5 +1,7 @@
 package com.ptithcm2021.laptopshop.service.impl;
 
+import com.ptithcm2021.laptopshop.event.EventPublisherHelper;
+import com.ptithcm2021.laptopshop.event.OrderCompletedEvent;
 import com.ptithcm2021.laptopshop.exception.AppException;
 import com.ptithcm2021.laptopshop.exception.ErrorCode;
 import com.ptithcm2021.laptopshop.mapper.OrderMapper;
@@ -58,6 +60,7 @@ public class OrderServiceImpl implements OrderService {
     private final CacheService cacheService;
     private final SerialProductItemRepository serialProductItemRepository;
     private final GoodsReceiptNoteRepository goodsReceiptNoteRepository;
+    private final EventPublisherHelper eventPublisherHelper;
 
     @Override
     @Transactional
@@ -151,6 +154,9 @@ public class OrderServiceImpl implements OrderService {
                 throw new AppException(ErrorCode.ORDER_CANNOT_BE_COMPLETED);
             }
             order.setCompletedAt(LocalDateTime.now());
+
+            eventPublisherHelper.publish(new OrderCompletedEvent(order.getUser().getId(), order.getTotalPrice()));
+
         }
 
         if (newStatus == OrderStatusEnum.CANCELED) {
