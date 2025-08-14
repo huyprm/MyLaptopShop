@@ -79,4 +79,13 @@ public class ReviewController {
                 .message("Ratings retrieved successfully")
                 .build();
     }
+
+    @GetMapping("/rating/{orderId}")
+    public ApiResponse<RatingResponse> getRatingByOrderId(@PathVariable long orderId) {
+        RatingResponse ratingResponse = reviewService.getRatingByOrderId(orderId);
+        return ApiResponse.<RatingResponse>builder()
+                .data(ratingResponse)
+                .message("Rating retrieved successfully")
+                .build();
+    }
 }

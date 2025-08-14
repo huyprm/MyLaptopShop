@@ -87,6 +87,8 @@ public class PromotionServiceImpl implements PromotionService {
                 handleGiftPromotion(request.getRankLevelIds(), promotion);
             }
 
+        }else if (request.getPromotionType() == PromotionTypeEnum.SHOP_DISCOUNT){
+            handleShopPromotion(request);
         }
         return promotionMapper.toPromotionResponse(promotion);
     }
@@ -231,6 +233,11 @@ public class PromotionServiceImpl implements PromotionService {
                     .toList();
 
         return null;
+    }
+
+    @Override
+    public PromotionResponse getShopPromotionsIsActive() {
+        return promotionMapper.toPromotionResponse(promotionRepository.findShopPromotion());
     }
 
     private void validatePromotionDate(LocalDateTime now, Promotion promotion) {
@@ -641,5 +648,18 @@ public class PromotionServiceImpl implements PromotionService {
 //
 //        userPromotionRepository.saveAll(newUserPromotions);
 
+    }
+
+    private void handleShopPromotion(PromotionRequest request) {
+        Promotion promotionRef = promotionRepository.findShopPromotion();
+
+        if (promotionRef != null) {
+            if (promotionRef.getEndDate() != null && promotionRef.getEndDate().isAfter(request.getStartDate())) {
+                throw new AppException(ErrorCode.SHOP_PROMOTION_ACTIVE);
+            }
+            if (promotionRef.getEndDate() == null){
+                throw new AppException(ErrorCode.SHOP_PROMOTION_ACTIVE);
+            }
+        }
     }
 }

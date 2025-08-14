@@ -16,6 +16,7 @@ import com.ptithcm2021.laptopshop.model.entity.Order;
 import com.ptithcm2021.laptopshop.model.entity.ProductDetail;
 import com.ptithcm2021.laptopshop.model.entity.Review;
 import com.ptithcm2021.laptopshop.model.entity.User;
+import com.ptithcm2021.laptopshop.model.enums.OrderStatusEnum;
 import com.ptithcm2021.laptopshop.repository.OrderRepository;
 import com.ptithcm2021.laptopshop.repository.ProductDetailRepository;
 import com.ptithcm2021.laptopshop.repository.ReviewRepository;
@@ -154,12 +155,18 @@ public class ReviewServiceImp implements ReviewService {
         ProductDetail productDetail = productDetailRepository
                 .findById(ratingRequest.getProductDetailId()).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.getReferenceById(userId);
 
         Order order = orderRepository.findById(ratingRequest.getOrderId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
+        if (order.getStatus()!= OrderStatusEnum.COMPLETED){
+            throw new AppException(ErrorCode.CANNOT_RATE_BEFORE_COMPLETED);
+        }
+
+        if (order.getUser().getId().equals(userId)) {
+            throw new AppException(ErrorCode.ORDER_CANNOT_MATCH_USER);
+        }
         Review review = reviewMapper.toReview(ratingRequest);
         review.setProductDetail(productDetail);
         review.setReviewer(user);
@@ -189,7 +196,7 @@ public class ReviewServiceImp implements ReviewService {
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
 
         if (!review.getReviewer().getId().equals(userId)) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
+            throw new AppException(ErrorCode.ORDER_CANNOT_MATCH_USER);
         }
 
         int oldRating = review.getRating();
@@ -223,5 +230,16 @@ public class ReviewServiceImp implements ReviewService {
                 .totalElements(reviews.getTotalElements())
                 .totalPages(reviews.getTotalPages())
                 .build();
+    }
+
+    @Override
+    public RatingResponse getRatingByOrderId(long orderId) {
+        String userId = FetchUserIdUtil.fetchUserId();
+        Review review = reviewRepository.findByOrderId((orderId))
+                .orElseThrow(() -> new AppException(ErrorCode.RATING_NOT_FOUND));
+        if(!review.getReviewer().getId().equals(userId)) {
+            throw new AppException(ErrorCode.ORDER_CANNOT_MATCH_USER);
+        }
+        return reviewMapper.toRatingResponse(review);
     }
 }

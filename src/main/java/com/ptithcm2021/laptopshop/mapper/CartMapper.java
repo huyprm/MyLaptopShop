@@ -12,6 +12,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", uses = ColorMapper.class)
 public interface CartMapper {
+    @Mapping(target = "productId", source = "productDetail.product.id")
     @Mapping(target = "productDetailId", source = "productDetail.id")
     @Mapping(target = "thumbnail", source = "productDetail.thumbnail")
     @Mapping(target = "title", source = "productDetail.title")

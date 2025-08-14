@@ -30,4 +30,6 @@ public interface ReviewService {
     RatingResponse updateRating(RatingRequest ratingRequest, long reviewId);
 
     PageWrapper<RatingResponse> getRatingsByProductDetailId(long productDetailId, int page, int size);
+
+    RatingResponse getRatingByOrderId(long orderId);
 }

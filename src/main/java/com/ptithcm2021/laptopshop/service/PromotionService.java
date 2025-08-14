@@ -26,7 +26,6 @@ public interface PromotionService {
 
     PromotionResponse getPromotion(long id);
 
-    @PreAuthorize("hasAnyAuthority('SCOPE_PERM_PROMOTION', 'SCOPE_OWNER')")
     PageWrapper<PromotionResponse> getPromotions(String keyword, PromotionStatusEnum status, PromotionTypeEnum promotionType, int page, int size);
 
     List<PromotionTypeEnum> getPromotionTypes();
@@ -37,6 +36,7 @@ public interface PromotionService {
     List<VoucherProjection> myVouchers();
 
     List<PromotionResponse> getProductPromotions(long id, PromotionStatusEnum statusEnum);
+    PromotionResponse getShopPromotionsIsActive();
 
     @PreAuthorize("hasAnyAuthority('SCOPE_USER', 'SCOPE_OWNER')")
     int applyPromotion(Long promotionId, String userId, int totalAmount, Consumer<Integer> setDiscountFn, @Nullable ProductDetail productDetail);

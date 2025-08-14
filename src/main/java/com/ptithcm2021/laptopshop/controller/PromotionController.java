@@ -104,5 +104,9 @@ public class PromotionController {
                 .data(promotionService.getPromotionDetailsByType(id, page, size)).build();
     }
 
-
+    @GetMapping("/shop-promotion/is-active")
+    public ApiResponse<PromotionResponse> getShopPromotionIsActive() {
+        return ApiResponse.<PromotionResponse>builder()
+                .data(promotionService.getShopPromotionsIsActive()).build();
+    }
 }

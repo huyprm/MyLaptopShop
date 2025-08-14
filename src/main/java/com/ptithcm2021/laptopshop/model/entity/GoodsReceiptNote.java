@@ -25,6 +25,10 @@ public class GoodsReceiptNote {
     private String code;
 
     private LocalDate receivedDate;
+
+    @CreatedDate
+    private LocalDateTime createdDate;
+
     private String note;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -6,6 +6,7 @@ import com.ptithcm2021.laptopshop.model.entity.Promotion;
 import com.ptithcm2021.laptopshop.model.entity.UserPromotion;
 import com.ptithcm2021.laptopshop.model.enums.PromotionStatusEnum;
 import com.ptithcm2021.laptopshop.model.enums.PromotionTypeEnum;
+import org.redisson.api.RScoredSortedSet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -137,4 +138,10 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
                                               @Param("status") String status,
                                               @Param("type") PromotionTypeEnum type,
                                               Pageable pageable);
+
+    @Query("SELECT p FROM Promotion p WHERE p.promotionType = 'SHOP_DISCOUNT' " +
+            "and p.startDate <= CURRENT_TIMESTAMP AND (p.endDate IS NULL OR p.endDate >= CURRENT_TIMESTAMP) " +
+            "ORDER BY p.endDate DESC NULLS FIRST " +
+            "limit 1")
+    Promotion findShopPromotion();
 }

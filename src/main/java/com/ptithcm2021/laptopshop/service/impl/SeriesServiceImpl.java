@@ -16,6 +16,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -85,7 +86,7 @@ public class SeriesServiceImpl implements SeriesService {
     @Override
     @Cacheable(value = "series", key = "'all'")
     public List<SeriesResponse> getAllSeries() {
-        return seriesRepository.findAll().stream().map(seriesMapper::toSeriesResponse).collect(Collectors.toList());
+        return seriesRepository.findAll(Sort.by(Sort.Direction.DESC, "date")).stream().map(seriesMapper::toSeriesResponse).collect(Collectors.toList());
     }
 
     private SeriesResponse addSeriesInternal(SeriesRequest seriesRequest, Brand brand) {

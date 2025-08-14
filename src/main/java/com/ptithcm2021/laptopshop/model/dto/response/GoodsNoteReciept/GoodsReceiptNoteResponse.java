@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -16,6 +17,7 @@ public class GoodsReceiptNoteResponse {
     private Long id;
     private String code;
     private LocalDate receivedDate;
+    private LocalDateTime createdDate;
     private String note;
     private String staffName;
     private String staffId;

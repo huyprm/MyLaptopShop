@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CartResponse {
+    private long productId;
     private long productDetailId;
     private Long productPromotionId;
     private String thumbnail;

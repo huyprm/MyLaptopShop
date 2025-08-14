@@ -87,7 +87,11 @@ public enum ErrorCode {
     LIST_PRODUCT_EMPTY(1077, "Product list cannot be empty",HttpStatus.BAD_REQUEST ),
     LIST_RANK_EMPTY(1078, "Rank list cannot be empty", HttpStatus.BAD_REQUEST),
     ORDER_CANNOT_BE_COMPLETED(1079, "Order cannot be completed", HttpStatus.BAD_REQUEST),
-    OTP_NOT_FOUND(1080, "Otp not found for user", HttpStatus.NOT_FOUND);
+    OTP_NOT_FOUND(1080, "Otp not found for user", HttpStatus.NOT_FOUND),
+    CANNOT_RATE_BEFORE_COMPLETED(1081, "Cannot rate before completed", HttpStatus.BAD_REQUEST),
+    RATING_NOT_FOUND(1082, "Rating note found", HttpStatus.NOT_FOUND),
+    ORDER_CANNOT_MATCH_USER(1083, "Order cannot belong to user", HttpStatus.CONFLICT),
+    SHOP_PROMOTION_ACTIVE(1084, "There is an active store promotion", HttpStatus.BAD_REQUEST);
 
     private final String message;
     private final int code;
