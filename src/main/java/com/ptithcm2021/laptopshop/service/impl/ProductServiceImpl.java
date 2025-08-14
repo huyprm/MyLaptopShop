@@ -52,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    @CachePut(value = "products", key = "'product:' + #result.id")
+    //@CachePut(value = "products", key = "'product:' + #result.id")
     public ProductResponse createProduct(ProductRequest request) {
         Product product = productMapper.toProduct(request);
         Brand brand = brandRepository.findById(request.getBrandId())
@@ -85,7 +85,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "products", key = "'product:'+ #productId", allEntries = false, beforeInvocation = true)
+    //@CacheEvict(value = "products", key = "'product:'+ #productId", allEntries = false, beforeInvocation = true)
     public ProductResponse updateProduct(UpdateProductRequest request, long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() ->  new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -120,7 +120,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @CacheEvict(value = "products", key = "'product:' + #id")
+    //@CacheEvict(value = "products", key = "'product:' + #id")
     public void deleteProduct(long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -134,7 +134,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Cacheable(value = "products",key = "'product:' + #id")
+    //@Cacheable(value = "products",key = "'product:' + #id")
     public ProductResponse getProduct(long id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         return productMapper.toResponse(product);
@@ -146,7 +146,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Cacheable(value = "products", key = "'page:' + #pageable.getPageNumber()", condition ="#pageable.pageNumber == 0" )
+    //@Cacheable(value = "products", key = "'page:' + #pageable.getPageNumber()", condition ="#pageable.pageNumber == 0" )
     public PageWrapper<ItemProductProjection> getItemProducts(Pageable pageable) {
         Page<ItemProductProjection> page = productRepository.findOneProductDetailOfProductProjection(pageable);
         return PageWrapper.<ItemProductProjection>builder()
@@ -159,11 +159,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Cacheable(
-            value = "products",
-            key = "'filterPage:' + #page + ':' + T(org.apache.commons.lang3.builder.HashCodeBuilder).reflectionHashCode(#request)",
-            condition = "#page == 0"
-    )
+//    @Cacheable(
+//            value = "products",
+//            key = "'filterPage:' + #page + ':' + T(org.apache.commons.lang3.builder.HashCodeBuilder).reflectionHashCode(#request)",
+//            condition = "#page == 0"
+//    )
 
     public PageWrapper<ItemProductResponse> getItemProductsFilter(int size, int page, ProductFilterRequest request) {
         String sortProperty = "createdDate";

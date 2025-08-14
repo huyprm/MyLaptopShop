@@ -43,7 +43,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     private final ProductMapper productMapper;
 
     @Override
-    @CachePut(value = "products", key = "'product:' + #productDetailRequest.productId")
+    //@CachePut(value = "products", key = "'product:' + #productDetailRequest.productId")
     @Transactional
     public ProductDetailResponse createProductDetail(ProductDetailRequest productDetailRequest) {
 
@@ -64,7 +64,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     }
 
     @Override
-    @CacheEvict(value = "products", key = "'product:' + #product.id", beforeInvocation = true)
+    //@CacheEvict(value = "products", key = "'product:' + #product.id", beforeInvocation = true)
+    //@CacheEvict(value = "products", allEntries = true)
     @Transactional
     public void updateProductDetail(UpdateProductDetailRequest request, Product product) {
         ProductDetail productDetail = productDetailRepository.findById(request.getId())
@@ -100,7 +101,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     }
 
     @Override
-    @CacheEvict(value = "products", allEntries = true)
+    //@CacheEvict(value = "products", allEntries = true)
     public void deleteProductDetail(long productDetailId) {
         if (!productDetailRepository.existsById(productDetailId)) {
             throw  new AppException(ErrorCode.PRODUCT_NOT_FOUND);

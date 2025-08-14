@@ -9,12 +9,10 @@ import com.ptithcm2021.laptopshop.exception.AppException;
 import com.ptithcm2021.laptopshop.exception.ErrorCode;
 import com.ptithcm2021.laptopshop.model.dto.request.LoginRequest;
 import com.ptithcm2021.laptopshop.model.dto.request.ResetPasswordRequest;
-import com.ptithcm2021.laptopshop.model.entity.LoginIdentifier;
-import com.ptithcm2021.laptopshop.model.entity.Permission;
-import com.ptithcm2021.laptopshop.model.entity.Role;
-import com.ptithcm2021.laptopshop.model.entity.User;
+import com.ptithcm2021.laptopshop.model.entity.*;
 import com.ptithcm2021.laptopshop.model.enums.LoginTypeEnum;
 import com.ptithcm2021.laptopshop.repository.LoginIdentifierRepository;
+import com.ptithcm2021.laptopshop.repository.RankLevelRepository;
 import com.ptithcm2021.laptopshop.repository.RoleRepository;
 import com.ptithcm2021.laptopshop.repository.UserRepository;
 import com.ptithcm2021.laptopshop.service.AuthenticationService;
@@ -49,6 +47,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final MailServiceImpl mailService;
     private final RoleRepository roleRepository;
+    private final RankLevelRepository rankLevelRepository;
 
     @Value("${jwt.signer_key}")
     protected String SIGNER_KEY;
@@ -288,11 +287,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private LoginIdentifier createUserWithIdentifier(String mail, LoginTypeEnum loginType, String lastName, String firstName) {
         Role role = roleRepository.findById("CUSTOMER").orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+        RankLevel defaultRank = rankLevelRepository.findByPriorityAndActive(1, true);
+
         User user= User.builder()
                 .firstName(firstName)
                 .lastName(lastName)
                 .email(mail)
                 .roles(Collections.singleton(role))
+                .currentRankLevel(defaultRank)
                 .build();
 
         LoginIdentifier loginIdentifier = LoginIdentifier.builder()

@@ -161,9 +161,10 @@ public class OrderServiceImpl implements OrderService {
 
         if (newStatus == OrderStatusEnum.CANCELED) {
             for (OrderDetail orderDetail : order.getOrderDetails()) {
+                Long productId = orderDetail.getProductDetail().getProduct().getId();
                 Long productDetailId = orderDetail.getProductDetail().getId();
                 inventoryRepository.increaseQuantity(productDetailId, orderDetail.getQuantity());
-                cacheService.evictSingleProduct(productDetailId);
+                cacheService.evictSingleProduct(productId);
             }
         }
 
@@ -388,7 +389,7 @@ public class OrderServiceImpl implements OrderService {
             totalPrice += price;
             totalQuantity += detailRequest.getQuantity();
 
-            cacheService.evictSingleProduct(productDetail.getId());
+            cacheService.evictSingleProduct(productDetail.getProduct().getId());
         }
         return new OrderDetailRecord(totalPrice, totalQuantity);
     }

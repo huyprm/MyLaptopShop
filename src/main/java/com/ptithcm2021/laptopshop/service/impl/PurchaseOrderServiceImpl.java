@@ -14,7 +14,9 @@ import com.ptithcm2021.laptopshop.service.PurchaseOrderService;
 import com.ptithcm2021.laptopshop.util.FetchUserIdUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -108,7 +110,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Override
     public PageWrapper<PurchaseOrderListResponse> getPurchaseOrders(int page, int size, PurchaseOrderStatusEnum statusEnum, String keyword) {
-        Pageable pageable = Pageable.ofSize(size).withPage(page);
+        Pageable pageable = PageRequest.of(page, size).withSort(Sort.by(Sort.Direction.DESC, "orderDate"));
 
         String wrappedKeyword = (keyword == null || keyword.isBlank()) ? null : "%" + keyword + "%";
 

@@ -50,7 +50,8 @@ public class DeliveryNoteServiceImpl implements DeliveryNoteService {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        if(order.getStatus() != OrderStatusEnum.PROCESSING){
+        if(order.getStatus() != OrderStatusEnum.PROCESSING
+                && order.getStatus() != OrderStatusEnum.PARTIALLY_DELIVERED) {
             throw new AppException(ErrorCode.ORDER_INVALID_STATUS);
         }
 
@@ -188,7 +189,9 @@ public class DeliveryNoteServiceImpl implements DeliveryNoteService {
 
     @Override
     public PageWrapper<DeliveryNoteResponse> getDeliveryNotesByOrderId(int page, int size, long orderId) {
-        Page<DeliveryNote> deliveryNotes = deliveryNoteRepository.findByOrderId(orderId, PageRequest.of(page, size));
+        Page<DeliveryNote> deliveryNotes = deliveryNoteRepository.findByOrderId(
+                orderId,
+                PageRequest.of(page, size).withSort(Sort.by(Sort.Direction.DESC, "date")));
         return PageWrapper.<DeliveryNoteResponse>builder()
                 .content(deliveryNotes.stream()
                         .map(deliveryNoteMapper::toDeliveryNoteResponse)
