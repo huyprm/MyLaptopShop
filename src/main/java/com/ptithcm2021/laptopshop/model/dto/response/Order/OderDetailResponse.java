@@ -20,4 +20,5 @@ public class OderDetailResponse {
     private String colorName;
     private String serialNumber;
     private Long productDetailId;
+    private Long productId;
 }

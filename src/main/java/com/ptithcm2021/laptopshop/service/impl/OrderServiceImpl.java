@@ -417,6 +417,7 @@ public class OrderServiceImpl implements OrderService {
                                 .quantity(detail.getQuantity())
                                 .originalPrice(detail.getOriginalPrice())
                                 .price(detail.getPrice())
+                                .productId(detail.getProductDetail().getProduct().getId())
                                 .build())
                         .collect(Collectors.toList()))
                 .build();
