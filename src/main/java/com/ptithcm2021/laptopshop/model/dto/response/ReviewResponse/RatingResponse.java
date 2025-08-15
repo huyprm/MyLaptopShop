@@ -15,6 +15,7 @@ public class RatingResponse {
     private String content;
     private int rating;
     private String username;
+    private String avatarUrl;
     private LocalDateTime reviewDate;
     private List<String> reviewImages;
 }

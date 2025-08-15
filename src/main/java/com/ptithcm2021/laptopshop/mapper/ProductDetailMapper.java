@@ -25,6 +25,7 @@ public interface ProductDetailMapper {
     @Mapping(target = "productId", source = "product.id")
     @Mapping(target = "itemImage", source = "images", qualifiedByName = "itemImage")
     @Mapping(target = "productDetailId", source = "id")
+    @Mapping(target = "quantity", source = "inventory.quantity")
     ItemProductResponse toItemProductResponse(ProductDetail productDetail);
 
     void updateProductDetail(UpdateProductDetailRequest productDetailRequest, @MappingTarget ProductDetail productDetail);

@@ -209,9 +209,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void sendOTPChangeEmail(String email) throws MessagingException {
         String userId = FetchUserIdUtil.fetchUserId();
-        if (!loginIdentifierRepository.existsByIdentifierValue(email)) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
 
         int otp = 100000 + new Random().nextInt(900000);
         redisTemplate.opsForValue().set("otp-change-email:" + userId, otp, Duration.ofMinutes(5));

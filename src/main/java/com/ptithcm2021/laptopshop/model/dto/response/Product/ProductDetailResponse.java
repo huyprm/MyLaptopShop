@@ -25,4 +25,5 @@ public class ProductDetailResponse {
     private List<String> images;
     private ConfigResponse config;
     private Integer quantity;
+    private String promotionIdMaxDiscount;
 }

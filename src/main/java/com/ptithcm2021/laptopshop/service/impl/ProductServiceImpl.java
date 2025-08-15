@@ -200,14 +200,11 @@ public class ProductServiceImpl implements ProductService {
             spec = spec.and((root, query, cb) -> root.get("id").in(matchedIds));
         }
 
-        Page<ProductDetail> result = productDetailRepository.findAll(spec, pageable);
+        Page<ItemProductResponse> result = productDetailRepository.findProducts(spec, pageable);
 
-        List<ItemProductResponse> responses = result.stream()
-                .map(productDetailMapper::toItemProductResponse)
-                .toList();
 
         return PageWrapper.<ItemProductResponse>builder()
-                .content(responses)
+                .content(result.getContent())
                 .totalElements(result.getTotalElements())
                 .pageSize(result.getSize())
                 .pageNumber(result.getNumber())

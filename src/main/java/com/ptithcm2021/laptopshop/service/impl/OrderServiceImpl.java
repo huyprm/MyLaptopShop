@@ -259,14 +259,31 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public PageWrapper<OrderListResponse> getAllOrders(int page, int size, OrderStatusEnum statusEnum, String keyword) {
+    public PageWrapper<OrderListResponse> getAllOrders(int page, int size,
+                                                       OrderStatusEnum statusEnum,
+                                                       String keyword,
+                                                       List<OrderStatusEnum> statuses) {
+
+        List<OrderStatusEnum> filterStatuses;
+
+        if (statuses != null && !statuses.isEmpty()) {
+            // Ưu tiên danh sách mới nếu có
+            filterStatuses = statuses;
+        } else if (statusEnum != null) {
+            // Giữ logic cũ
+            filterStatuses = List.of(statusEnum);
+        } else {
+            // Không lọc theo trạng thái
+            filterStatuses = Collections.emptyList();
+        }
+
         Pageable pageable = PageRequest.of(page, size).withSort(Sort.by(Sort.Direction.DESC, "createdDate"));
 
         String wrappedKeyword = keyword != null && !keyword.isBlank() ? "%" + keyword + "%" : null;
 
-        Page<Order> orders = orderRepository.findByCodeAndStatus(wrappedKeyword, statusEnum, pageable);
+        Page<OrderListResponse> orders = orderRepository.findByCodeAndStatus(wrappedKeyword, filterStatuses, pageable);
         return PageWrapper.<OrderListResponse>builder()
-                .content(orders.stream().map(orderMapper::toOrderListResponse).toList())
+                .content(orders.getContent())
                 .pageSize(orders.getSize())
                 .pageNumber(orders.getNumber())
                 .totalPages(orders.getTotalPages())

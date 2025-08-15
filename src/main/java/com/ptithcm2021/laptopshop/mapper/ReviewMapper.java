@@ -20,12 +20,14 @@ public interface ReviewMapper {
     @Mapping(target = "userId", source = "reviewer.id")
     @Mapping(target = "productDetailId", source = "productDetail.id")
     @Mapping(target = "childReviewResponses", ignore = true)
+    @Mapping(target = "avatarUrl", source = "reviewer.avatar")
     ParentReviewResponse toResponse(Review review);
 
     @Mapping(target = "username", source = "reviewer.fullName")
     @Mapping(target = "replyOnUser", source = "replyOnUser.fullName")
     @Mapping(target = "parentId", source = "parentReview.id")
     @Mapping(target = "userId", source = "reviewer.id")
+    @Mapping(target = "avatarUrl", source = "reviewer.avatar")
     ChildReviewResponse toChildResponse(Review review);
 
     @Named("username")
@@ -34,5 +36,6 @@ public interface ReviewMapper {
     }
 
     @Mapping(target = "username", source = "reviewer.fullName")
+    @Mapping(target = "avatarUrl", source = "reviewer.avatar")
     RatingResponse toRatingResponse(Review review);
 }

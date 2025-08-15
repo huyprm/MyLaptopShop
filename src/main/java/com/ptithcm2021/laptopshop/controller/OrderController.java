@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -95,10 +96,11 @@ public class OrderController {
     public ApiResponse<PageWrapper<OrderListResponse>> searchOrders(@RequestParam(required = false) String code,
                                                                     @RequestParam(required = false) OrderStatusEnum status,
                                                                     @RequestParam(defaultValue = "0") int page,
-                                                                    @RequestParam(defaultValue = "10") int size) {
+                                                                    @RequestParam(defaultValue = "10") int size,
+                                                                    @RequestParam(required = false) List<OrderStatusEnum> statuses) {
         return ApiResponse.<PageWrapper<OrderListResponse>>builder()
                 .message("Orders searched successfully")
-                .data(orderService.getAllOrders(page, size, status, code))
+                .data(orderService.getAllOrders(page, size, status, code, statuses))
                 .build();
     }
 }

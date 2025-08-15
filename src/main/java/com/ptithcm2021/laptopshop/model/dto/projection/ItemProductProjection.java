@@ -18,4 +18,5 @@ public interface ItemProductProjection {
     String getWarrantyProd();
 
     String getItemImage();
+
 }

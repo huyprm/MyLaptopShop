@@ -11,5 +11,6 @@ public interface OrderMapper {
     Order toOrder(OrderRequest orderRequest);
 
     @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "fullName", source = "user.fullName")
     OrderListResponse toOrderListResponse(Order order);
 }

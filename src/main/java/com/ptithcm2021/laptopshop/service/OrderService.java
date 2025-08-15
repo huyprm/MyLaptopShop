@@ -44,7 +44,7 @@ public interface OrderService {
     PaymentResponse changePaymentMethod(Long orderId, PaymentMethodEnum paymentMethodEnum) throws NoSuchAlgorithmException, InvalidKeyException;
 
     @PreAuthorize("hasAnyAuthority('SCOPE_OWNER', 'SCOPE_PERM_SALES')")
-    PageWrapper<OrderListResponse> getAllOrders(int page, int size, OrderStatusEnum statusEnum, String keyword);
+    PageWrapper<OrderListResponse> getAllOrders(int page, int size, OrderStatusEnum statusEnum, String keyword, List<OrderStatusEnum> statuses);
 
     @PreAuthorize("hasAnyAuthority('SCOPE_OWNER')")
     DashboardSummaryProjection getDashboardSummary();

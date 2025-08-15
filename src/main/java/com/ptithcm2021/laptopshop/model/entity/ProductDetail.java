@@ -63,4 +63,7 @@ public class ProductDetail {
 
     @OneToMany(mappedBy = "productDetail", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Review> review;
+
+    @Column(updatable = false, insertable = false)
+    private String promotionIdMaxDiscount;
 }

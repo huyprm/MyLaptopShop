@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -54,4 +55,31 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail,Lon
             """, nativeQuery = true)
     List<Long> findAllProductDetailIdsByKeyword(String keyword);
 
+    @Query("""
+    SELECT new com.ptithcm2021.laptopshop.model.dto.response.Product.ItemProductResponse(
+        p.id,
+        pd.id,
+        pd.originalPrice,
+        pd.discountPrice,
+        pd.thumbnail,
+        pd.totalRating,
+        pd.soldQuantity,
+        pd.title,
+        pd.warrantyProd,
+        img as itemImage,
+        pd.inventory.quantity,
+        pd.createdDate as createdDate,
+        pd.promotionIdMaxDiscount
+    )
+    FROM Product p
+    JOIN ProductDetail pd ON p.id = pd.product.id
+    JOIN pd.images img
+    WHERE img = (
+             SELECT MIN(i)
+             FROM ProductDetail pd2
+             JOIN pd2.images i
+             WHERE pd2.id = pd.id
+         )
+""")
+    Page<ItemProductResponse> findProducts(Specification<ProductDetail> spec, Pageable pageable);
 }

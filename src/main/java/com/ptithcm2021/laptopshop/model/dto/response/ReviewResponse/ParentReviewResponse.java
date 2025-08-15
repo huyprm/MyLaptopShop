@@ -16,6 +16,7 @@ public class ParentReviewResponse {
     private long id;
     private String content;
     private String userId;
+    private String avatarUrl;
     private String username;
     private long productDetailId;
     private LocalDateTime reviewDate;

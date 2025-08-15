@@ -5,6 +5,7 @@ import com.ptithcm2021.laptopshop.model.dto.projection.DashboardRevenueProjectio
 import com.ptithcm2021.laptopshop.model.dto.projection.DashboardSummaryProjection;
 import com.ptithcm2021.laptopshop.model.dto.projection.DashboardTopProductProjection;
 import com.ptithcm2021.laptopshop.model.dto.response.DashboardRevenueResponse;
+import com.ptithcm2021.laptopshop.model.dto.response.Order.OrderListResponse;
 import com.ptithcm2021.laptopshop.model.entity.Order;
 import com.ptithcm2021.laptopshop.model.entity.User;
 import com.ptithcm2021.laptopshop.model.enums.OrderStatusEnum;
@@ -38,9 +39,25 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<Order> findByCode(String code);
 
-    @Query("SELECT o FROM Order o WHERE (:code is null or o.code like :code) AND (:status is null or o.status = :status)")
-    Page<Order> findByCodeAndStatus(String code, OrderStatusEnum status, Pageable pageable);
-
+    @Query(value = """
+SELECT new com.ptithcm2021.laptopshop.model.dto.response.Order.OrderListResponse(
+                                  o.id,
+                                  o.code,
+                                  u.id AS string,
+                                  o.status,
+                                  o.createdDate,
+                                  o.paymentMethod,
+                                  o.note,
+                                  o.totalQuantity,
+                                  o.totalPrice,
+                                  u.fullName
+                              )
+FROM Order o JOIN User u on o.user.id = u.id
+WHERE (:code is null or o.code like :code) AND (:statuses is null or o.status in :statuses )
+""")
+    Page<OrderListResponse> findByCodeAndStatus(@Param("code") String code,
+                                                @Param("statuses") List<OrderStatusEnum> statuses,
+                                                Pageable pageable);
     @Query("""
         SELECT
             COUNT(DISTINCT o.id) AS totalOrders,

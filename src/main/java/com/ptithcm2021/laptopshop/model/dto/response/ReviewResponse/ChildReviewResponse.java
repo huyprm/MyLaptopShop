@@ -16,6 +16,7 @@ public class ChildReviewResponse {
     private long id;
     private long parentId;
     private String userId;
+    private String avatarUrl;
     private String username;
     private String replyOnUser;
     private LocalDateTime reviewDate;

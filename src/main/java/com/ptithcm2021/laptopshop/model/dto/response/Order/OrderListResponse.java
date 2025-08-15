@@ -23,4 +23,5 @@ public class OrderListResponse {
     private String note;
     private int totalQuantity;
     private int totalPrice;
+    private String fullName;
 }
