@@ -180,6 +180,7 @@ public class RankLevelServiceImpl implements RankLevelService {
                     upgraded = true;
                 }
             }
+
         } while (upgraded);
 
         userRepository.save(user);

@@ -77,4 +77,5 @@ public class RankLevelController {
                 .message("User's rank level retrieved successfully")
                 .build();
     }
+
 }
