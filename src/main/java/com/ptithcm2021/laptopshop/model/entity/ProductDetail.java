@@ -66,4 +66,7 @@ public class ProductDetail {
 
     @Column(updatable = false, insertable = false)
     private String promotionIdMaxDiscount;
+
+    @Builder.Default
+    private Boolean active = true;
 }

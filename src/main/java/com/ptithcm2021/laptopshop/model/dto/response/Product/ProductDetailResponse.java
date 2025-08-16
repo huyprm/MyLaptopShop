@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -26,4 +27,6 @@ public class ProductDetailResponse {
     private ConfigResponse config;
     private Integer quantity;
     private String promotionIdMaxDiscount;
+    private LocalDateTime createdDate;
+    private boolean active;
 }

@@ -27,6 +27,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
 
@@ -102,16 +103,16 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Override
     //@CacheEvict(value = "products", allEntries = true)
+    @Transactional
     public void deleteProductDetail(long productDetailId) {
-        if (!productDetailRepository.existsById(productDetailId)) {
-            throw  new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-        }
+        ProductDetail productDetail = productDetailRepository.findById(productDetailId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         try{
-            productDetailRepository.deleteById(productDetailId);
+            productDetailRepository.delete(productDetail);
         }catch (Exception e){
             log.error("Delete product detail failed: " + e.getMessage());
-            throw new AppException(ErrorCode.CANNOT_DELETE);
+            productDetail.setActive(false);
         }
     }
 

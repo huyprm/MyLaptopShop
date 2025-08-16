@@ -69,7 +69,8 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail,Lon
         img as itemImage,
         pd.inventory.quantity as quantity,
         pd.createdDate as createdDate,
-        pd.promotionIdMaxDiscount as promotionIdMaxDiscount
+        pd.promotionIdMaxDiscount as promotionIdMaxDiscount,
+        pd.active as active
     )
     FROM Product p
     JOIN ProductDetail pd ON p.id = pd.product.id

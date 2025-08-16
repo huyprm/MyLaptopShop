@@ -24,4 +24,5 @@ public class ItemProductResponse {
     private int quantity;
     private LocalDateTime createdDate;
     private String promotionIdMaxDiscount;
+    private boolean active;
 }
