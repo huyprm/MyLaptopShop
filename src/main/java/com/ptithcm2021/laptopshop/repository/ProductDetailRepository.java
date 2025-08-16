@@ -41,7 +41,8 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail,Lon
             i.quantity as quantity
         FROM ProductDetail pd
         JOIN Inventory i ON pd.id = i.productDetail.id
-        WHERE i.quantity < :threshold
+        WHERE pd.active = true
+        and i.quantity < :threshold
         ORDER BY i.quantity ASC
         LIMIT :limit
 """)

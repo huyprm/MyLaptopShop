@@ -27,6 +27,7 @@ public class ProductDetailSpecification {
             // Join Config
             Join<ProductDetail, Config> configJoin = root.join("config", JoinType.LEFT);
 
+            predicates.add(cb.equal(root.get("active"), true)); // Chỉ lấy các ProductDetail đang hoạt động
             // Category filter
             if (filter.getCategoryId() != null) {
                 predicates.add(cb.equal(categoryJoin.get("id"), filter.getCategoryId()));
