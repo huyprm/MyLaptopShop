@@ -57,19 +57,19 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail,Lon
 
     @Query("""
     SELECT new com.ptithcm2021.laptopshop.model.dto.response.Product.ItemProductResponse(
-        p.id,
-        pd.id,
-        pd.originalPrice,
-        pd.discountPrice,
-        pd.thumbnail,
-        pd.totalRating,
-        pd.soldQuantity,
-        pd.title,
-        pd.warrantyProd,
+        p.id as productId,
+        pd.id as productDetailId,
+        pd.originalPrice as originalPrice,
+        pd.discountPrice as discountPrice,
+        pd.thumbnail as thumbnail,
+        pd.totalRating as totalRating,
+        pd.soldQuantity as soldQuantity,
+        pd.title as title,
+        pd.warrantyProd as warrantyProd,
         img as itemImage,
-        pd.inventory.quantity,
+        pd.inventory.quantity as quantity,
         pd.createdDate as createdDate,
-        pd.promotionIdMaxDiscount
+        pd.promotionIdMaxDiscount as promotionIdMaxDiscount
     )
     FROM Product p
     JOIN ProductDetail pd ON p.id = pd.product.id
