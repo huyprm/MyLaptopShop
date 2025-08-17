@@ -27,7 +27,8 @@ public class ProductDetailSpecification {
             // Join Config
             Join<ProductDetail, Config> configJoin = root.join("config", JoinType.LEFT);
 
-            predicates.add(cb.equal(root.get("active"), true)); // Chỉ lấy các ProductDetail đang hoạt động
+            predicates.add(cb.equal(root.get("active"), Boolean.TRUE));
+
             // Category filter
             if (filter.getCategoryId() != null) {
                 predicates.add(cb.equal(categoryJoin.get("id"), filter.getCategoryId()));
@@ -69,6 +70,7 @@ public class ProductDetailSpecification {
             Subquery<Long> subquery = query.subquery(Long.class);
             Root<ProductDetail> subRoot = subquery.from(ProductDetail.class);
             subquery.select(cb.min(subRoot.get("id")));
+            subquery.where(cb.equal(subRoot.get("active"), Boolean.TRUE));
             subquery.groupBy(subRoot.get("product").get("id"));
 
             predicates.add(root.get("id").in(subquery));

@@ -103,7 +103,6 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Override
     //@CacheEvict(value = "products", allEntries = true)
-    @Transactional
     public void deleteProductDetail(long productDetailId) {
         ProductDetail productDetail = productDetailRepository.findById(productDetailId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -113,6 +112,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         }catch (Exception e){
             log.error("Delete product detail failed: " + e.getMessage());
             productDetail.setActive(false);
+            productDetailRepository.save(productDetail);
         }
     }
 

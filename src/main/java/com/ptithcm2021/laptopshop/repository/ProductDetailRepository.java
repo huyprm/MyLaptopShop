@@ -52,36 +52,11 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail,Lon
     @Query(value = """
                     SELECT pd.id
                     FROM product_details pd
-                    WHERE (:keyword IS NULL OR to_tsvector('simple', pd.title) @@ plainto_tsquery('simple', :keyword))
+                    WHERE pd.active = true
+                    AND  (:keyword IS NULL OR to_tsvector('simple', pd.title) @@ plainto_tsquery('simple', :keyword))
             """, nativeQuery = true)
     List<Long> findAllProductDetailIdsByKeyword(String keyword);
 
-    @Query("""
-    SELECT new com.ptithcm2021.laptopshop.model.dto.response.Product.ItemProductResponse(
-        p.id as productId,
-        pd.id as productDetailId,
-        pd.originalPrice as originalPrice,
-        pd.discountPrice as discountPrice,
-        pd.thumbnail as thumbnail,
-        pd.totalRating as totalRating,
-        pd.soldQuantity as soldQuantity,
-        pd.title as title,
-        pd.warrantyProd as warrantyProd,
-        img as itemImage,
-        pd.inventory.quantity as quantity,
-        pd.createdDate as createdDate,
-        pd.promotionIdMaxDiscount as promotionIdMaxDiscount,
-        pd.active as active
-    )
-    FROM Product p
-    JOIN ProductDetail pd ON p.id = pd.product.id
-    JOIN pd.images img
-    WHERE img = (
-             SELECT MIN(i)
-             FROM ProductDetail pd2
-             JOIN pd2.images i
-             WHERE pd2.id = pd.id
-         )
-""")
-    Page<ItemProductResponse> findProducts(Specification<ProductDetail> spec, Pageable pageable);
+    Page<ProductDetail> findAll(Specification<ProductDetail> spec, Pageable pageable);
+
 }
