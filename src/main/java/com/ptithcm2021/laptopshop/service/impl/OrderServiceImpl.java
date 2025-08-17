@@ -274,7 +274,7 @@ public class OrderServiceImpl implements OrderService {
             filterStatuses = List.of(statusEnum);
         } else {
             // Không lọc theo trạng thái
-            filterStatuses = Collections.emptyList();
+            filterStatuses = null;
         }
 
         Pageable pageable = PageRequest.of(page, size).withSort(Sort.by(Sort.Direction.DESC, "createdDate"));
