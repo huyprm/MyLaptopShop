@@ -50,7 +50,7 @@ SELECT new com.ptithcm2021.laptopshop.model.dto.response.Order.OrderListResponse
                                   o.note,
                                   o.totalQuantity,
                                   o.totalPrice,
-                                  u.fullName
+                                  u.fullName   
                               )
 FROM Order o JOIN User u on o.user.id = u.id
 WHERE (:code is null or o.code like :code) AND (:statuses is null or o.status in :statuses )
@@ -58,6 +58,7 @@ WHERE (:code is null or o.code like :code) AND (:statuses is null or o.status in
     Page<OrderListResponse> findByCodeAndStatus(@Param("code") String code,
                                                 @Param("statuses") List<OrderStatusEnum> statuses,
                                                 Pageable pageable);
+
     @Query("""
         SELECT
             COUNT(DISTINCT o.id) AS totalOrders,

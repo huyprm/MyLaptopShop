@@ -41,7 +41,7 @@ public class MomoPaymentStrategy implements PaymentStrategy {
     @Override
     public PaymentResponse pay(PaymentRequest request) throws NoSuchAlgorithmException, InvalidKeyException {
         String requestId = UUID.randomUUID().toString();
-        String redirectUrl = "http://localhost:5173";
+        String redirectUrl = "https://www.mylaptopshop.me/user/orders";
         String ipnUrl = "https://dev.api.mylaptopshop.me/api/payment/callback/momo";
 
         Map<String, String> rawDataMap = new LinkedHashMap<>();
