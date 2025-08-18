@@ -141,6 +141,7 @@ public class ReviewServiceImp implements ReviewService {
 
         try {
             reviewRepository.deleteById(reviewId);
+            simpMessagingTemplate.convertAndSend("/topic/delete-comments/" + review.getProductDetail().getId(), "Review with ID " + reviewId + " deleted");
         } catch (Exception e) {
             throw new AppException(ErrorCode.CANNOT_DELETE);
         }

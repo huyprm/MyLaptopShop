@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,10 +25,10 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService reviewService;
 
-    //@MessageMapping("/comment")
-    //@SendTo("/topic/comments")
+//    @MessageMapping("/comment")
+//    @SendTo("/topic/comments")
     @PostMapping("/comment")
-    public ApiResponse<ParentReviewResponse> comment(@RequestBody @Valid CommentRequest request) {
+    public ApiResponse<ParentReviewResponse> comment( @RequestBody @Valid CommentRequest request) {
         return ApiResponse.<ParentReviewResponse>builder().data(reviewService.addComment(request)).build();
     }
 
