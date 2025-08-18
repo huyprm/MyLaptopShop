@@ -68,7 +68,10 @@ public class SecurityConfig {
             return corsConfiguration;
         }));
 
-        http.csrf(AbstractHttpConfigurer::disable);
+        http.csrf(csrf ->csrf
+                .ignoringRequestMatchers("/ws/**")
+                .disable()
+        );
         return http.build();
     }
 }
