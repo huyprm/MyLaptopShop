@@ -26,7 +26,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/ws/**", "/topic/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/users/create").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/promotions/product-detail/**").permitAll()
