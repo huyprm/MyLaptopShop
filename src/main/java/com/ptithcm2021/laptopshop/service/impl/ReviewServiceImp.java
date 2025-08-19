@@ -170,10 +170,12 @@ public class ReviewServiceImp implements ReviewService {
         if (!order.getUser().getId().equals(userId)) {
             throw new AppException(ErrorCode.ORDER_CANNOT_MATCH_USER);
         }
+
         Review review = reviewMapper.toReview(ratingRequest);
         review.setProductDetail(productDetail);
         review.setReviewer(user);
         review.setOrder(order);
+        review.setReviewImages(ratingRequest.getReviewImage());
 
         reviewRepository.save(review);
 

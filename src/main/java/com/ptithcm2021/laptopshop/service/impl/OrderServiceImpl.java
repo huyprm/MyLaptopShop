@@ -33,11 +33,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -61,6 +63,7 @@ public class OrderServiceImpl implements OrderService {
     private final SerialProductItemRepository serialProductItemRepository;
     private final GoodsReceiptNoteRepository goodsReceiptNoteRepository;
     private final EventPublisherHelper eventPublisherHelper;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     @Transactional
@@ -124,6 +127,8 @@ public class OrderServiceImpl implements OrderService {
         if (!orderRequest.getPaymentMethod().equals(PaymentMethodEnum.COD)){
             PaymentResponse paymentResponse = handlePayment(order.getId(), orderRequest.getPaymentMethod(), totalPrice, user.getId());
             response.setPayUrl(paymentResponse.getPayUrl());
+
+            redisTemplate.opsForValue().set("order-payUrl:"+order.getId().toString(), paymentResponse.getPayUrl(), Duration.ofMinutes(10));
         }
 
         return response;
@@ -252,7 +257,18 @@ public class OrderServiceImpl implements OrderService {
             throw new AppException(ErrorCode.CANNOT_PAYMENT);
         }
 
-        return handlePayment(orderId, order.getPaymentMethod(), order.getTotalPrice(), order.getUser().getId());
+        Object payUrl = redisTemplate.opsForValue().get("order-payUrl:" + orderId);
+        if (payUrl != null) {
+            return PaymentResponse.builder()
+                    .payUrl(payUrl.toString())
+                    .build();
+        }
+
+        PaymentResponse paymentResponse = handlePayment(orderId, order.getPaymentMethod(), order.getTotalPrice(), order.getUser().getId());
+
+        redisTemplate.opsForValue().set("order-payUrl:"+order.getId().toString(), paymentResponse.getPayUrl(), Duration.ofMinutes(10));
+
+        return paymentResponse;
     }
 
     @Override
