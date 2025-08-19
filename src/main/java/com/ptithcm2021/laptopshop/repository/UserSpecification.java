@@ -20,14 +20,17 @@ public class UserSpecification {
                 predicates.add(cb.or(namePredicate, emailPredicate));
             }
 
-            Join<User, Role> rolesJoin = root.join("roles");
             if(roleId != null && !roleId.isBlank()) {
+                Join<User, Role> rolesJoin = root.join("roles");
                 predicates.add(cb.equal(rolesJoin.get("id"), roleId));
             }
 
             if(blocked != null) {
                 predicates.add(cb.equal(root.get("blocked"), blocked));
             }
+
+            assert query != null;
+            query.distinct(true);
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
