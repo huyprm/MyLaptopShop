@@ -22,12 +22,13 @@ spring:
           id:
             new_generator_mappings: true
           ddl-auto: update
-          show_sql: false
+          show_sql: true
           jdbc:
             batch_size: 100
             order_inserts: true
             order_updates: true
             batch_versioned_data: true
+          format_sql: false
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -87,7 +88,7 @@ momo:
   public-key: ${MOMO_PUBLIC_KEY}
   endpoint: ${MOMO_ENDPOINT}
 
-logging:
-  level:
-    root: warn
+#logging:
+#  level:
+#    root: warn
 

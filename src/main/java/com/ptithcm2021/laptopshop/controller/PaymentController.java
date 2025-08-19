@@ -9,6 +9,7 @@ import com.ptithcm2021.laptopshop.service.OrderService;
 import com.ptithcm2021.laptopshop.util.ValidPaymentSignature;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.juli.logging.Log;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +33,7 @@ public class PaymentController {
     @PostMapping("/callback/momo")
     public ApiResponse<Void> momo(@RequestBody Map<String, String> request) throws NoSuchAlgorithmException, InvalidKeyException {
 
+        log.info("momo");
         // Xử lý callback từ Momo
         if (!ValidPaymentSignature.isValidMomoSignature(request, secretKey, accessKey)){
             throw new RuntimeException("Invalid Momo signature");
@@ -41,6 +43,9 @@ public class PaymentController {
 
 //        String userId = request.get("extraData");
 //        Integer amount = Integer.parseInt(request.get("amount"));
+
+        log.info("momo orderId: {}", orderId);
+        log.info("momo resultCode: {}", resultCode);
 
         if(resultCode == 0){
             publisher.publish(new PaymentSuccessEvent(orderId));
