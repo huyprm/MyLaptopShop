@@ -15,6 +15,6 @@ public class OrderEventListener {
     @Async
     @EventListener
     public void handle(PaymentSuccessEvent event) {
-        orderService.changeOrderStatus(event.getOrderId(), OrderStatusEnum.AWAITING);
+        orderService.doChangeOrderStatusToAwaiting(event.getOrderId());
     }
 }

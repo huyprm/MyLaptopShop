@@ -172,6 +172,18 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
     }
 
+    @Override
+    public void doChangeOrderStatusToAwaiting(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        if (order.getStatus() != OrderStatusEnum.PENDING) {
+            throw new AppException(ErrorCode.ORDER_CANNOT_BE_CHANGED);
+        }
+
+        order.setStatus(OrderStatusEnum.AWAITING);
+        orderRepository.save(order);
+    }
 
 
     @Transactional

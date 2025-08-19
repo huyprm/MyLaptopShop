@@ -24,6 +24,8 @@ public interface OrderService {
     @PreAuthorize("hasAnyAuthority('SCOPE_USER', 'SCOPE_OWNER', 'SCOPE_PERM_SALES')")
     void changeOrderStatus(Long orderId, OrderStatusEnum status);
 
+    void doChangeOrderStatusToAwaiting(Long orderId);
+
     void removeOrder();
 
     @PreAuthorize("hasAnyAuthority('SCOPE_USER', 'SCOPE_OWNER', 'SCOPE_PERM_SALES')")
