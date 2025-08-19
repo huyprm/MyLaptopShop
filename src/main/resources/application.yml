@@ -22,7 +22,7 @@ spring:
           id:
             new_generator_mappings: true
           ddl-auto: update
-          show_sql: true
+          show_sql: false
           jdbc:
             batch_size: 100
             order_inserts: true
@@ -90,5 +90,5 @@ momo:
 
 #logging:
 #  level:
-#    root: warn
+#    root: error
 
